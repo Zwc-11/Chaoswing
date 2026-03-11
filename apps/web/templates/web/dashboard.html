@@ -28,7 +28,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h</div>1 class="wordmark-title">ChaosWing</h1>
+                    <h1 class="wordmark-title">ChaosWing</h1>
                     <p class="wordmark-subtitle">Butterfly Effect Engine</p>
                 </div>
             </a>
@@ -176,7 +176,7 @@
             <section class="rail-section rail-section--samples" aria-labelledby="samples-heading">
                 <div class="section-heading section-heading--inline">
                     <div>
-                        <p class="eyebrow">Starter</div> markets</p>
+                        <p class="eyebrow">Starter markets</p>
                         <h3 class="section-title" id="samples-heading">Quick starts</h3>
                     </div>
                     <p class="section-copy" aria-hidden="true">Tap to load</p>
@@ -361,4 +361,284 @@
 
                 <!-- Toolbar -->
                 <div class="graph-toolbar" role="toolbar" aria-label="Graph toolbar">
-                    <button class="button button--ghost button--compact"
+                    <button class="button button--ghost button--compact" id="fit-view" type="button" title="Fit graph to view (F)">Fit</button>
+                    <button class="button button--ghost button--compact" id="relayout-graph" type="button" title="Re-run layout (R)">Layout</button>
+                    <button class="button button--ghost button--compact" id="toolbar-edge-labels" type="button" title="Toggle edge labels (L)">Labels</button>
+                    <button class="button button--ghost button--compact" id="focus-strongest-path" type="button" title="Highlight strongest impact path (P)">Path</button>
+                </div>
+
+                <!-- Bottom HUD -->
+                <div class="stage-hud stage-hud--bottom" aria-hidden="true">
+                    <div class="metric-strip">
+                        <div class="metric-pill">
+                            <span class="metric-pill__label">Visible graph</span>
+                            <span class="metric-pill__value" id="graph-stats">No graph loaded yet</span>
+                        </div>
+                        <div class="metric-pill metric-pill--shortcuts">
+                            <span class="metric-pill__label">Keyboard</span>
+                            <span class="metric-pill__value shortcut-list">
+                                <kbd>F</kbd><span>Fit</span>
+                                <kbd>R</kbd><span>Layout</span>
+                                <kbd>L</kbd><span>Labels</span>
+                                <kbd>P</kbd><span>Path</span>
+                                <kbd>H</kbd><span>History</span>
+                                <kbd>Esc</kbd><span>Clear</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <ul class="legend" aria-label="Graph legend">
+                        {% for node_type in node_types %}
+                        <li>
+                            <span class="legend__swatch legend__swatch--{{ node_type.css_class }}" aria-hidden="true"></span>
+                            {{ node_type.label }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Graph canvas -->
+                <div class="graph-stage__canvas" id="graph-canvas" role="img" aria-label="Interactive butterfly graph"></div>
+
+                <!-- ── Empty state overlay ── -->
+                <div class="graph-stage__overlay graph-stage__overlay--empty" id="graph-empty-state" role="region" aria-label="Empty graph workspace">
+                    <div class="empty-state">
+                        <div class="empty-state__icon" aria-hidden="true">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(14,165,233,0.5);">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 9C12 9 9 4 4 4s-4 5-4 8 2.5 6 6 6"/>
+                                <path d="M12 9C12 9 15 4 20 4s4 5 4 8-2.5 6-6 6"/>
+                                <path d="M12 15C12 15 9 20 4 20s-4-5-4-8"/>
+                                <path d="M12 15C12 15 15 20 20 20s4-5 4-8"/>
+                            </svg>
+                        </div>
+                        <p class="eyebrow">Graph workspace</p>
+                        <h3 class="empty-state__title" id="empty-state-title">Load a Polymarket event to wake up the graph.</h3>
+                        <p class="empty-state__copy" id="empty-state-copy">
+                            ChaosWing renders a live butterfly graph with related entities, evidence, rules, and indirect hypotheses — all connected by typed causal edges.
+                        </p>
+                        <div class="chip-list chip-list--center">
+                            {% for link in sample_links %}
+                            <button class="chip sample-link" data-url="{{ link.url }}" type="button">
+                                {{ link.label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <button class="button button--primary" id="empty-load-button" type="button">Load Butterfly Graph</button>
+                    </div>
+                </div>
+
+                <!-- ── Loading state overlay ── -->
+                <div class="graph-stage__overlay graph-stage__overlay--loading" id="graph-loading-state" hidden role="status" aria-label="Loading graph">
+                    <div class="loading-panel">
+                        <div class="loading-panel__header" aria-hidden="true">
+                            <div class="skeleton-bar skeleton-bar--wide"></div>
+                            <div class="skeleton-bar skeleton-bar--medium"></div>
+                        </div>
+                        <div class="skeleton-network" aria-hidden="true">
+                            <span class="skeleton-node"></span>
+                            <span class="skeleton-node"></span>
+                            <span class="skeleton-node"></span>
+                            <span class="skeleton-node skeleton-node--large"></span>
+                            <span class="skeleton-node"></span>
+                        </div>
+                        <div class="load-steps" aria-label="Loading progress">
+                            <div class="load-step" id="load-step-1">
+                                <span class="load-step__dot" aria-hidden="true"></span>
+                                <span>Resolving Polymarket event…</span>
+                            </div>
+                            <div class="load-step" id="load-step-2">
+                                <span class="load-step__dot" aria-hidden="true"></span>
+                                <span>Discovering related markets…</span>
+                            </div>
+                            <div class="load-step" id="load-step-3">
+                                <span class="load-step__dot" aria-hidden="true"></span>
+                                <span>Building causal graph…</span>
+                            </div>
+                            <div class="load-step" id="load-step-4">
+                                <span class="load-step__dot" aria-hidden="true"></span>
+                                <span>Rendering butterfly layout…</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Error state overlay ── -->
+                <div class="graph-stage__overlay graph-stage__overlay--error" id="graph-error-state" hidden role="alert">
+                    <div class="empty-state empty-state--error">
+                        <div class="empty-state__icon empty-state__icon--error" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: rgba(251,113,133,0.7);">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <p class="eyebrow">Load error</p>
+                        <h3 class="empty-state__title">The graph request could not complete.</h3>
+                        <p class="empty-state__copy" id="graph-error-copy">
+                            Check the input URL or load one of the sample markets to continue.
+                        </p>
+                        <div class="empty-state__actions">
+                            <button class="button button--ghost" id="error-load-sample" type="button">Load a sample market</button>
+                            <button class="button button--ghost" id="error-retry-button" type="button">Retry last URL</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ── RIGHT PANEL: Inspector Dock ──────────────────────────── -->
+        <aside class="inspector-dock" aria-labelledby="inspector-title">
+            <div class="inspector-shell">
+                <div class="inspector-shell__header">
+                    <div class="inspector-shell__heading">
+                        <p class="eyebrow">Selection profile</p>
+                        <h2 class="inspector-shell__title" id="inspector-title">Selection</h2>
+                        <p class="inspector-shell__status" id="inspector-shell-status">No active preview yet.</p>
+                    </div>
+                    <div class="inspector-shell__actions">
+                        <span class="selection-state selection-state--idle" id="selection-state-badge">Idle</span>
+                        <button class="button button--ghost button--compact" id="clear-selection" type="button" hidden aria-label="Clear current selection">
+                            Clear focus
+                        </button>
+                    </div>
+                </div>
+
+                <div class="inspector-shell__body">
+                    <div class="inspector-content" id="inspector-content">
+                        {% include "web/partials/inspector_empty.html" with shortcut_hints=shortcut_hints %}
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         RUN HISTORY DRAWER
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="run-history-backdrop" id="run-history-backdrop" hidden aria-hidden="true"></div>
+
+    <aside
+        class="run-history-drawer"
+        id="run-history-drawer"
+        hidden
+        aria-label="Run history"
+        aria-modal="true"
+        role="dialog"
+    >
+        <div class="run-history-drawer__header">
+            <div class="run-history-drawer__heading">
+                <p class="eyebrow">Saved runs</p>
+                <h2 class="run-history-drawer__title">Run history</h2>
+                <p class="run-history-drawer__meta" id="run-history-meta">
+                    {% if total_runs > 0 %}{{ total_runs }} saved graph{{ total_runs|pluralize }}{% else %}No runs yet{% endif %}
+                </p>
+            </div>
+            <button
+                class="button button--ghost button--compact"
+                id="close-history-button"
+                type="button"
+                aria-label="Close run history"
+            >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Close
+            </button>
+        </div>
+
+        <div class="run-history-drawer__body">
+            <div id="run-history-list" aria-live="polite" aria-label="Run history list">
+                {% if recent_runs %}
+                    {% for run in recent_runs %}
+                    <button
+                        class="run-history-item"
+                        type="button"
+                        data-run-id="{{ run.id }}"
+                        data-run-url="{{ run.source_url }}"
+                        style="--item-delay: {{ forloop.counter0|stringformat:'d' }}0ms"
+                        aria-label="Load {{ run.event_title }}"
+                    >
+                        <div class="run-history-item__main">
+                            <span class="run-history-item__title">{{ run.event_title }}</span>
+                            <span class="run-history-item__url">{{ run.source_url|truncatechars:48 }}</span>
+                        </div>
+                        <div class="run-history-item__meta">
+                            <span class="run-history-item__mode
+                                {% if 'resolved' in run.mode %}run-history-item__mode--resolved{% endif %}">
+                                {{ run.mode }}
+                            </span>
+                            <span class="run-history-item__date">{{ run.created_at }}</span>
+                        </div>
+                        <span class="run-history-item__arrow" aria-hidden="true">→</span>
+                    </button>
+                    {% endfor %}
+                {% else %}
+                    <div class="run-history-empty">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-muted); margin: 0 auto;" aria-hidden="true">
+                            <polyline points="12 8 12 12 14 14"/>
+                            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/>
+                        </svg>
+                        <p>No runs yet.</p>
+                        <p class="run-history-empty__sub">Load a Polymarket event to create your first graph run.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         KEYBOARD SHORTCUTS OVERLAY
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="shortcut-overlay" id="shortcut-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="shortcut-overlay-title">
+        <div class="shortcut-overlay__panel">
+            <div class="shortcut-overlay__header">
+                <h2 class="shortcut-overlay__title" id="shortcut-overlay-title">Keyboard shortcuts</h2>
+                <button class="button button--ghost button--compact" id="close-shortcuts-button" type="button" aria-label="Close keyboard shortcuts">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="shortcut-overlay__grid">
+                <div class="shortcut-group">
+                    <p class="shortcut-group__label">Graph</p>
+                    <div class="shortcut-item"><kbd>F</kbd><span>Fit graph to view</span></div>
+                    <div class="shortcut-item"><kbd>R</kbd><span>Re-run layout</span></div>
+                    <div class="shortcut-item"><kbd>L</kbd><span>Toggle edge labels</span></div>
+                    <div class="shortcut-item"><kbd>P</kbd><span>Highlight strongest path</span></div>
+                </div>
+                <div class="shortcut-group">
+                    <p class="shortcut-group__label">Navigation</p>
+                    <div class="shortcut-item"><kbd>H</kbd><span>Open run history</span></div>
+                    <div class="shortcut-item"><kbd>?</kbd><span>Show this overlay</span></div>
+                    <div class="shortcut-item"><kbd>Esc</kbd><span>Clear selection / close</span></div>
+                </div>
+                <div class="shortcut-group">
+                    <p class="shortcut-group__label">Inspection</p>
+                    <div class="shortcut-item"><span class="shortcut-mouse">Hover</span><span>Preview a node</span></div>
+                    <div class="shortcut-item"><span class="shortcut-mouse">Click</span><span>Lock selection</span></div>
+                    <div class="shortcut-item"><span class="shortcut-mouse">Scroll</span><span>Zoom in / out</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TOAST NOTIFICATION CONTAINER
+         ══════════════════════════════════════════════════════════════════ -->
+    <div
+        class="toast-container"
+        id="toast-container"
+        role="region"
+        aria-label="Notifications"
+        aria-live="assertive"
+        aria-atomic="false"
+    ></div>
+
+</div>
+{% endblock %}
