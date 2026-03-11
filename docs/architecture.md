@@ -4,7 +4,7 @@ ChaosWing is a Django-driven product shell wrapped around a graph-construction w
 
 ## High-Level System Architecture
 
-- `GET /` redirects to `/app/`
+- `GET /` renders the public landing page
 - `GET /app/` renders the dashboard shell and initial inspector partial
 - `POST /api/v1/graph/from-url/` resolves a Polymarket event, builds a graph, optionally runs the agent, and persists the run
 - `GET /api/v1/runs/<uuid>/` returns a saved graph run

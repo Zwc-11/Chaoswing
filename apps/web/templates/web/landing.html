@@ -1,15 +1,15 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.">
-    <meta property="og:title" content="ChaosWing — Butterfly Effect Engine for Prediction Markets">
+    <meta property="og:title" content="ChaosWing - Butterfly Effect Engine for Prediction Markets">
     <meta property="og:description" content="Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <title>ChaosWing — Butterfly Effect Engine for Prediction Markets</title>
+    <title>ChaosWing - Butterfly Effect Engine for Prediction Markets</title>
     {% now "U" as asset_version %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
 </head>
 <body class="lp">
 
-    <!-- ── Navigation ──────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <nav class="lp-nav" id="lp-nav" aria-label="Main navigation">
         <a class="lp-nav__brand" href="{% url 'web:landing' %}">
             <span class="lp-nav__icon" aria-hidden="true">
@@ -36,20 +36,20 @@
             <span class="lp-nav__name">ChaosWing</span>
         </a>
 
-        <nav class="lp-nav__links" aria-label="Navigation links">
+        <div class="lp-nav__links" aria-label="Navigation links">
             <a class="lp-nav__link" href="#features">Features</a>
             <a class="lp-nav__link" href="#how-it-works">How it works</a>
             <a class="lp-nav__link" href="#markets">Markets</a>
-            <a class="lp-nav__link" href="https://github.com" rel="noreferrer" target="_blank">GitHub</a>
-        </nav>
+            <a class="lp-nav__link" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">GitHub</a>
+        </div>
 
         <a class="lp-nav__cta" href="{% url 'web:dashboard' %}">
             Launch App
-            <span class="lp-nav__cta-arrow" aria-hidden="true">→</span>
+            <span class="lp-nav__cta-arrow" aria-hidden="true">&rarr;</span>
         </a>
     </nav>
 
-    <!-- ── Hero ────────────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-hero" aria-labelledby="hero-headline">
 
         <!-- Aurora background orbs -->
@@ -63,13 +63,13 @@
         <div class="lp-hero__grid" aria-hidden="true"></div>
 
         <div class="lp-hero__content">
-            <span class="lp-hero__badge" aria-label="Live Beta — Polymarket Intelligence">
+            <span class="lp-hero__badge" aria-label="Live Beta - Polymarket Intelligence">
                 <span class="lp-hero__badge-dot" aria-hidden="true"></span>
-                Live Beta &nbsp;·&nbsp; Polymarket Intelligence
+                Live Beta &nbsp;&middot;&nbsp; Polymarket Intelligence
             </span>
 
             <h1 class="lp-hero__headline" id="hero-headline">
-                See the <em>Butterfly Effect</em></em><br>in Prediction Markets
+                See the <em>Butterfly Effect</em><br>in Prediction Markets
             </h1>
 
             <p class="lp-hero__copy">
@@ -81,9 +81,9 @@
             <div class="lp-hero__actions">
                 <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">
                     Launch App
-                    <span class="lp-btn__arrow" aria-hidden="true">→</span>
+                    <span class="lp-btn__arrow" aria-hidden="true">&rarr;</span>
                 </a>
-                <a class="lp-btn lp-btn--ghost" href="https://github.com" rel="noreferrer" target="_blank">
+                <a class="lp-btn lp-btn--ghost" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
                     </svg>
@@ -135,79 +135,79 @@
                     <!-- Background ambient glows -->
                     <ellipse cx="450" cy="175" rx="200" ry="120" fill="url(#glow-event)" opacity="0.4"/>
 
-                    <!-- ── EDGES (drawn first, behind nodes) ── -->
+                    <!-- â”€â”€ EDGES (drawn first, behind nodes) â”€â”€ -->
 
-                    <!-- Event → Entity left -->
+                    <!-- Event â†’ Entity left -->
                     <line class="lp-graph-edge" x1="415" y1="165" x2="265" y2="105"
                           stroke="rgba(168,85,247,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-violet)"
                           style="--edge-length: 172; --edge-delay: 900ms;"/>
 
-                    <!-- Event → Entity right -->
+                    <!-- Event â†’ Entity right -->
                     <line class="lp-graph-edge" x1="485" y1="165" x2="635" y2="105"
                           stroke="rgba(168,85,247,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-violet)"
                           style="--edge-length: 172; --edge-delay: 1000ms;"/>
 
-                    <!-- Event → Related Market 1 -->
+                    <!-- Event â†’ Related Market 1 -->
                     <line class="lp-graph-edge" x1="435" y1="190" x2="185" y2="210"
                           stroke="rgba(16,185,129,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-green)"
                           style="--edge-length: 252; --edge-delay: 1100ms;"/>
 
-                    <!-- Event → Related Market 2 -->
+                    <!-- Event â†’ Related Market 2 -->
                     <line class="lp-graph-edge" x1="465" y1="190" x2="715" y2="210"
                           stroke="rgba(16,185,129,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-green)"
                           style="--edge-length: 252; --edge-delay: 1150ms;"/>
 
-                    <!-- Event → Evidence -->
+                    <!-- Event â†’ Evidence -->
                     <line class="lp-graph-edge" x1="450" y1="148" x2="450" y2="55"
                           stroke="rgba(148,163,184,0.5)" stroke-width="1.5"
                           marker-end="url(#arrow-blue)"
                           style="--edge-length: 96; --edge-delay: 1200ms;"/>
 
-                    <!-- Entity left → Hypothesis left -->
+                    <!-- Entity left â†’ Hypothesis left -->
                     <line class="lp-graph-edge" x1="248" y1="120" x2="155" y2="265"
                           stroke="rgba(251,113,133,0.45)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 168; --edge-delay: 1400ms;"/>
 
-                    <!-- Entity left → Hypothesis center -->
+                    <!-- Entity left â†’ Hypothesis center -->
                     <line class="lp-graph-edge" x1="268" y1="118" x2="350" y2="288"
                           stroke="rgba(251,113,133,0.4)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 196; --edge-delay: 1500ms;"/>
 
-                    <!-- Entity right → Hypothesis center -->
+                    <!-- Entity right â†’ Hypothesis center -->
                     <line class="lp-graph-edge" x1="632" y1="118" x2="550" y2="288"
                           stroke="rgba(251,113,133,0.4)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 196; --edge-delay: 1550ms;"/>
 
-                    <!-- Entity right → Hypothesis right -->
+                    <!-- Entity right â†’ Hypothesis right -->
                     <line class="lp-graph-edge" x1="652" y1="120" x2="745" y2="265"
                           stroke="rgba(251,113,133,0.45)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 168; --edge-delay: 1600ms;"/>
 
-                    <!-- Event → Rule -->
+                    <!-- Event â†’ Rule -->
                     <line class="lp-graph-edge" x1="450" y1="198" x2="450" y2="295"
                           stroke="rgba(245,158,11,0.5)" stroke-width="1.2"
                           marker-end="url(#arrow-amber)"
                           style="--edge-length: 100; --edge-delay: 1650ms;"/>
 
-                    <!-- Related Market 1 → Hypothesis left -->
+                    <!-- Related Market 1 â†’ Hypothesis left -->
                     <line class="lp-graph-edge" x1="170" y1="228" x2="148" y2="255"
                           stroke="rgba(16,185,129,0.35)" stroke-width="1"
                           style="--edge-length: 35; --edge-delay: 1700ms;"/>
 
-                    <!-- Related Market 2 → Hypothesis right -->
+                    <!-- Related Market 2 â†’ Hypothesis right -->
                     <line class="lp-graph-edge" x1="730" y1="228" x2="752" y2="255"
                           stroke="rgba(16,185,129,0.35)" stroke-width="1"
                           style="--edge-length: 35; --edge-delay: 1750ms;"/>
 
-                    <!-- ── NODES ── -->
+                    <!-- â”€â”€ NODES â”€â”€ -->
 
                     <!-- Central Event Node -->
                     <g class="lp-graph-node lp-graph-node--event" style="--node-delay: 200ms;" transform="translate(450,175)">
@@ -219,7 +219,7 @@
                         <text y="-30" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="8" font-family="JetBrains Mono,monospace">Fed Decision</text>
                     </g>
 
-                    <!-- Entity — Left -->
+                    <!-- Entity â€” Left -->
                     <g class="lp-graph-node" style="--node-delay: 450ms;" transform="translate(255,100)">
                         <circle r="18" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.4"/>
                         <circle r="10" fill="rgba(168,85,247,0.22)"/>
@@ -228,7 +228,7 @@
                         <text y="-25" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7.5" font-family="JetBrains Mono,monospace">Federal Reserve</text>
                     </g>
 
-                    <!-- Entity — Right -->
+                    <!-- Entity â€” Right -->
                     <g class="lp-graph-node" style="--node-delay: 500ms;" transform="translate(645,100)">
                         <circle r="18" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.4"/>
                         <circle r="10" fill="rgba(168,85,247,0.22)"/>
@@ -237,7 +237,7 @@
                         <text y="-25" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7.5" font-family="JetBrains Mono,monospace">CPI Inflation</text>
                     </g>
 
-                    <!-- Related Market — Left -->
+                    <!-- Related Market â€” Left -->
                     <g class="lp-graph-node" style="--node-delay: 650ms;" transform="translate(175,215)">
                         <circle r="16" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.4"/>
                         <circle r="9" fill="rgba(16,185,129,0.22)"/>
@@ -246,7 +246,7 @@
                         <text y="-22" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7" font-family="JetBrains Mono,monospace">Crude Oil</text>
                     </g>
 
-                    <!-- Related Market — Right -->
+                    <!-- Related Market â€” Right -->
                     <g class="lp-graph-node" style="--node-delay: 700ms;" transform="translate(725,215)">
                         <circle r="16" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.4"/>
                         <circle r="9" fill="rgba(16,185,129,0.22)"/>
@@ -255,7 +255,7 @@
                         <text y="-22" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7" font-family="JetBrains Mono,monospace">USD Index</text>
                     </g>
 
-                    <!-- Evidence — Top -->
+                    <!-- Evidence â€” Top -->
                     <g class="lp-graph-node" style="--node-delay: 820ms;" transform="translate(450,48)">
                         <circle r="14" fill="rgba(148,163,184,0.12)" stroke="#94a3b8" stroke-width="1.3"/>
                         <circle r="8" fill="rgba(148,163,184,0.18)"/>
@@ -263,7 +263,7 @@
                         <text y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="Inter,sans-serif" font-weight="700">EVIDENCE</text>
                     </g>
 
-                    <!-- Rule — Bottom -->
+                    <!-- Rule â€” Bottom -->
                     <g class="lp-graph-node" style="--node-delay: 870ms;" transform="translate(450,305)">
                         <circle r="14" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.3"/>
                         <circle r="8" fill="rgba(245,158,11,0.18)"/>
@@ -271,7 +271,7 @@
                         <text y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="Inter,sans-serif" font-weight="700">RULE</text>
                     </g>
 
-                    <!-- Hypothesis — Far Left -->
+                    <!-- Hypothesis â€” Far Left -->
                     <g class="lp-graph-node" style="--node-delay: 1000ms;" transform="translate(148,280)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -279,7 +279,7 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Hypothesis — Center Left -->
+                    <!-- Hypothesis â€” Center Left -->
                     <g class="lp-graph-node" style="--node-delay: 1060ms;" transform="translate(348,300)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -287,7 +287,7 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Hypothesis — Center Right -->
+                    <!-- Hypothesis â€” Center Right -->
                     <g class="lp-graph-node" style="--node-delay: 1080ms;" transform="translate(552,300)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -295,7 +295,7 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Hypothesis — Far Right -->
+                    <!-- Hypothesis â€” Far Right -->
                     <g class="lp-graph-node" style="--node-delay: 1100ms;" transform="translate(752,280)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -321,10 +321,10 @@
         </div>
     </section>
 
-    <!-- ── Stats bar ─────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Stats bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="lp-stats-bar" aria-label="Platform statistics">
         <div class="lp-stat">
-            <span class="lp-stat__value">{% if stats.total_runs > 0 %}{{ stats.total_runs }}{% else %}∞{% endif %}</span>
+            <span class="lp-stat__value">{% if stats.total_runs > 0 %}{{ stats.total_runs }}{% else %}âˆž{% endif %}</span>
             <span class="lp-stat__label">Graphs<br>generated</span>
         </div>
         <div class="lp-stat">
@@ -341,7 +341,7 @@
         </div>
     </div>
 
-    <!-- ── Features ──────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Features â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-section" id="features" aria-labelledby="features-title">
         <div class="lp-section__header lp-section__header--center reveal">
             <span class="lp-section__eyebrow">
@@ -424,7 +424,7 @@
         </div>
     </section>
 
-    <!-- ── How it works ──────────────────────────────────────────────── -->
+    <!-- â”€â”€ How it works â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="lp-how-wrapper" id="how-it-works">
         <div class="lp-section" style="padding-top:0; padding-bottom:0;">
             <div class="lp-section__header lp-section__header--center reveal">
@@ -457,7 +457,7 @@
         </div>
     </div>
 
-    <!-- ── Sample markets ────────────────────────────────────────────── -->
+    <!-- â”€â”€ Sample markets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-section" id="markets" aria-labelledby="markets-title">
         <div class="lp-section__header reveal">
             <span class="lp-section__eyebrow">
@@ -500,7 +500,7 @@
         </div>
     </section>
 
-    <!-- ── CTA banner ────────────────────────────────────────────────── -->
+    <!-- â”€â”€ CTA banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-section reveal" aria-labelledby="cta-title">
         <div class="lp-banner">
             <div class="lp-banner__content">
@@ -516,9 +516,9 @@
             <div class="lp-banner__actions">
                 <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">
                     Launch the App
-                    <span class="lp-btn__arrow" aria-hidden="true">→</span>
+                    <span class="lp-btn__arrow" aria-hidden="true">&rarr;</span>
                 </a>
-                <a class="lp-btn lp-btn--ghost" href="https://github.com" rel="noreferrer" target="_blank">
+                <a class="lp-btn lp-btn--ghost" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
                     </svg>
@@ -528,7 +528,7 @@
         </div>
     </section>
 
-    <!-- ── Footer ────────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <footer class="lp-footer" role="contentinfo">
         <div class="lp-footer__inner">
             <a class="lp-footer__brand" href="{% url 'web:landing' %}">
@@ -548,7 +548,7 @@
                 <a class="lp-footer__link" href="{% url 'web:dashboard' %}">App</a>
                 <a class="lp-footer__link" href="#features">Features</a>
                 <a class="lp-footer__link" href="#how-it-works">How it works</a>
-                <a class="lp-footer__link" href="https://github.com" rel="noreferrer" target="_blank">GitHub</a>
+                <a class="lp-footer__link" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">GitHub</a>
             </nav>
         </div>
     </footer>
@@ -590,3 +590,4 @@
     </script>
 </body>
 </html>
+

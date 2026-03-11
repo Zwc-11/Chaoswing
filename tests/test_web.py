@@ -12,11 +12,12 @@ from apps.web.services.graph_workflow import GraphWorkflowService
 
 @override_settings(CHAOSWING_ENABLE_REMOTE_FETCH=False, CHAOSWING_ENABLE_LLM=False)
 class WebRoutesTests(TestCase):
-    def test_root_redirects_to_dashboard(self):
+    def test_root_renders_landing_page(self):
         response = self.client.get("/")
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/app/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "See the")
+        self.assertContains(response, "Launch App")
 
     def test_dashboard_renders(self):
         response = self.client.get(reverse("web:dashboard"))
