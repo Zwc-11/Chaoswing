@@ -7,13 +7,19 @@ variables, loaded through `chaoswing.config`. This keeps secrets out of the
 codebase and makes the runtime surface explicit for contributors.
 """
 
+from importlib.util import find_spec
 from pathlib import Path
+import sys
+
+from django.core.exceptions import ImproperlyConfigured
 
 from .config import build_runtime_config
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RUNTIME = build_runtime_config(BASE_DIR)
+RUNNING_TESTS = len(sys.argv) > 1 and sys.argv[1] == "test"
+WHITE_NOISE_AVAILABLE = find_spec("whitenoise") is not None
 
 SECRET_KEY = RUNTIME.secret_key
 DEBUG = RUNTIME.debug
@@ -34,7 +40,6 @@ MIDDLEWARE = [
     "chaoswing.middleware.RequestSizeLimitMiddleware",
     "chaoswing.middleware.RateLimitMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -43,6 +48,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "chaoswing.middleware.SecurityHeadersMiddleware",
 ]
+
+if WHITE_NOISE_AVAILABLE:
+    MIDDLEWARE.insert(3, "whitenoise.middleware.WhiteNoiseMiddleware")
+elif not DEBUG and not RUNNING_TESTS:
+    raise ImproperlyConfigured("whitenoise must be installed when DJANGO_DEBUG=0.")
 
 ROOT_URLCONF = "chaoswing.urls"
 
@@ -141,9 +151,17 @@ LOGGING = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Manifest-backed static storage requires collectstatic output, so keep tests
+# and local debug renders on the plain backend.
+staticfiles_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+if not DEBUG and not RUNNING_TESTS:
+    if not WHITE_NOISE_AVAILABLE:
+        raise ImproperlyConfigured("whitenoise must be installed when DJANGO_DEBUG=0.")
+    staticfiles_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": staticfiles_backend,
     },
 }
 
