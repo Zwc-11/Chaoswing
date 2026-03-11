@@ -1,0 +1,203 @@
+.app-shell {
+    --shell-gutter: 1.5rem;
+    --left-panel-width: 25.75rem;
+    --right-panel-width: 21rem;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.app-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.command-bar {
+    position: absolute;
+    top: var(--shell-gutter);
+    left: calc(var(--shell-gutter) + var(--left-panel-width) + var(--space-5));
+    right: calc(var(--shell-gutter) + var(--right-panel-width) + var(--space-5));
+    z-index: var(--z-hud);
+    display: grid;
+    grid-template-columns: minmax(260px, auto) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-5);
+    min-height: 4.25rem;
+    padding: 0.95rem 1.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: linear-gradient(180deg, rgba(10, 12, 16, 0.9), rgba(10, 12, 16, 0.82));
+    backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-md);
+}
+
+.command-bar__meta {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 48rem;
+}
+
+.command-bar__actions {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.workspace {
+    position: relative;
+    min-height: 100vh;
+    z-index: 1;
+}
+
+.source-rail,
+.inspector-shell {
+    border: 1px solid var(--color-border);
+    background: linear-gradient(180deg, rgba(9, 11, 16, 0.94), rgba(8, 10, 14, 0.9));
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(16px);
+}
+
+.source-rail {
+    position: absolute;
+    top: var(--shell-gutter);
+    left: var(--shell-gutter);
+    bottom: var(--shell-gutter);
+    z-index: 4;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    align-content: start;
+    width: var(--left-panel-width);
+    padding: 1rem;
+    border-radius: var(--radius-xl);
+    overflow: auto;
+}
+
+.rail-section--wide,
+.status-banner {
+    grid-column: auto;
+}
+
+.graph-column {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    min-height: 100vh;
+    padding-top: calc(var(--shell-gutter) + 4.25rem + var(--space-5));
+    padding-right: calc(var(--right-panel-width) + (var(--shell-gutter) * 2) + var(--space-5));
+    padding-bottom: var(--shell-gutter);
+    padding-left: calc(var(--left-panel-width) + (var(--shell-gutter) * 2) + var(--space-5));
+}
+
+.inspector-dock {
+    position: absolute;
+    top: var(--shell-gutter);
+    right: var(--shell-gutter);
+    bottom: var(--shell-gutter);
+    width: var(--right-panel-width);
+    z-index: 4;
+}
+
+.inspector-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+.inspector-shell__header,
+.inspector-shell__body {
+    padding: var(--space-5);
+}
+
+.inspector-shell__header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inspector-shell__title {
+    margin-top: var(--space-1);
+    font-size: clamp(1.35rem, 1.2vw, 1.65rem);
+    line-height: var(--line-tight);
+}
+
+.inspector-shell__body {
+    flex: 1;
+    overflow: auto;
+}
+
+@media (max-width: 1680px) {
+    .app-shell {
+        --left-panel-width: 24rem;
+        --right-panel-width: 19.25rem;
+    }
+}
+
+@media (max-width: 1380px) {
+    .app-shell {
+        --left-panel-width: 22rem;
+        --right-panel-width: 18rem;
+    }
+}
+
+@media (max-width: 1120px) {
+    .command-bar {
+        position: static;
+        left: auto;
+        right: auto;
+        grid-template-columns: 1fr;
+        align-items: start;
+        margin: var(--space-4);
+    }
+
+    .workspace {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+        padding: 0 var(--space-4) var(--space-4);
+    }
+
+    .source-rail,
+    .inspector-dock {
+        position: static;
+        width: auto;
+    }
+
+    .graph-column {
+        padding: 0;
+        min-height: auto;
+    }
+
+    .source-rail,
+    .inspector-shell {
+        min-height: auto;
+        border-radius: var(--radius-xl);
+    }
+}
+
+@media (max-width: 760px) {
+    .command-bar {
+        margin: 0.85rem;
+        padding: 1rem;
+    }
+
+    .source-rail {
+        padding: var(--space-4);
+    }
+
+    .rail-section,
+    .status-banner {
+        grid-column: auto;
+    }
+
+    .inspector-shell__header,
+    .inspector-shell__body {
+        padding: var(--space-4);
+    }
+}

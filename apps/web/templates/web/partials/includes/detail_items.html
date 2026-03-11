@@ -1,0 +1,8 @@
+<div class="detail-list">
+    {% for item in detail_items %}
+    <div class="detail-item">
+        <span class="detail-item__label">{{ item.label }}</span>
+        <span class="detail-item__value">{{ item.value }}</span>
+    </div>
+    {% endfor %}
+</div>

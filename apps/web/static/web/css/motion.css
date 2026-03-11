@@ -1,0 +1,660 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   ChaosWing — Motion System
+   All keyframes and animation classes in one place.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── App shell entrance ────────────────────────────────────────────────── */
+
+.app-shell {
+    animation: shell-reveal 680ms var(--ease-snappy) both;
+}
+
+@keyframes shell-reveal {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Graph stage pulse on data load ───────────────────────────────────── */
+
+.graph-stage.is-energized {
+    animation: stage-breath 860ms var(--ease-snappy);
+}
+
+.graph-stage.is-energized .graph-stage__grid {
+    animation: stage-grid-shift 860ms var(--ease-snappy);
+}
+
+@keyframes stage-breath {
+    0% {
+        box-shadow: var(--shadow-lg);
+    }
+    40% {
+        box-shadow:
+            var(--shadow-lg),
+            0 0 0 0.55rem rgba(14, 165, 233, 0.07),
+            0 0 80px rgba(14, 165, 233, 0.12);
+    }
+    100% {
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+@keyframes stage-grid-shift {
+    0% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    40% {
+        opacity: 0.9;
+        transform: scale(1.012);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Skeleton loading shimmer ──────────────────────────────────────────── */
+
+.skeleton-bar,
+.skeleton-node {
+    background: linear-gradient(
+        90deg,
+        rgba(39, 39, 58, 0.7) 0%,
+        rgba(72, 72, 100, 0.9) 48%,
+        rgba(39, 39, 58, 0.7) 100%
+    );
+    background-size: 200% 100%;
+    animation: loading-pulse 1.4s linear infinite;
+}
+
+@keyframes loading-pulse {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ── Inspector panel entrance ─────────────────────────────────────────── */
+
+.inspector-panel.is-entering {
+    animation: inspector-enter var(--duration-slow) var(--ease-snappy) both;
+}
+
+@keyframes inspector-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Bar diagram fill ──────────────────────────────────────────────────── */
+
+.bar-row__fill {
+    animation: bar-fill 480ms var(--ease-snappy) both;
+    animation-delay: var(--bar-delay, 0ms);
+}
+
+@keyframes bar-fill {
+    0% {
+        opacity: 0.2;
+        transform: scaleX(0.04);
+    }
+    65% {
+        opacity: 1;
+        transform: scaleX(1.03);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+/* ── Toast notifications ──────────────────────────────────────────────── */
+
+.toast {
+    animation: toast-in 320ms var(--ease-spring) both;
+}
+
+.toast.is-leaving {
+    animation: toast-out 260ms var(--ease-in-out) both;
+}
+
+@keyframes toast-in {
+    0% {
+        opacity: 0;
+        transform: translateX(calc(100% + 1.5rem)) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes toast-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        max-height: 6rem;
+        margin-bottom: 0.7rem;
+    }
+    60% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(calc(100% + 1.5rem)) scale(0.92);
+        max-height: 0;
+        margin-bottom: 0;
+    }
+}
+
+/* ── Run history drawer ───────────────────────────────────────────────── */
+
+.run-history-drawer {
+    animation: drawer-in 360ms var(--ease-snappy) both;
+}
+
+.run-history-drawer.is-closing {
+    animation: drawer-out 280ms var(--ease-in-out) both;
+}
+
+@keyframes drawer-in {
+    0% {
+        opacity: 0;
+        transform: translateX(2rem);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes drawer-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(2rem);
+    }
+}
+
+.run-history-backdrop {
+    animation: backdrop-in 280ms var(--ease-out) both;
+}
+
+.run-history-backdrop.is-closing {
+    animation: backdrop-out 260ms var(--ease-in-out) both;
+}
+
+@keyframes backdrop-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes backdrop-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ── Landing page hero entrance ───────────────────────────────────────── */
+
+.lp-hero__badge {
+    animation: fade-up 500ms var(--ease-snappy) 100ms both;
+}
+
+.lp-hero__headline {
+    animation: fade-up 560ms var(--ease-snappy) 160ms both;
+}
+
+.lp-hero__copy {
+    animation: fade-up 520ms var(--ease-snappy) 240ms both;
+}
+
+.lp-hero__actions {
+    animation: fade-up 500ms var(--ease-snappy) 300ms both;
+}
+
+.lp-hero__graph-preview {
+    animation: preview-rise 780ms var(--ease-snappy) 440ms both;
+}
+
+.lp-stats-bar {
+    animation: fade-up 480ms var(--ease-snappy) 560ms both;
+}
+
+@keyframes fade-up {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes preview-rise {
+    0% {
+        opacity: 0;
+        transform: translateY(28px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Landing feature cards stagger ───────────────────────────────────── */
+
+.lp-feature-card:nth-child(1) {
+    animation-delay: 0ms;
+}
+.lp-feature-card:nth-child(2) {
+    animation-delay: 60ms;
+}
+.lp-feature-card:nth-child(3) {
+    animation-delay: 120ms;
+}
+.lp-feature-card:nth-child(4) {
+    animation-delay: 180ms;
+}
+.lp-feature-card:nth-child(5) {
+    animation-delay: 240ms;
+}
+.lp-feature-card:nth-child(6) {
+    animation-delay: 300ms;
+}
+
+.lp-feature-card.is-visible {
+    animation: fade-up 520ms var(--ease-snappy) both;
+}
+
+/* ── Aurora background animation ─────────────────────────────────────── */
+
+.aurora-orb {
+    position: absolute;
+    border-radius: var(--radius-pill);
+    filter: blur(80px);
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+.aurora-orb--1 {
+    width: 55vw;
+    height: 45vw;
+    background: radial-gradient(
+        ellipse,
+        rgba(14, 165, 233, 0.18) 0%,
+        rgba(14, 165, 233, 0.06) 50%,
+        transparent 70%
+    );
+    top: -15%;
+    left: -10%;
+    animation: aurora-drift-1 var(--duration-aurora) ease-in-out infinite
+        alternate;
+}
+
+.aurora-orb--2 {
+    width: 50vw;
+    height: 40vw;
+    background: radial-gradient(
+        ellipse,
+        rgba(124, 58, 237, 0.15) 0%,
+        rgba(124, 58, 237, 0.05) 50%,
+        transparent 70%
+    );
+    top: -10%;
+    right: -8%;
+    animation: aurora-drift-2 calc(var(--duration-aurora) * 1.3) ease-in-out
+        infinite alternate;
+    animation-delay: -4000ms;
+}
+
+.aurora-orb--3 {
+    width: 40vw;
+    height: 35vw;
+    background: radial-gradient(
+        ellipse,
+        rgba(16, 185, 129, 0.1) 0%,
+        rgba(16, 185, 129, 0.04) 50%,
+        transparent 70%
+    );
+    bottom: 5%;
+    right: 15%;
+    animation: aurora-drift-3 calc(var(--duration-aurora) * 1.6) ease-in-out
+        infinite alternate;
+    animation-delay: -8000ms;
+}
+
+@keyframes aurora-drift-1 {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(4%, 6%) scale(1.06);
+    }
+    66% {
+        transform: translate(-3%, 3%) scale(0.97);
+    }
+    100% {
+        transform: translate(6%, -4%) scale(1.04);
+    }
+}
+
+@keyframes aurora-drift-2 {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    40% {
+        transform: translate(-5%, 4%) scale(1.08);
+    }
+    70% {
+        transform: translate(3%, 2%) scale(0.95);
+    }
+    100% {
+        transform: translate(-4%, 6%) scale(1.05);
+    }
+}
+
+@keyframes aurora-drift-3 {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(4%, -5%) scale(1.1);
+    }
+    100% {
+        transform: translate(-3%, 3%) scale(0.96);
+    }
+}
+
+/* ── Animated graph edges (SVG stroke-dasharray trick) ──────────────── */
+
+.lp-graph-edge {
+    stroke-dasharray: var(--edge-length, 200);
+    stroke-dashoffset: var(--edge-length, 200);
+    animation: edge-draw 800ms var(--ease-out) var(--edge-delay, 0ms) both;
+}
+
+@keyframes edge-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* ── Animated graph nodes (landing page) ─────────────────────────────── */
+
+.lp-graph-node {
+    opacity: 0;
+    animation: node-pop 400ms var(--ease-spring) var(--node-delay, 0ms) both;
+}
+
+@keyframes node-pop {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.12);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Persistent node pulse ring ─────────────────────────────────────── */
+
+.lp-graph-node--event .lp-node-ring {
+    animation: node-ring-pulse 2.4s var(--ease-out) infinite;
+    animation-delay: 1800ms;
+}
+
+@keyframes node-ring-pulse {
+    0% {
+        r: 22px;
+        opacity: 0.5;
+    }
+    60% {
+        r: 38px;
+        opacity: 0;
+    }
+    100% {
+        r: 38px;
+        opacity: 0;
+    }
+}
+
+/* ── Step progress list (loading overlay) ───────────────────────────── */
+
+.load-step {
+    opacity: 0;
+    transform: translateX(-8px);
+    transition:
+        opacity var(--duration-base) var(--ease-snappy),
+        transform var(--duration-base) var(--ease-snappy),
+        color var(--duration-base) var(--ease-standard);
+}
+
+.load-step.is-active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.load-step.is-done {
+    opacity: 0.55;
+}
+
+/* ── Live indicator dot ──────────────────────────────────────────────── */
+
+.live-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-success);
+    box-shadow: 0 0 0 0 var(--color-success-glow);
+    animation: live-pulse 2s var(--ease-out) infinite;
+}
+
+@keyframes live-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+    }
+    55% {
+        box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+/* ── Spinner (used in loading micro-states) ─────────────────────────── */
+
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-top-color: var(--color-accent);
+    border-radius: var(--radius-pill);
+    animation: spin 700ms linear infinite;
+}
+
+.spinner--sm {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-width: 1.5px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── History run item entrance ───────────────────────────────────────── */
+
+.run-history-item {
+    animation: history-item-in 300ms var(--ease-snappy) var(--item-delay, 0ms)
+        both;
+}
+
+@keyframes history-item-in {
+    0% {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ── Command bar shimmer when a run is being loaded ──────────────────── */
+
+.command-bar.is-loading {
+    animation: command-bar-shimmer 1.8s linear infinite;
+}
+
+@keyframes command-bar-shimmer {
+    0% {
+        border-color: rgba(255, 255, 255, 0.07);
+    }
+    40% {
+        border-color: rgba(14, 165, 233, 0.3);
+    }
+    80% {
+        border-color: rgba(168, 85, 247, 0.22);
+    }
+    100% {
+        border-color: rgba(255, 255, 255, 0.07);
+    }
+}
+
+/* ── Keyboard shortcut overlay fade ─────────────────────────────────── */
+
+.shortcut-overlay {
+    animation: backdrop-in 200ms var(--ease-out) both;
+}
+
+.shortcut-overlay.is-closing {
+    animation: backdrop-out 180ms var(--ease-in-out) both;
+}
+
+.shortcut-overlay__panel {
+    animation: overlay-panel-in 260ms var(--ease-spring) both;
+}
+
+@keyframes overlay-panel-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.94) translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ── Error state shake ───────────────────────────────────────────────── */
+
+.shake {
+    animation: shake 400ms var(--ease-snappy);
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    15% {
+        transform: translateX(-6px);
+    }
+    35% {
+        transform: translateX(5px);
+    }
+    55% {
+        transform: translateX(-4px);
+    }
+    75% {
+        transform: translateX(3px);
+    }
+    90% {
+        transform: translateX(-2px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* ── Landing page section reveal (intersection observer) ─────────────── */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity 600ms var(--ease-snappy),
+        transform 600ms var(--ease-snappy);
+}
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Reduced motion overrides ────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .aurora-orb {
+        animation: none;
+    }
+
+    .live-dot {
+        animation: none;
+    }
+
+    .spinner {
+        animation: none;
+        border-top-color: var(--color-accent);
+        border-right-color: var(--color-accent);
+    }
+}

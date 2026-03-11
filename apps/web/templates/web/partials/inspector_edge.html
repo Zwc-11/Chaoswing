@@ -1,0 +1,14 @@
+<section class="inspector-panel">
+    <p class="inspector-kicker">Relationship</p>
+    <h3 class="inspector-title">{{ headline }}</h3>
+    {% if explanation %}
+    <p class="inspector-copy">{{ explanation }}</p>
+    {% endif %}
+
+    {% include "web/partials/includes/bar_diagram.html" with bars=bars %}
+
+    <section class="inspector-section">
+        <p class="subheading">Quick facts</p>
+        {% include "web/partials/includes/detail_items.html" with detail_items=detail_items %}
+    </section>
+</section>

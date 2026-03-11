@@ -1,0 +1,16 @@
+<section class="inspector-panel inspector-panel--empty">
+    <p class="inspector-kicker">Selection profile</p>
+    <h3 class="inspector-title">Select a graph element</h3>
+    <p class="inspector-copy">
+        Hover for a quick preview. Click once to lock the graph while you read the detail.
+    </p>
+
+    <div class="step-list">
+        {% for hint in shortcut_hints %}
+        <div class="step-card">
+            <span class="step-card__index">{{ hint.key }}</span>
+            <span class="step-card__label">{{ hint.label }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>

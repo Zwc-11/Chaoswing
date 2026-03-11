@@ -1,0 +1,14 @@
+<div class="bar-diagram">
+    {% for bar in bars %}
+    <div class="bar-row">
+        <div class="bar-row__header">
+            <span class="bar-row__label">{{ bar.label }}</span>
+            <span class="bar-row__value">{{ bar.value }}%</span>
+        </div>
+        <div class="bar-row__track" aria-hidden="true">
+            <span class="bar-row__fill bar-row__fill--{{ bar.tone }}" style="--bar-value: {{ bar.value }}%;"></span>
+        </div>
+        <p class="bar-row__caption">{{ bar.caption }}</p>
+    </div>
+    {% endfor %}
+</div>

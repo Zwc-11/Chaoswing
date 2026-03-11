@@ -1,0 +1,56 @@
+<section class="inspector-panel">
+    <p class="inspector-kicker">{{ type_label }}</p>
+    <h3 class="inspector-title">{{ label }}</h3>
+    {% if summary %}
+    <p class="inspector-copy">{{ summary }}</p>
+    {% endif %}
+
+    {% if icon_url or source_url %}
+    <section class="inspector-section inspector-section--source">
+        {% if icon_url %}
+        <img class="inspector-preview" src="{{ icon_url }}" alt="{{ label }}">
+        {% endif %}
+        {% if source_title or source_description %}
+        <div class="inspector-source-copy">
+            {% if source_title %}
+            <p class="subheading">Source market</p>
+            <p class="inspector-source-title">{{ source_title }}</p>
+            {% endif %}
+            {% if source_description %}
+            <p class="inspector-copy inspector-copy--tight">{{ source_description }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if source_url %}
+        <a class="button button--ghost inspector-link" href="{{ source_url }}" rel="noreferrer" target="_blank">
+            Open market
+        </a>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    {% include "web/partials/includes/bar_diagram.html" with bars=bars %}
+
+    <section class="inspector-section">
+        <p class="subheading">Quick facts</p>
+        {% include "web/partials/includes/detail_items.html" with detail_items=detail_items %}
+    </section>
+
+    {% if metadata %}
+    <section class="inspector-section">
+        <p class="subheading">Details</p>
+        {% include "web/partials/includes/detail_items.html" with detail_items=metadata %}
+    </section>
+    {% endif %}
+
+    {% if evidence_snippets %}
+    <section class="inspector-section">
+        <p class="subheading">Evidence</p>
+        <ul class="evidence-list">
+            {% for snippet in evidence_snippets %}
+            <li>{{ snippet }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+</section>

@@ -1,0 +1,130 @@
+from __future__ import annotations
+
+"""Django settings for ChaosWing.
+
+The public repository keeps all deployment-sensitive values in environment
+variables, loaded through `chaoswing.config`. This keeps secrets out of the
+codebase and makes the runtime surface explicit for contributors.
+"""
+
+from pathlib import Path
+
+from .config import build_runtime_config
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+RUNTIME = build_runtime_config(BASE_DIR)
+
+SECRET_KEY = RUNTIME.secret_key
+DEBUG = RUNTIME.debug
+ALLOWED_HOSTS = RUNTIME.allowed_hosts
+CSRF_TRUSTED_ORIGINS = RUNTIME.csrf_trusted_origins
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "apps.web",
+]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "chaoswing.urls"
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ]
+        },
+    }
+]
+
+WSGI_APPLICATION = "chaoswing.wsgi.application"
+ASGI_APPLICATION = "chaoswing.asgi.application"
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": RUNTIME.sqlite_path,
+    }
+}
+
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = []
+
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "America/Toronto"
+USE_I18N = True
+USE_TZ = True
+
+STATIC_URL = RUNTIME.static_url
+STATIC_ROOT = RUNTIME.static_root
+
+SECURE_SSL_REDIRECT = RUNTIME.secure_ssl_redirect
+SESSION_COOKIE_SECURE = RUNTIME.session_cookie_secure
+CSRF_COOKIE_SECURE = RUNTIME.csrf_cookie_secure
+SESSION_COOKIE_HTTPONLY = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+
+if RUNTIME.trust_x_forwarded_proto:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CHAOSWING_ENABLE_REMOTE_FETCH = RUNTIME.enable_remote_fetch
+CHAOSWING_ENABLE_LLM = RUNTIME.enable_llm
+CHAOSWING_ANTHROPIC_API_KEY = RUNTIME.anthropic_api_key
+CHAOSWING_ANTHROPIC_MODEL = RUNTIME.anthropic_model
+CHAOSWING_HTTP_TIMEOUT_SECONDS = RUNTIME.http_timeout_seconds
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        }
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": RUNTIME.log_level,
+    },
+    "loggers": {
+        "apps.web": {
+            "handlers": ["console"],
+            "level": RUNTIME.log_level,
+            "propagate": False,
+        },
+        "chaoswing": {
+            "handlers": ["console"],
+            "level": RUNTIME.log_level,
+            "propagate": False,
+        },
+    },
+}
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
