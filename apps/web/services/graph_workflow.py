@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from copy import deepcopy
 from datetime import UTC, datetime
@@ -13,6 +13,7 @@ from .anthropic_agent import AnthropicGraphAgent
 from .contracts import PolymarketEventSnapshot, RelatedEventCandidate
 from .graph_builder import GraphConstructionService
 from .icons import build_type_icon, fetch_remote_image_data_uri
+from .ml_hooks import GraphRunDataCollector
 from .polymarket import PolymarketMetadataService, RelatedMarketDiscoveryService
 
 
@@ -75,6 +76,7 @@ class GraphWorkflowService:
         )
         self.graph_builder = graph_builder or GraphConstructionService()
         self.agent = agent or AnthropicGraphAgent()
+        self.data_collector = GraphRunDataCollector()
 
     def run(self, source_url: str) -> dict[str, Any]:
         workflow_log: list[dict[str, str]] = []
@@ -234,6 +236,12 @@ class GraphWorkflowService:
         payload["run"]["graph_stats"] = graph_stats
         run.payload = payload
         run.save(update_fields=["payload"])
+
+        try:
+            self.data_collector.collect(payload)
+        except Exception:
+            pass
+
         return payload
 
     def review_saved_run(self, run: GraphRun) -> dict[str, Any]:

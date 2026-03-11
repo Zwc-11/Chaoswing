@@ -1,4 +1,6 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+
+import logging
 
 from django.urls import reverse
 from django.shortcuts import render
@@ -6,6 +8,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import GraphRun
 from .mock_graph import DEFAULT_CONTROLS, LAYOUT_OPTIONS, NODE_TYPE_OPTIONS, SAMPLE_POLYMARKET_LINKS
+from .services.polymarket import TrendingMarketsService
+
+logger = logging.getLogger("apps.web.views")
 
 
 def landing(request):
@@ -21,11 +26,22 @@ def landing(request):
         total_runs = 0
         recent_titles = []
 
+    trending = []
+    try:
+        service = TrendingMarketsService()
+        trending = service.get_trending(limit=6)
+    except Exception:
+        logger.debug("Trending markets fetch failed, using static samples")
+
+    display_markets = trending if trending else SAMPLE_POLYMARKET_LINKS
+
     return render(
         request,
         "web/landing.html",
         {
-            "sample_links": SAMPLE_POLYMARKET_LINKS,
+            "sample_links": display_markets,
+            "trending_markets": trending,
+            "has_trending": bool(trending),
             "stats": {
                 "total_runs": total_runs,
                 "recent_titles": recent_titles,

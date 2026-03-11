@@ -15,6 +15,9 @@ db.sqlite3
 db.sqlite3-journal
 staticfiles/
 
+# ML training data
+ml_data/
+
 # Tooling
 .coverage
 .pytest_cache/

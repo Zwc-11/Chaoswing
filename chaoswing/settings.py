@@ -31,13 +31,17 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "chaoswing.middleware.RequestSizeLimitMiddleware",
+    "chaoswing.middleware.RateLimitMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "chaoswing.middleware.SecurityHeadersMiddleware",
 ]
 
 ROOT_URLCONF = "chaoswing.urls"
@@ -61,12 +65,17 @@ TEMPLATES = [
 WSGI_APPLICATION = "chaoswing.wsgi.application"
 ASGI_APPLICATION = "chaoswing.asgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": RUNTIME.sqlite_path,
+if RUNTIME.database_url:
+    import dj_database_url
+
+    DATABASES = {"default": dj_database_url.parse(RUNTIME.database_url, conn_max_age=600)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": RUNTIME.sqlite_path,
+        }
     }
-}
 
 AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = []
 
@@ -94,6 +103,9 @@ CHAOSWING_ENABLE_LLM = RUNTIME.enable_llm
 CHAOSWING_ANTHROPIC_API_KEY = RUNTIME.anthropic_api_key
 CHAOSWING_ANTHROPIC_MODEL = RUNTIME.anthropic_model
 CHAOSWING_HTTP_TIMEOUT_SECONDS = RUNTIME.http_timeout_seconds
+CHAOSWING_RATE_LIMIT_ENABLED = RUNTIME.rate_limit_enabled
+CHAOSWING_MAX_REQUEST_BODY_BYTES = RUNTIME.max_request_body_bytes
+CHAOSWING_TRENDING_CACHE_TTL = RUNTIME.trending_cache_ttl_seconds
 
 LOGGING = {
     "version": 1,
@@ -128,3 +140,14 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 63072000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True

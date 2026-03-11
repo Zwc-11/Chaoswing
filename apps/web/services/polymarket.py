@@ -4,6 +4,8 @@ import html
 import json
 import math
 import re
+import threading
+import time
 from collections import OrderedDict
 from functools import lru_cache
 from urllib.parse import urlencode, urlparse
@@ -500,12 +502,114 @@ class RelatedMarketDiscoveryService:
         return confidence, "; ".join(rationale_bits), shared_tags, shared_terms
 
 
+class TrendingMarketsService:
+    """Fetches the highest-volume active Polymarket events for the Starter Markets section.
+
+    Results are cached with a configurable TTL to avoid hammering the Gamma API.
+    """
+
+    _cache: dict[str, tuple[list[dict], float]] = {}
+    _cache_lock = threading.Lock()
+
+    def __init__(
+        self,
+        client: GammaPolymarketClient | None = None,
+        cache_ttl: int | None = None,
+    ):
+        self.client = client or GammaPolymarketClient()
+        self.cache_ttl = cache_ttl or getattr(settings, "CHAOSWING_TRENDING_CACHE_TTL", 300)
+
+    def get_trending(self, limit: int = 6) -> list[dict]:
+        """Return top Polymarket events by 24h volume.
+
+        Each entry includes: slug, title, url, volume_24h, category, status, image_url.
+        """
+        cache_key = f"trending:{limit}"
+        cached = self._get_cached(cache_key)
+        if cached is not None:
+            return cached
+
+        if not settings.CHAOSWING_ENABLE_REMOTE_FETCH:
+            return []
+
+        events = self._fetch_trending(limit)
+        self._set_cached(cache_key, events)
+        return events
+
+    def _fetch_trending(self, limit: int) -> list[dict]:
+        try:
+            records = self.client.list_events({
+                "active": True,
+                "closed": False,
+                "limit": limit * 3,
+                "order": "volume24hr",
+                "ascending": False,
+            })
+        except Exception:
+            return []
+
+        results = []
+        for record in records:
+            slug = str(record.get("slug") or "").strip()
+            title = str(record.get("title") or "").strip()
+            if not slug or not title:
+                continue
+
+            volume = _parse_float(record.get("volume"))
+            category = str(record.get("category") or "Other").strip()
+            image_url = str(record.get("image") or record.get("icon") or "").strip()
+
+            results.append({
+                "slug": slug,
+                "title": title,
+                "url": _canonical_event_url(slug),
+                "caption": self._build_caption(record),
+                "volume": volume,
+                "category": category,
+                "image_url": image_url,
+                "status": _event_status(record),
+            })
+
+            if len(results) >= limit:
+                break
+
+        return results
+
+    def _build_caption(self, record: dict) -> str:
+        parts = []
+        category = str(record.get("category") or "").strip()
+        if category:
+            parts.append(category)
+        markets = record.get("markets", [])
+        if isinstance(markets, list) and markets:
+            parts.append(f"{len(markets)} market{'s' if len(markets) != 1 else ''}")
+        volume = _parse_float(record.get("volume"))
+        if volume > 0:
+            parts.append(f"${volume:,.0f} total volume")
+        return " · ".join(parts) if parts else "Active Polymarket event"
+
+    def _get_cached(self, key: str) -> list[dict] | None:
+        with self._cache_lock:
+            entry = self._cache.get(key)
+            if entry is None:
+                return None
+            data, ts = entry
+            if time.monotonic() - ts > self.cache_ttl:
+                del self._cache[key]
+                return None
+            return data
+
+    def _set_cached(self, key: str, data: list[dict]) -> None:
+        with self._cache_lock:
+            self._cache[key] = (data, time.monotonic())
+
+
 @lru_cache(maxsize=256)
 def _cached_json_request(url: str, timeout_seconds: float):
     request = Request(
         url,
         headers={
-            "User-Agent": "ChaosWing/0.1 (+https://chaoswing.local)",
+            "User-Agent": "ChaosWing/0.1 (+https://chaos-wing.com)",
             "Accept": "application/json",
         },
     )
@@ -519,7 +623,7 @@ def _cached_html_request(source_url: str, timeout_seconds: float) -> str:
     request = Request(
         source_url,
         headers={
-            "User-Agent": "ChaosWing/0.1 (+https://chaoswing.local)",
+            "User-Agent": "ChaosWing/0.1 (+https://chaos-wing.com)",
             "Accept": "text/html,application/xhtml+xml",
         },
     )

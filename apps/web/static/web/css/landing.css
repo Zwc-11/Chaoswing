@@ -1,4 +1,4 @@
-﻿/* =======================================================================
+/* =======================================================================
    ChaosWing - Landing Page
    Full marketing page styles.
    ======================================================================= */
@@ -361,11 +361,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .lp-hero__graph-preview svg {
     width: 100%;
     height: 100%;
+    pointer-events: none;
+}
+
+.lp-hero__graph-preview text {
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
 }
 
 /* ========================================================================
@@ -805,6 +814,64 @@
 .lp-market-card:hover .lp-market-card__action {
     background: rgba(14, 165, 233, 0.16);
     border-color: rgba(14, 165, 233, 0.3);
+}
+
+/* -- Market card volume stats -------------------------------------------- */
+
+.lp-market-card__stats {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+.lp-market-card__volume {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--color-accent);
+    letter-spacing: 0.02em;
+}
+
+/* -- Market card link verification states -------------------------------- */
+
+.lp-market-card--verified .lp-market-card__dot {
+    background: #34d399;
+    box-shadow: 0 0 6px rgba(52, 211, 153, 0.5);
+}
+
+.lp-market-card--unverified {
+    opacity: 0.55;
+    pointer-events: none;
+    position: relative;
+}
+
+.lp-market-card--unverified::after {
+    content: "Link unavailable";
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fb7185;
+    background: rgba(251, 113, 133, 0.12);
+    border: 1px solid rgba(251, 113, 133, 0.2);
+    border-radius: var(--radius-pill);
+    padding: 0.2rem 0.6rem;
+}
+
+.lp-market-card--unverified .lp-market-card__dot {
+    background: #fb7185;
+    box-shadow: 0 0 6px rgba(251, 113, 133, 0.5);
+    animation: none;
+}
+
+/* -- Markets grid responsive (wider for 6 trending) ---------------------- */
+
+.lp-markets-grid--wide {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 /* ========================================================================

@@ -1,4 +1,4 @@
-﻿{% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -428,28 +428,39 @@
                     <line x1="12" y1="20" x2="12" y2="4"/>
                     <line x1="6" y1="20" x2="6" y2="14"/>
                 </svg>
-                Live markets
+                {% if has_trending %}Trending now{% else %}Live markets{% endif %}
             </span>
             <h2 class="lp-section__title" id="markets-title">
-                Start with a live market
+                {% if has_trending %}Top bets today{% else %}Start with a live market{% endif %}
             </h2>
             <p class="lp-section__copy">
+                {% if has_trending %}
+                These are the highest-volume Polymarket events right now — ranked by 24-hour trading activity.
+                Click any card to generate its full butterfly graph.
+                {% else %}
                 Launch the app and load one of these sample Polymarket events to see
                 ChaosWing in action. Each one generates a full butterfly graph with
                 real data.
+                {% endif %}
             </p>
         </div>
 
-        <div class="lp-markets-grid reveal" aria-label="Sample Polymarket events">
+        <div class="lp-markets-grid reveal" id="markets-grid" aria-label="{% if has_trending %}Trending Polymarket events{% else %}Sample Polymarket events{% endif %}">
             {% for link in sample_links %}
             <a class="lp-market-card" href="{% url 'web:dashboard' %}?url={{ link.url|urlencode }}"
-               aria-label="Open {{ link.label }} in the app">
+               data-market-url="{{ link.url }}"
+               aria-label="Open {% if link.title %}{{ link.title }}{% else %}{{ link.label }}{% endif %} in the app">
                 <p class="lp-market-card__eyebrow">
                     <span class="lp-market-card__dot" aria-hidden="true"></span>
-                    Polymarket Event
+                    {% if link.category %}{{ link.category }}{% else %}Polymarket Event{% endif %}
                 </p>
-                <h3 class="lp-market-card__title">{{ link.label }}</h3>
+                <h3 class="lp-market-card__title">{% if link.title %}{{ link.title }}{% else %}{{ link.label }}{% endif %}</h3>
                 <p class="lp-market-card__copy">{{ link.caption }}</p>
+                {% if link.volume %}
+                <div class="lp-market-card__stats">
+                    <span class="lp-market-card__volume">${{ link.volume|floatformat:0 }} vol</span>
+                </div>
+                {% endif %}
                 <span class="lp-market-card__action" aria-hidden="true">
                     Open graph
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -547,6 +558,42 @@
             { threshold: 0.05 }
         );
         document.querySelectorAll('.lp-feature-card').forEach((el) => featureObserver.observe(el));
+
+        // Link verification — confirm all market card URLs are reachable
+        (function verifyMarketLinks() {
+            const cards = document.querySelectorAll('[data-market-url]');
+            if (!cards.length) return;
+
+            const urls = Array.from(cards).map(c => c.dataset.marketUrl);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+                || document.cookie.match(/csrftoken=([^;]+)/)?.[1]
+                || '';
+
+            fetch('/api/v1/markets/verify/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ urls }),
+            })
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (!data || !data.results) return;
+                cards.forEach(card => {
+                    const url = card.dataset.marketUrl;
+                    const isValid = data.results[url];
+                    if (isValid === false) {
+                        card.classList.add('lp-market-card--unverified');
+                        const dot = card.querySelector('.lp-market-card__dot');
+                        if (dot) dot.title = 'Link could not be verified';
+                    } else if (isValid === true) {
+                        card.classList.add('lp-market-card--verified');
+                    }
+                });
+            })
+            .catch(() => {});
+        })();
     </script>
 </body>
 </html>

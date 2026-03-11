@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from urllib.parse import urlparse
 
 from django.http import JsonResponse
@@ -10,6 +11,10 @@ from django.views.decorators.http import require_GET, require_POST
 
 from .models import GraphRun
 from .services import GraphWorkflowService
+from .services.link_verifier import LinkVerificationService
+from .services.polymarket import TrendingMarketsService
+
+logger = logging.getLogger("apps.web.api_views")
 
 
 def _is_valid_polymarket_url(url: str) -> bool:
@@ -141,3 +146,48 @@ def review_graph_run(request, run_id):
             "model_name": run.model_name,
         }
     )
+
+
+@require_GET
+def trending_markets(request):
+    """Return the top trending Polymarket events by 24-hour volume."""
+    try:
+        raw_limit = int(request.GET.get("limit", 6))
+    except (TypeError, ValueError):
+        raw_limit = 6
+    limit = max(1, min(raw_limit, 20))
+
+    service = TrendingMarketsService()
+    events = service.get_trending(limit=limit)
+
+    return JsonResponse({
+        "markets": events,
+        "count": len(events),
+        "source": "polymarket-gamma-api",
+    })
+
+
+@require_POST
+def verify_links(request):
+    """Verify a batch of URLs and return their reachability status.
+
+    Accepts JSON body: {"urls": ["https://...", ...]}
+    Returns: {"results": {"url": true/false, ...}}
+    """
+    if "application/json" not in request.headers.get("Content-Type", ""):
+        return JsonResponse({"error": "Content-Type must be application/json."}, status=400)
+
+    try:
+        body = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON body."}, status=400)
+
+    urls = body.get("urls", [])
+    if not isinstance(urls, list) or len(urls) > 20:
+        return JsonResponse({"error": "Provide a list of up to 20 URLs."}, status=400)
+
+    clean_urls = [str(u).strip() for u in urls if isinstance(u, str) and str(u).strip()]
+    verifier = LinkVerificationService()
+    results = verifier.verify_batch(clean_urls)
+
+    return JsonResponse({"results": results})

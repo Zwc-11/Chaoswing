@@ -106,6 +106,7 @@ class RuntimeConfig:
     static_url: str
     static_root: Path
     sqlite_path: Path
+    database_url: str
     secure_ssl_redirect: bool
     session_cookie_secure: bool
     csrf_cookie_secure: bool
@@ -116,6 +117,9 @@ class RuntimeConfig:
     anthropic_model: str
     http_timeout_seconds: float
     log_level: str
+    rate_limit_enabled: bool
+    max_request_body_bytes: int
+    trending_cache_ttl_seconds: int
 
 
 def build_runtime_config(base_dir: Path) -> RuntimeConfig:
@@ -141,6 +145,7 @@ def build_runtime_config(base_dir: Path) -> RuntimeConfig:
         static_url=static_url,
         static_root=env.get_path("DJANGO_STATIC_ROOT", base_dir / "staticfiles", base_dir),
         sqlite_path=env.get_path("DJANGO_SQLITE_PATH", base_dir / "db.sqlite3", base_dir),
+        database_url=env.get_str("DATABASE_URL", ""),
         secure_ssl_redirect=env.get_bool("DJANGO_SECURE_SSL_REDIRECT", False),
         session_cookie_secure=env.get_bool("DJANGO_SESSION_COOKIE_SECURE", not debug),
         csrf_cookie_secure=env.get_bool("DJANGO_CSRF_COOKIE_SECURE", not debug),
@@ -151,4 +156,7 @@ def build_runtime_config(base_dir: Path) -> RuntimeConfig:
         anthropic_model=env.get_str("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
         http_timeout_seconds=env.get_float("CHAOSWING_HTTP_TIMEOUT_SECONDS", 8.0),
         log_level=env.get_str("CHAOSWING_LOG_LEVEL", "INFO").upper(),
+        rate_limit_enabled=env.get_bool("CHAOSWING_RATE_LIMIT_ENABLED", True),
+        max_request_body_bytes=int(env.get_float("CHAOSWING_MAX_REQUEST_BODY_BYTES", 1_048_576)),
+        trending_cache_ttl_seconds=int(env.get_float("CHAOSWING_TRENDING_CACHE_TTL", 300)),
     )
