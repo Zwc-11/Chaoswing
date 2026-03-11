@@ -20,7 +20,8 @@ class WebRoutesTests(TestCase):
         self.assertContains(response, "Launch App")
         self.assertContains(response, 'property="og:image"')
         self.assertContains(response, 'name="twitter:image"')
-        self.assertContains(response, "http://testserver/static/web/img/chaoswing-logo.png")
+        self.assertContains(response, "http://testserver/static/web/img/chaoswing-social-card.jpg")
+        self.assertNotContains(response, "http://testserver/static/web/img/chaoswing-logo.png")
 
     def test_dashboard_renders(self):
         response = self.client.get(reverse("web:dashboard"))
@@ -31,6 +32,8 @@ class WebRoutesTests(TestCase):
         self.assertContains(response, "chaoswing-initial-state")
         self.assertContains(response, 'property="og:image"')
         self.assertContains(response, 'name="twitter:image"')
+        self.assertContains(response, "http://testserver/static/web/img/chaoswing-social-card.jpg")
+        self.assertNotContains(response, "http://testserver/static/web/img/chaoswing-logo.png")
 
     def test_graph_api_returns_persisted_payload(self):
         response = self.client.post(

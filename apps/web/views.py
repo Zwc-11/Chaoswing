@@ -25,8 +25,8 @@ def _build_share_meta(
         "title": title,
         "description": description,
         "url": request.build_absolute_uri(url),
-        "image_url": request.build_absolute_uri(static("web/img/chaoswing-logo.png")),
-        "image_alt": "ChaosWing butterfly logo on a dark background",
+        "image_url": request.build_absolute_uri(static("web/img/chaoswing-social-card.jpg")),
+        "image_alt": "ChaosWing landing page showing the butterfly graph workspace",
     }
 
 
