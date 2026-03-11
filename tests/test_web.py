@@ -18,14 +18,19 @@ class WebRoutesTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "See the")
         self.assertContains(response, "Launch App")
+        self.assertContains(response, 'property="og:image"')
+        self.assertContains(response, 'name="twitter:image"')
+        self.assertContains(response, "http://testserver/static/web/img/chaoswing-logo.png")
 
     def test_dashboard_renders(self):
         response = self.client.get(reverse("web:dashboard"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Butterfly Effect Engine for Prediction Markets")
+        self.assertContains(response, "ChaosWing App - Live Butterfly Graph Workspace")
         self.assertContains(response, "Load Butterfly Graph")
         self.assertContains(response, "chaoswing-initial-state")
+        self.assertContains(response, 'property="og:image"')
+        self.assertContains(response, 'name="twitter:image"')
 
     def test_graph_api_returns_persisted_payload(self):
         response = self.client.post(

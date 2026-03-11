@@ -6,18 +6,37 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
             name="description"
-            content="ChaosWing is a graph-first causal intelligence system for prediction markets. Paste one Polymarket URL and explore a live butterfly graph."
+            content="{{ share_meta.description|default:'ChaosWing is a graph-first causal intelligence system for prediction markets. Paste one Polymarket URL and explore a live butterfly graph.' }}"
         />
         <meta
             property="og:title"
-            content="ChaosWing - Butterfly Effect Engine for Prediction Markets"
+            content="{{ share_meta.title|default:'ChaosWing - Butterfly Effect Engine for Prediction Markets' }}"
         />
         <meta
             property="og:description"
-            content="Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming."
+            content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}"
         />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="ChaosWing" />
+        {% if share_meta.url %}
+        <meta property="og:url" content="{{ share_meta.url }}" />
+        {% endif %}
+        {% if share_meta.image_url %}
+        <meta property="og:image" content="{{ share_meta.image_url }}" />
+        <meta property="og:image:alt" content="{{ share_meta.image_alt|default:'ChaosWing preview image' }}" />
+        {% endif %}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="{{ share_meta.title|default:'ChaosWing - Butterfly Effect Engine for Prediction Markets' }}"
+        />
+        <meta
+            name="twitter:description"
+            content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}"
+        />
+        {% if share_meta.image_url %}
+        <meta name="twitter:image" content="{{ share_meta.image_url }}" />
+        {% endif %}
         <meta name="theme-color" content="#030305" />
         <title>{% block title %}ChaosWing{% endblock %}</title>
         {% now "U" as asset_version %}

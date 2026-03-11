@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import logging
 
-from django.urls import reverse
 from django.shortcuts import render
+from django.templatetags.static import static
+from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import GraphRun
@@ -13,8 +14,28 @@ from .services.polymarket import TrendingMarketsService
 logger = logging.getLogger("apps.web.views")
 
 
+def _build_share_meta(
+    request,
+    *,
+    title: str,
+    description: str,
+    url: str,
+) -> dict[str, str]:
+    return {
+        "title": title,
+        "description": description,
+        "url": request.build_absolute_uri(url),
+        "image_url": request.build_absolute_uri(static("web/img/chaoswing-logo.png")),
+        "image_alt": "ChaosWing butterfly logo on a dark background",
+    }
+
+
 def landing(request):
     """Marketing landing page at the root URL."""
+    description = (
+        "Paste one Polymarket URL. ChaosWing resolves the event, maps every causal "
+        "chain, and surfaces the butterfly effects you never saw coming."
+    )
     try:
         total_runs = GraphRun.objects.count()
         recent_titles = list(
@@ -42,6 +63,12 @@ def landing(request):
             "sample_links": display_markets,
             "trending_markets": trending,
             "has_trending": bool(trending),
+            "share_meta": _build_share_meta(
+                request,
+                title="ChaosWing - Butterfly Effect Engine for Prediction Markets",
+                description=description,
+                url=reverse("web:landing"),
+            ),
             "stats": {
                 "total_runs": total_runs,
                 "recent_titles": recent_titles,
@@ -102,6 +129,10 @@ def landing(request):
 @ensure_csrf_cookie
 def dashboard(request):
     """Main application dashboard."""
+    description = (
+        "Paste one Polymarket URL and explore a live butterfly graph of related "
+        "markets, evidence, rules, and causal spillover."
+    )
     try:
         recent_runs = list(
             GraphRun.objects.order_by("-created_at")
@@ -155,6 +186,12 @@ def dashboard(request):
             "layout_options": LAYOUT_OPTIONS,
             "default_layout": DEFAULT_CONTROLS["layout"],
             "initial_state": initial_state,
+            "share_meta": _build_share_meta(
+                request,
+                title="ChaosWing App - Live Butterfly Graph Workspace",
+                description=description,
+                url=reverse("web:dashboard"),
+            ),
             "recent_runs": serialized_runs,
             "total_runs": recent_run_count,
             "shortcut_hints": [
@@ -164,4 +201,3 @@ def dashboard(request):
             ],
         },
     )
-

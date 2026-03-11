@@ -4,11 +4,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.">
-    <meta property="og:title" content="ChaosWing - Butterfly Effect Engine for Prediction Markets">
-    <meta property="og:description" content="Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.">
+    <meta name="description" content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}">
+    <meta property="og:title" content="{{ share_meta.title|default:'ChaosWing - Butterfly Effect Engine for Prediction Markets' }}">
+    <meta property="og:description" content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ChaosWing">
+    {% if share_meta.url %}
+    <meta property="og:url" content="{{ share_meta.url }}">
+    {% endif %}
+    {% if share_meta.image_url %}
+    <meta property="og:image" content="{{ share_meta.image_url }}">
+    <meta property="og:image:alt" content="{{ share_meta.image_alt|default:'ChaosWing preview image' }}">
+    {% endif %}
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ share_meta.title|default:'ChaosWing - Butterfly Effect Engine for Prediction Markets' }}">
+    <meta name="twitter:description" content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}">
+    {% if share_meta.image_url %}
+    <meta name="twitter:image" content="{{ share_meta.image_url }}">
+    {% endif %}
     <title>ChaosWing - Butterfly Effect Engine for Prediction Markets</title>
     {% now "U" as asset_version %}
     <link rel="icon" type="image/png" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
