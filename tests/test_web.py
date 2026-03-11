@@ -137,6 +137,31 @@ class WebRoutesTests(TestCase):
         )
         self.assertContains(response, "Open market")
 
+    def test_inspector_node_partial_shows_conceptual_message_when_no_source_url(self):
+        response = self.client.post(
+            reverse("web:inspector_node_partial"),
+            data=json.dumps(
+                {
+                    "label": "Iran risk premium",
+                    "type": "Entity",
+                    "confidence": 0.78,
+                    "summary": "Conceptual topic extracted from the event narrative.",
+                    "source_url": "",
+                    "source_title": "",
+                    "source_description": "",
+                    "icon_url": "data:image/svg+xml;base64,abc123",
+                    "metadata": [{"label": "Role", "value": "Topic or actor"}],
+                    "evidence_snippets": [],
+                }
+            ),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Iran risk premium")
+        self.assertContains(response, "Conceptual node — no direct market link")
+        self.assertNotContains(response, "Open market")
+
     def test_inspector_edge_partial_renders(self):
         response = self.client.post(
             reverse("web:inspector_edge_partial"),

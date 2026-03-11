@@ -6,7 +6,8 @@ from urllib.parse import urlparse
 
 from apps.web.mock_graph import build_mock_graph_payload
 
-from .contracts import PolymarketEventSnapshot, RelatedEventCandidate
+from .contracts import PolymarketEventSnapshot, PolymarketMarket, RelatedEventCandidate
+from .polymarket import _market_deep_link
 
 
 NODE_ID_RE = re.compile(r"[^a-z0-9]+")
@@ -319,7 +320,11 @@ class GraphConstructionService:
                     "summary": "No nearby Polymarket contract was discovered, so ChaosWing is surfacing a directly associated market from the event bundle.",
                     "metadata": metadata,
                     "evidence_snippets": [],
-                    "source_url": _canonical_market_source(market.slug, snapshot.canonical_url),
+                    "source_url": _canonical_market_source(
+                        event_slug=snapshot.slug,
+                        market=market,
+                        fallback_url=snapshot.canonical_url,
+                    ),
                 }
             )
         return fallback_nodes
@@ -338,7 +343,6 @@ class GraphConstructionService:
                 {"label": "Why it matters", "value": "Settlement rules cap interpretation risk."},
             ],
             "evidence_snippets": [],
-            "source_url": snapshot.canonical_url,
         }
 
     def _hypothesis_nodes(
@@ -364,7 +368,6 @@ class GraphConstructionService:
                         {"label": "Reason", "value": candidate.rationale},
                     ],
                     "evidence_snippets": [],
-                    "source_url": candidate.snapshot.canonical_url,
                 }
             )
 
@@ -383,7 +386,6 @@ class GraphConstructionService:
                     {"label": "Reason", "value": "Cross-market narrative transfer"},
                 ],
                 "evidence_snippets": [],
-                "source_url": snapshot.canonical_url,
             }
         ]
 
@@ -481,7 +483,12 @@ class GraphConstructionService:
         }
 
 
-def _canonical_market_source(slug: str, fallback_url: str) -> str:
-    if slug:
-        return f"https://polymarket.com/event/{slug}"
-    return fallback_url
+def _canonical_market_source(
+    event_slug: str,
+    market: PolymarketMarket,
+    fallback_url: str,
+) -> str:
+    """Build a Polymarket URL for a market, using event#conditionId deep link when possible."""
+    if not event_slug:
+        return fallback_url
+    return _market_deep_link(event_slug, market.id or "")

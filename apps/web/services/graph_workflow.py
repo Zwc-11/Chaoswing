@@ -272,8 +272,13 @@ class GraphWorkflowService:
         event_description = payload["event"].get("description") or snapshot.description
 
         for node in nodes:
-            node["source_url"] = node.get("source_url") or snapshot.canonical_url
-            source_context = self._get_source_context(node["source_url"], snapshot, source_cache)
+            if node["type"] in ("RelatedMarket", "Event"):
+                node["source_url"] = node.get("source_url") or snapshot.canonical_url
+            else:
+                node["source_url"] = node.get("source_url") or ""
+            source_context = self._get_source_context(
+                node.get("source_url") or snapshot.canonical_url, snapshot, source_cache
+            )
 
             node["summary"] = str(node.get("summary") or source_context["description"] or event_description).strip()
             node["description"] = node["summary"]
@@ -425,7 +430,8 @@ class GraphWorkflowService:
             "summary": str(addition.get("summary") or "").strip() or label,
             "metadata": self._clean_metadata(addition.get("metadata")),
             "evidence_snippets": self._clean_snippets(addition.get("evidence_snippets")),
-            "source_url": str(addition.get("source_url") or "").strip() or snapshot.canonical_url,
+            "source_url": str(addition.get("source_url") or "").strip()
+            or ("" if node_type in ("Entity", "Evidence", "Hypothesis") else snapshot.canonical_url),
         }
 
     def _normalize_added_edge(self, addition: Any) -> dict[str, Any] | None:
@@ -463,12 +469,13 @@ class GraphWorkflowService:
         if len(edge_ids) != len(edges):
             raise ValueError("Graph payload contains duplicate edge IDs.")
 
+        conceptual_types = {"Entity", "Evidence", "Rule", "Hypothesis"}
         for node in nodes:
             if node.get("type") not in ALLOWED_NODE_TYPES:
                 raise ValueError(f"Node {node['id']} uses an invalid type.")
             if not node.get("icon_key") or node["icon_key"] not in assets:
                 raise ValueError(f"Node {node['id']} is missing a valid icon asset.")
-            if not node.get("source_url"):
+            if not node.get("source_url") and node.get("type") not in conceptual_types:
                 raise ValueError(f"Node {node['id']} is missing a source URL.")
             if not node.get("summary"):
                 raise ValueError(f"Node {node['id']} is missing a summary.")

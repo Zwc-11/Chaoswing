@@ -97,6 +97,14 @@ def _canonical_event_url(slug: str) -> str:
     return f"https://polymarket.com/event/{slug}" if slug else "https://polymarket.com"
 
 
+def _market_deep_link(event_slug: str, market_id: str) -> str:
+    """Build a Polymarket deep-link URL for a specific market within an event."""
+    base = _canonical_event_url(event_slug)
+    if market_id:
+        return f"{base}#{market_id}"
+    return base
+
+
 def _event_status(event: dict) -> str:
     if event.get("closed"):
         return "closed"
@@ -148,6 +156,21 @@ class GammaPolymarketClient:
             }
         )
         url = f"{GAMMA_API_BASE}/events"
+        if query:
+            url = f"{url}?{query}"
+        payload = self._request_json(url)
+        return payload if isinstance(payload, list) else []
+
+    def list_markets(self, params: dict[str, object]) -> list[dict]:
+        """Query the Gamma /markets endpoint for individual markets by tag/category."""
+        query = urlencode(
+            {
+                key: self._normalize_param(value)
+                for key, value in params.items()
+                if value not in (None, "", [])
+            }
+        )
+        url = f"{GAMMA_API_BASE}/markets"
         if query:
             url = f"{url}?{query}"
         payload = self._request_json(url)
@@ -262,8 +285,9 @@ class PolymarketMetadataService:
         )
 
     def _market_from_record(self, market: dict) -> PolymarketMarket:
+        condition_id = str(market.get("id") or market.get("conditionId") or "")
         return PolymarketMarket(
-            id=str(market.get("id") or ""),
+            id=condition_id,
             slug=str(market.get("slug") or "").strip(),
             question=str(market.get("question") or market.get("slug") or "").strip(),
             description=str(market.get("description") or "").strip(),
@@ -441,6 +465,35 @@ class RelatedMarketDiscoveryService:
             except Exception:
                 records = []
             self._remember_candidates(seen, records)
+
+            try:
+                market_records = self.client.list_markets(
+                    {
+                        "tag_id": tag_id,
+                        "active": True,
+                        "closed": False,
+                        "limit": 24,
+                        "order": "volume",
+                        "ascending": False,
+                    }
+                )
+            except Exception:
+                market_records = []
+            event_slugs_from_markets = set()
+            for mkt in market_records:
+                event_slug = str(
+                    mkt.get("eventSlug") or mkt.get("event_slug") or mkt.get("slug") or ""
+                ).strip()
+                if event_slug:
+                    event_slugs_from_markets.add(event_slug)
+            for event_slug in event_slugs_from_markets:
+                if event_slug not in seen:
+                    try:
+                        event_record = self.client.get_event_by_slug(event_slug)
+                        if event_record:
+                            seen[event_slug] = event_record
+                    except Exception:
+                        pass
 
         if len(seen) < 12:
             try:

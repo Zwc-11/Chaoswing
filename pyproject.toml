@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chaoswing"
 version = "0.1.0"
-description = "Interface-first butterfly graph explorer for Polymarket events."
+description = "Turn any Polymarket event into a live butterfly graph of causal links, related markets, evidence, and narrative spillover."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
@@ -18,6 +18,10 @@ dependencies = [
     "dj-database-url>=2.3",
     "psycopg2-binary>=2.9",
 ]
+
+[project.urls]
+Homepage = "https://chaoswing.onrender.com"
+Repository = "https://github.com/Zwc-11/Chaoswing"
 
 [project.optional-dependencies]
 dev = ["ruff>=0.11,<1.0", "django-stubs>=5.1,<5.2", "pyright>=1.1,<2.0"]

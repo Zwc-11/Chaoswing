@@ -25,6 +25,8 @@
         <a class="button button--ghost inspector-link" href="{{ source_url }}" rel="noreferrer" target="_blank">
             Open market
         </a>
+        {% else %}
+        <p class="inspector-copy inspector-copy--tight">Conceptual node — no direct market link</p>
         {% endif %}
     </section>
     {% endif %}

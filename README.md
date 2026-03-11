@@ -1,17 +1,28 @@
 ﻿# ChaosWing
 
-ChaosWing is a graph-first market intelligence application for prediction markets.
+ChaosWing turns any Polymarket event into a live butterfly graph of causal links, related markets, evidence, and narrative spillover.
 
-Paste a single Polymarket event URL and ChaosWing turns it into an interactive butterfly graph showing related entities, evidence, rules, adjacent markets, and second-order impact paths.
+**Live site:** https://chaoswing.onrender.com
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/Django-5.x-092E20?style=flat-square&logo=django&logoColor=white)
 ![Cytoscape.js](https://img.shields.io/badge/Cytoscape.js-3.30-F7941D?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
-## Repository Description
+## GitHub Description
 
-ChaosWing turns a Polymarket event into an interactive butterfly graph showing related entities, evidence, rules, adjacent markets, and second-order impact paths.
+Turn any Polymarket event into a live butterfly graph of causal links, related markets, evidence, and narrative spillover.
+
+## Product Preview
+
+<p align="center">
+  <img src="docs/images/chaoswing-landing.png" alt="ChaosWing landing page" width="100%" />
+</p>
+
+<p align="center">
+  <img src="docs/images/chaoswing-app-fed.png" alt="ChaosWing live butterfly graph for a Fed decision market" width="49%" />
+  <img src="docs/images/chaoswing-app-crude.png" alt="ChaosWing locked-focus investigation view for a crude oil market" width="49%" />
+</p>
 
 ## What It Does
 
