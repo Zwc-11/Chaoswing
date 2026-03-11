@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from django.urls import reverse
 from django.shortcuts import render
@@ -34,7 +34,7 @@ def landing(request):
                 {
                     "icon": "graph",
                     "title": "Butterfly Graphs",
-                    "copy": "Every market becomes an interactive causal graph — nodes for events, entities, evidence, rules, and hypotheses, all connected by typed edges.",
+                    "copy": "Every market becomes an interactive causal graph - nodes for events, entities, evidence, rules, and hypotheses, all connected by typed edges.",
                 },
                 {
                     "icon": "resolve",
@@ -54,7 +54,7 @@ def landing(request):
                 {
                     "icon": "inspect",
                     "title": "Deep Node Inspection",
-                    "copy": "Click any node or edge to lock the graph and read its full profile — source market, confidence signals, evidence snippets, and metadata.",
+                    "copy": "Click any node or edge to lock the graph and read its full profile - source market, confidence signals, evidence snippets, and metadata.",
                 },
                 {
                     "icon": "history",
@@ -148,3 +148,4 @@ def dashboard(request):
             ],
         },
     )
+

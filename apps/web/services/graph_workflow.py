@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from copy import deepcopy
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Protocol, cast
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -10,11 +10,39 @@ from django.conf import settings
 from apps.web.models import GraphRun
 
 from .anthropic_agent import AnthropicGraphAgent
-from .contracts import PolymarketEventSnapshot
+from .contracts import PolymarketEventSnapshot, RelatedEventCandidate
 from .graph_builder import GraphConstructionService
 from .icons import build_type_icon, fetch_remote_image_data_uri
 from .polymarket import PolymarketMetadataService, RelatedMarketDiscoveryService
 
+
+# -- Injectable service protocols ---------------------------------------------
+
+
+class _MetadataServiceProtocol(Protocol):
+    def hydrate(self, source_url: str) -> PolymarketEventSnapshot: ...
+
+
+class _DiscoveryServiceProtocol(Protocol):
+    def discover(
+        self, snapshot: PolymarketEventSnapshot, limit: int = ...
+    ) -> list[RelatedEventCandidate]: ...
+
+
+class _AgentProtocol(Protocol):
+    available: bool
+    model: str
+
+    def expand_graph(
+        self, snapshot: dict[str, Any], seed_payload: dict[str, Any]
+    ) -> dict[str, Any] | None: ...
+
+    def review_graph(
+        self, snapshot: dict[str, Any], payload: dict[str, Any]
+    ) -> dict[str, Any] | None: ...
+
+
+# -----------------------------------------------------------------------------
 
 ALLOWED_NODE_TYPES = {"Event", "Entity", "RelatedMarket", "Evidence", "Rule", "Hypothesis"}
 ALLOWED_EDGE_TYPES = {
@@ -33,14 +61,17 @@ class GraphWorkflowService:
 
     def __init__(
         self,
-        metadata_service: PolymarketMetadataService | None = None,
-        discovery_service: RelatedMarketDiscoveryService | None = None,
+        metadata_service: _MetadataServiceProtocol | None = None,
+        discovery_service: _DiscoveryServiceProtocol | None = None,
         graph_builder: GraphConstructionService | None = None,
-        agent: AnthropicGraphAgent | None = None,
+        agent: _AgentProtocol | None = None,
     ):
         self.metadata_service = metadata_service or PolymarketMetadataService()
+        # cast: RelatedMarketDiscoveryService expects the concrete type; when a custom
+        # protocol implementation is injected a discovery_service is always provided too,
+        # so this fallback branch is only exercised with a real PolymarketMetadataService.
         self.discovery_service = discovery_service or RelatedMarketDiscoveryService(
-            metadata_service=self.metadata_service
+            metadata_service=cast(PolymarketMetadataService | None, metadata_service)
         )
         self.graph_builder = graph_builder or GraphConstructionService()
         self.agent = agent or AnthropicGraphAgent()
@@ -206,8 +237,10 @@ class GraphWorkflowService:
         return payload
 
     def review_saved_run(self, run: GraphRun) -> dict[str, Any]:
-        payload = deepcopy(run.payload)
-        source_snapshot = run.source_snapshot or payload.get("context", {}).get("source_snapshot", {})
+        payload: dict[str, Any] = deepcopy(cast(dict[str, Any], run.payload))
+        source_snapshot: dict[str, Any] = cast(dict[str, Any], run.source_snapshot) or payload.get(
+            "context", {}
+        ).get("source_snapshot", {})
         if self.agent.available:
             review = self.agent.review_graph(source_snapshot, payload)
             if review:
@@ -556,3 +589,4 @@ class GraphWorkflowService:
 
     def _iso_now(self) -> str:
         return datetime.now(tz=UTC).isoformat().replace("+00:00", "Z")
+

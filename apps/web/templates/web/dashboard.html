@@ -1,7 +1,7 @@
-{% extends "web/base.html" %}
+﻿{% extends "web/base.html" %}
 {% load static %}
 
-{% block title %}ChaosWing — Butterfly Effect Engine{% endblock %}
+{% block title %}ChaosWing - Butterfly Effect Engine{% endblock %}
 
 {% block extra_head %}
 {{ initial_state|json_script:"chaoswing-initial-state" }}
@@ -10,9 +10,9 @@
 {% block body %}
 <div class="app-shell" id="app-shell">
 
-    <!-- ══════════════════════════════════════════════════════════════════
+    <!-- ==================================================================
          TOP NAVIGATION / COMMAND BAR
-         ══════════════════════════════════════════════════════════════════ -->
+         ================================================================== -->
     <header class="command-bar" id="command-bar" role="banner">
 
         <!-- Brand -->
@@ -45,7 +45,7 @@
                 <span class="status-chip" id="status-chip-agent">Optional AI review</span>
             </div>
             <p class="command-bar__server">
-                Live resolution · Causal graphs · Saved run history
+                Live resolution  |  Causal graphs  |  Saved run history
             </p>
         </div>
 
@@ -112,12 +112,12 @@
         </div>
     </header>
 
-    <!-- ══════════════════════════════════════════════════════════════════
+    <!-- ==================================================================
          THREE-PANEL WORKSPACE
-         ══════════════════════════════════════════════════════════════════ -->
+         ================================================================== -->
     <main class="workspace" id="workspace">
 
-        <!-- ── LEFT PANEL: Source Rail ──────────────────────────────── -->
+        <!-- Left panel: source rail -->
         <aside class="source-rail" id="source-rail" aria-label="Source rail">
 
             <!-- URL Input -->
@@ -148,7 +148,7 @@
                                 name="url"
                                 type="url"
                                 inputmode="url"
-                                placeholder="https://polymarket.com/event/…"
+                                placeholder="https://polymarket.com/event/..."
                                 autocomplete="off"
                                 spellcheck="false"
                                 required
@@ -167,7 +167,7 @@
                         </button>
                     </div>
                     <p class="helper-text" id="event-url-hint">
-                        Hover any node to preview · Click to lock · <kbd></kbd>Esc</kbd> to clear
+                        Hover any node to preview | Click to lock | <kbd>Esc</kbd> to clear
                     </p>
                 </form>
             </section>
@@ -201,7 +201,7 @@
                             <span class="sample-card__title">{{ link.label }}</span>
                             <span class="sample-card__copy">{{ link.caption }}</span>
                         </span>
-                        <span class="sample-card__arrow" aria-hidden="true">→</span>
+                        <span class="sample-card__arrow" aria-hidden="true">-></span>
                     </button>
                     {% endfor %}
                 </div>
@@ -341,7 +341,7 @@
 
         </aside>
 
-        <!-- ── CENTER PANEL: Graph Stage ────────────────────────────── -->
+        <!-- Center panel: graph stage -->
         <section class="graph-column" aria-label="Butterfly graph workspace">
             <div class="graph-stage" id="graph-stage">
 
@@ -400,7 +400,7 @@
                 <!-- Graph canvas -->
                 <div class="graph-stage__canvas" id="graph-canvas" role="img" aria-label="Interactive butterfly graph"></div>
 
-                <!-- ── Empty state overlay ── -->
+                <!-- Empty state overlay -->
                 <div class="graph-stage__overlay graph-stage__overlay--empty" id="graph-empty-state" role="region" aria-label="Empty graph workspace">
                     <div class="empty-state">
                         <div class="empty-state__icon" aria-hidden="true">
@@ -415,7 +415,7 @@
                         <p class="eyebrow">Graph workspace</p>
                         <h3 class="empty-state__title" id="empty-state-title">Load a Polymarket event to wake up the graph.</h3>
                         <p class="empty-state__copy" id="empty-state-copy">
-                            ChaosWing renders a live butterfly graph with related entities, evidence, rules, and indirect hypotheses — all connected by typed causal edges.
+                            ChaosWing renders a live butterfly graph with related entities, evidence, rules, and indirect hypotheses - all connected by typed causal edges.
                         </p>
                         <div class="chip-list chip-list--center">
                             {% for link in sample_links %}
@@ -428,7 +428,7 @@
                     </div>
                 </div>
 
-                <!-- ── Loading state overlay ── -->
+                <!-- Loading state overlay -->
                 <div class="graph-stage__overlay graph-stage__overlay--loading" id="graph-loading-state" hidden role="status" aria-label="Loading graph">
                     <div class="loading-panel">
                         <div class="loading-panel__header" aria-hidden="true">
@@ -445,25 +445,25 @@
                         <div class="load-steps" aria-label="Loading progress">
                             <div class="load-step" id="load-step-1">
                                 <span class="load-step__dot" aria-hidden="true"></span>
-                                <span>Resolving Polymarket event…</span>
+                                <span>Resolving Polymarket event...</span>
                             </div>
                             <div class="load-step" id="load-step-2">
                                 <span class="load-step__dot" aria-hidden="true"></span>
-                                <span>Discovering related markets…</span>
+                                <span>Discovering related markets...</span>
                             </div>
                             <div class="load-step" id="load-step-3">
                                 <span class="load-step__dot" aria-hidden="true"></span>
-                                <span>Building causal graph…</span>
+                                <span>Building causal graph...</span>
                             </div>
                             <div class="load-step" id="load-step-4">
                                 <span class="load-step__dot" aria-hidden="true"></span>
-                                <span>Rendering butterfly layout…</span>
+                                <span>Rendering butterfly layout...</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ── Error state overlay ── -->
+                <!-- Error state overlay -->
                 <div class="graph-stage__overlay graph-stage__overlay--error" id="graph-error-state" hidden role="alert">
                     <div class="empty-state empty-state--error">
                         <div class="empty-state__icon empty-state__icon--error" aria-hidden="true">
@@ -488,7 +488,7 @@
             </div>
         </section>
 
-        <!-- ── RIGHT PANEL: Inspector Dock ──────────────────────────── -->
+        <!-- Right panel: inspector dock -->
         <aside class="inspector-dock" aria-labelledby="inspector-title">
             <div class="inspector-shell">
                 <div class="inspector-shell__header">
@@ -515,9 +515,9 @@
 
     </main>
 
-    <!-- ══════════════════════════════════════════════════════════════════
+    <!-- ==================================================================
          RUN HISTORY DRAWER
-         ══════════════════════════════════════════════════════════════════ -->
+         ================================================================== -->
     <div class="run-history-backdrop" id="run-history-backdrop" hidden aria-hidden="true"></div>
 
     <aside
@@ -573,7 +573,7 @@
                             </span>
                             <span class="run-history-item__date">{{ run.created_at }}</span>
                         </div>
-                        <span class="run-history-item__arrow" aria-hidden="true">→</span>
+                        <span class="run-history-item__arrow" aria-hidden="true">-></span>
                     </button>
                     {% endfor %}
                 {% else %}
@@ -590,9 +590,9 @@
         </div>
     </aside>
 
-    <!-- ══════════════════════════════════════════════════════════════════
+    <!-- ==================================================================
          KEYBOARD SHORTCUTS OVERLAY
-         ══════════════════════════════════════════════════════════════════ -->
+         ================================================================== -->
     <div class="shortcut-overlay" id="shortcut-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="shortcut-overlay-title">
         <div class="shortcut-overlay__panel">
             <div class="shortcut-overlay__header">
@@ -628,9 +628,9 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════════════
+    <!-- ==================================================================
          TOAST NOTIFICATION CONTAINER
-         ══════════════════════════════════════════════════════════════════ -->
+         ================================================================== -->
     <div
         class="toast-container"
         id="toast-container"
@@ -642,3 +642,4 @@
 
 </div>
 {% endblock %}
+

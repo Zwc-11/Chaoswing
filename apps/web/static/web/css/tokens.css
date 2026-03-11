@@ -1,12 +1,12 @@
-:root {
+﻿:root {
     color-scheme: dark;
 
-    /* ── Typefaces ────────────────────────────────────────────────── */
+    /* -- Typefaces -------------------------------------------------- */
     --font-sans: "Inter", system-ui, -apple-system, sans-serif;
     --font-display: "Inter", system-ui, -apple-system, sans-serif;
     --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
-    /* ── Core palette ─────────────────────────────────────────────── */
+    /* -- Core palette ----------------------------------------------- */
     --color-bg: #030305;
     --color-bg-deep: #010103;
     --color-bg-mid: #06060a;
@@ -16,19 +16,19 @@
     --color-surface-3: rgba(20, 20, 32, 0.84);
     --color-surface-4: rgba(26, 26, 40, 0.9);
 
-    /* ── Borders ──────────────────────────────────────────────────── */
+    /* -- Borders ---------------------------------------------------- */
     --color-border: rgba(255, 255, 255, 0.07);
     --color-border-soft: rgba(255, 255, 255, 0.05);
     --color-border-strong: rgba(255, 255, 255, 0.14);
     --color-border-glow: rgba(14, 165, 233, 0.28);
 
-    /* ── Text ─────────────────────────────────────────────────────── */
+    /* -- Text ------------------------------------------------------- */
     --color-text: #f4f4f6;
     --color-text-soft: #d4d4d8;
     --color-text-muted: #71717a;
     --color-text-faint: #3f3f46;
 
-    /* ── Accent — electric sky blue ──────────────────────────────── */
+    /* -- Accent - electric sky blue -------------------------------- */
     --color-accent: #0ea5e9;
     --color-accent-strong: #38bdf8;
     --color-accent-soft: rgba(14, 165, 233, 0.15);
@@ -36,35 +36,35 @@
     --color-accent-glow: rgba(14, 165, 233, 0.3);
     --color-accent-alt: #7dd3fc;
 
-    /* ── Violet ───────────────────────────────────────────────────── */
+    /* -- Violet ----------------------------------------------------- */
     --color-violet: #a855f7;
     --color-violet-strong: #c084fc;
     --color-violet-soft: rgba(168, 85, 247, 0.7);
     --color-violet-dim: rgba(168, 85, 247, 0.1);
     --color-violet-glow: rgba(168, 85, 247, 0.26);
 
-    /* ── Emerald ──────────────────────────────────────────────────── */
+    /* -- Emerald ---------------------------------------------------- */
     --color-success: #10b981;
     --color-success-soft: rgba(16, 185, 129, 0.14);
     --color-success-glow: rgba(16, 185, 129, 0.24);
 
-    /* ── Amber ────────────────────────────────────────────────────── */
+    /* -- Amber ------------------------------------------------------ */
     --color-warning: #f59e0b;
     --color-warning-soft: rgba(245, 158, 11, 0.14);
     --color-warning-glow: rgba(245, 158, 11, 0.22);
 
-    /* ── Rose ─────────────────────────────────────────────────────── */
+    /* -- Rose ------------------------------------------------------- */
     --color-danger: #fb7185;
     --color-danger-soft: rgba(251, 113, 133, 0.14);
     --color-danger-glow: rgba(251, 113, 133, 0.22);
 
-    /* ── Aurora / ambient glow ────────────────────────────────────── */
+    /* -- Aurora / ambient glow -------------------------------------- */
     --aurora-blue: rgba(14, 165, 233, 0.1);
     --aurora-violet: rgba(124, 58, 237, 0.08);
     --aurora-emerald: rgba(16, 185, 129, 0.07);
     --aurora-rose: rgba(244, 63, 94, 0.06);
 
-    /* ── Shadows ──────────────────────────────────────────────────── */
+    /* -- Shadows ---------------------------------------------------- */
     --color-shadow: rgba(0, 0, 0, 0.55);
     --color-glow: rgba(14, 165, 233, 0.22);
     --shadow-xs: 0 2px 8px rgba(0, 0, 0, 0.24);
@@ -77,7 +77,7 @@
     --glow-violet:
         0 0 28px rgba(168, 85, 247, 0.2), 0 0 64px rgba(168, 85, 247, 0.08);
 
-    /* ── Graph node colors ────────────────────────────────────────── */
+    /* -- Graph node colors ------------------------------------------ */
     --node-event: #0ea5e9;
     --node-entity: #a855f7;
     --node-related-market: #10b981;
@@ -85,7 +85,7 @@
     --node-rule: #f59e0b;
     --node-hypothesis: #fb7185;
 
-    /* ── Spacing scale ────────────────────────────────────────────── */
+    /* -- Spacing scale ---------------------------------------------- */
     --space-1: 0.25rem;
     --space-2: 0.5rem;
     --space-3: 0.75rem;
@@ -99,7 +99,7 @@
     --space-11: 5rem;
     --space-12: 6rem;
 
-    /* ── Border radii ─────────────────────────────────────────────── */
+    /* -- Border radii ----------------------------------------------- */
     --radius-xs: 0.35rem;
     --radius-sm: 0.5rem;
     --radius-md: 0.75rem;
@@ -109,7 +109,7 @@
     --radius-3xl: 2rem;
     --radius-pill: 9999px;
 
-    /* ── Typography scale ─────────────────────────────────────────── */
+    /* -- Typography scale ------------------------------------------- */
     --text-2xs: 0.68rem;
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;
@@ -127,7 +127,7 @@
     --line-copy: 1.58;
     --line-loose: 1.72;
 
-    /* ── Motion ───────────────────────────────────────────────────── */
+    /* -- Motion ----------------------------------------------------- */
     --duration-instant: 80ms;
     --duration-fast: 140ms;
     --duration-base: 220ms;
@@ -143,7 +143,7 @@
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* ── Z-index ladder ───────────────────────────────────────────── */
+    /* -- Z-index ladder --------------------------------------------- */
     --z-below: 0;
     --z-base: 1;
     --z-raised: 2;
@@ -155,11 +155,11 @@
     --z-modal: 60;
     --z-top: 100;
 
-    /* ── Layout ───────────────────────────────────────────────────── */
+    /* -- Layout ----------------------------------------------------- */
     --lp-max-width: 76rem;
     --lp-section-gap: 7rem;
 
-    /* ── Glass surface recipe ─────────────────────────────────────── */
+    /* -- Glass surface recipe --------------------------------------- */
     --glass-bg: linear-gradient(
         180deg,
         rgba(10, 10, 20, 0.92),
@@ -168,3 +168,4 @@
     --glass-border: 1px solid rgba(255, 255, 255, 0.07);
     --glass-blur: blur(20px);
 }
+

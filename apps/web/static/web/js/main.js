@@ -1,4 +1,4 @@
-import { requestGraphFromUrl } from "./api.js";
+﻿import { requestGraphFromUrl } from "./api.js";
 import { exportGraphPayload, buildShareUrl, listGraphRuns } from "./api.js";
 import { pulseStage } from "./animations.js";
 import { bindControls } from "./controls.js";
@@ -17,7 +17,7 @@ import {
     readInitialState,
 } from "./utils.js";
 
-// ─── Element collection ───────────────────────────────────────────────────────
+// --- Element collection -------------------------------------------------------
 
 function collectElements() {
     return {
@@ -122,7 +122,7 @@ function collectElements() {
     };
 }
 
-// ─── Render helpers ───────────────────────────────────────────────────────────
+// --- Render helpers -----------------------------------------------------------
 
 function renderTokens(container, items, className = "tag") {
     clearElement(container);
@@ -279,7 +279,7 @@ function renderFeedback(elements, state, graphStats) {
 function renderStageCopy(elements, state, graphStats) {
     if (state.loading) {
         elements.stageCopy.textContent =
-            "Resolving the event, discovering related markets, and building your butterfly graph…";
+            "Resolving the event, discovering related markets, and building your butterfly graph...";
         return;
     }
     if (state.error) {
@@ -306,7 +306,7 @@ function renderStageCopy(elements, state, graphStats) {
         return;
     }
     if (state.payload?.event) {
-        elements.stageCopy.textContent = `${state.payload.event.title} — ${formatCount(graphStats.nodes, graphStats.edges)} after live filtering.`;
+        elements.stageCopy.textContent = `${state.payload.event.title} - ${formatCount(graphStats.nodes, graphStats.edges)} after live filtering.`;
         return;
     }
     elements.stageCopy.textContent =
@@ -319,7 +319,7 @@ function renderLoadingButton(elements, isLoading) {
     }
     if (elements.loadGraphButtonLabel) {
         elements.loadGraphButtonLabel.textContent = isLoading
-            ? "Loading graph…"
+            ? "Loading graph..."
             : "Load Butterfly Graph";
     }
     if (elements.loadGraphButtonSpinner) {
@@ -352,7 +352,7 @@ function flashAction(button) {
     });
 }
 
-// ─── Loading step animation ───────────────────────────────────────────────────
+// --- Loading step animation ---------------------------------------------------
 
 function createLoadingStepController(elements) {
     const steps = [
@@ -404,7 +404,7 @@ function createLoadingStepController(elements) {
     return { start, complete, reset };
 }
 
-// ─── Run history drawer ───────────────────────────────────────────────────────
+// --- Run history drawer -------------------------------------------------------
 
 function createHistoryDrawer(elements, { onLoadUrl }) {
     let isOpen = false;
@@ -493,7 +493,7 @@ function createHistoryDrawer(elements, { onLoadUrl }) {
     return { open, close, toggle, isOpen: () => isOpen };
 }
 
-// ─── Keyboard shortcut overlay ───────────────────────────────────────────────
+// --- Keyboard shortcut overlay -----------------------------------------------
 
 function createShortcutOverlay(elements) {
     let isOpen = false;
@@ -541,14 +541,14 @@ function createShortcutOverlay(elements) {
     return { open, close, toggle, isOpen: () => isOpen };
 }
 
-// ─── URL query-param auto-load ────────────────────────────────────────────────
+// --- URL query-param auto-load ------------------------------------------------
 
 function getAutoLoadUrl() {
     const params = new URLSearchParams(window.location.search);
     return params.get("url") || "";
 }
 
-// ─── Main entry point ─────────────────────────────────────────────────────────
+// --- Main entry point ---------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
     const initialState = readInitialState("chaoswing-initial-state");
@@ -570,21 +570,21 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     });
 
-    // ── History drawer ──────────────────────────────────────────────────────
+    // -- History drawer ------------------------------------------------------
     const historyDrawer = createHistoryDrawer(elements, {
         onLoadUrl: (url, options = {}) => {
             if (elements.urlInput) elements.urlInput.value = url;
             if (options.fromHistory) {
-                toast.info(`Loading saved run…`);
+                toast.info(`Loading saved run...`);
             }
             loadGraph(url);
         },
     });
 
-    // ── Keyboard shortcut overlay ───────────────────────────────────────────
+    // -- Keyboard shortcut overlay -------------------------------------------
     const shortcutOverlay = createShortcutOverlay(elements);
 
-    // ── Inspector node center button ────────────────────────────────────────
+    // -- Inspector node center button ----------------------------------------
     elements.inspectorContent.addEventListener("click", (event) => {
         const button = event.target.closest("[data-action='center-node']");
         if (!button) return;
@@ -592,19 +592,19 @@ document.addEventListener("DOMContentLoaded", () => {
         if (nodeId) graph.centerOnNode(nodeId);
     });
 
-    // ── Clear selection ─────────────────────────────────────────────────────
+    // -- Clear selection -----------------------------------------------------
     elements.clearSelectionButton.addEventListener("click", () => {
         graph.clearSelection();
     });
 
-    // ── History button ──────────────────────────────────────────────────────
+    // -- History button ------------------------------------------------------
     if (elements.historyButton) {
         elements.historyButton.addEventListener("click", () => {
             historyDrawer.toggle();
         });
     }
 
-    // ── Export button ───────────────────────────────────────────────────────
+    // -- Export button -------------------------------------------------------
     if (elements.exportButton) {
         elements.exportButton.addEventListener("click", () => {
             const payload = store.getState().payload;
@@ -623,7 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ── Share button ────────────────────────────────────────────────────────
+    // -- Share button --------------------------------------------------------
     if (elements.shareButton) {
         elements.shareButton.addEventListener("click", async () => {
             const payload = store.getState().payload;
@@ -648,14 +648,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ── Shortcuts button ────────────────────────────────────────────────────
+    // -- Shortcuts button ----------------------------------------------------
     if (elements.shortcutsButton) {
         elements.shortcutsButton.addEventListener("click", () => {
             shortcutOverlay.toggle();
         });
     }
 
-    // ── Error retry button ──────────────────────────────────────────────────
+    // -- Error retry button --------------------------------------------------
     if (elements.errorRetryButton) {
         elements.errorRetryButton.addEventListener("click", () => {
             const url = store.getState().currentUrl;
@@ -663,7 +663,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ── Keyboard shortcuts ──────────────────────────────────────────────────
+    // -- Keyboard shortcuts --------------------------------------------------
     document.addEventListener("keydown", (event) => {
         const state = store.getState();
 
@@ -706,10 +706,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ── Graph stats tracking ────────────────────────────────────────────────
+    // -- Graph stats tracking ------------------------------------------------
     let graphStats = { nodes: 0, edges: 0 };
 
-    // ── Core graph load function ────────────────────────────────────────────
+    // -- Core graph load function --------------------------------------------
     async function loadGraph(url) {
         if (!url) {
             toast.warning("Paste a full Polymarket event URL to load a run.");
@@ -726,7 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.commandBar.classList.add("is-loading");
         }
 
-        const loadingToast = toast.loading("Resolving Polymarket event…");
+        const loadingToast = toast.loading("Resolving Polymarket event...");
 
         try {
             const payload = await requestGraphFromUrl(
@@ -741,7 +741,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const edgeCount = payload?.graph?.edges?.length ?? 0;
             const title = payload?.event?.title || "Graph";
             loadingToast.resolve(
-                `${title} — ${nodeCount} nodes · ${edgeCount} edges`,
+                `${title} - ${nodeCount} nodes  |  ${edgeCount} edges`,
             );
 
             // Refresh history count badge
@@ -757,7 +757,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ── Refresh history count badge ─────────────────────────────────────────
+    // -- Refresh history count badge -----------------------------------------
     async function refreshHistoryBadge() {
         try {
             const data = await listGraphRuns(initialState.endpoints.runs, {
@@ -779,7 +779,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ── Bind controls ───────────────────────────────────────────────────────
+    // -- Bind controls -------------------------------------------------------
     const controls = bindControls({
         store,
         graphController: graph,
@@ -794,7 +794,7 @@ document.addEventListener("DOMContentLoaded", () => {
         flashAction,
     });
 
-    // ── State subscription ──────────────────────────────────────────────────
+    // -- State subscription --------------------------------------------------
     store.subscribe((state, previousState) => {
         controls.sync(state);
         toolbar.sync(state);
@@ -836,7 +836,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderInspectorChrome(elements, state);
     });
 
-    // ── Initial render ──────────────────────────────────────────────────────
+    // -- Initial render ------------------------------------------------------
     controls.sync(store.getState());
     toolbar.sync(store.getState());
     renderLoadingButton(elements, false);
@@ -848,7 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderStageCopy(elements, store.getState(), graphStats);
     renderInspectorChrome(elements, store.getState());
 
-    // ── Auto-load from URL query param ──────────────────────────────────────
+    // -- Auto-load from URL query param --------------------------------------
     const autoUrl = getAutoLoadUrl();
     if (autoUrl) {
         if (elements.urlInput) elements.urlInput.value = autoUrl;
@@ -856,3 +856,4 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => loadGraph(autoUrl), 200);
     }
 });
+

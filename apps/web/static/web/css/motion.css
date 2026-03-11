@@ -1,9 +1,9 @@
-/* ═══════════════════════════════════════════════════════════════════════
-   ChaosWing — Motion System
+﻿/* =======================================================================
+   ChaosWing - Motion System
    All keyframes and animation classes in one place.
-   ═══════════════════════════════════════════════════════════════════════ */
+   ======================================================================= */
 
-/* ── App shell entrance ────────────────────────────────────────────────── */
+/* -- App shell entrance -------------------------------------------------- */
 
 .app-shell {
     animation: shell-reveal 680ms var(--ease-snappy) both;
@@ -20,7 +20,7 @@
     }
 }
 
-/* ── Graph stage pulse on data load ───────────────────────────────────── */
+/* -- Graph stage pulse on data load ------------------------------------- */
 
 .graph-stage.is-energized {
     animation: stage-breath 860ms var(--ease-snappy);
@@ -60,7 +60,7 @@
     }
 }
 
-/* ── Skeleton loading shimmer ──────────────────────────────────────────── */
+/* -- Skeleton loading shimmer -------------------------------------------- */
 
 .skeleton-bar,
 .skeleton-node {
@@ -83,7 +83,7 @@
     }
 }
 
-/* ── Inspector panel entrance ─────────────────────────────────────────── */
+/* -- Inspector panel entrance ------------------------------------------- */
 
 .inspector-panel.is-entering {
     animation: inspector-enter var(--duration-slow) var(--ease-snappy) both;
@@ -100,7 +100,7 @@
     }
 }
 
-/* ── Bar diagram fill ──────────────────────────────────────────────────── */
+/* -- Bar diagram fill ---------------------------------------------------- */
 
 .bar-row__fill {
     animation: bar-fill 480ms var(--ease-snappy) both;
@@ -122,7 +122,7 @@
     }
 }
 
-/* ── Toast notifications ──────────────────────────────────────────────── */
+/* -- Toast notifications ------------------------------------------------ */
 
 .toast {
     animation: toast-in 320ms var(--ease-spring) both;
@@ -161,7 +161,7 @@
     }
 }
 
-/* ── Run history drawer ───────────────────────────────────────────────── */
+/* -- Run history drawer ------------------------------------------------- */
 
 .run-history-drawer {
     animation: drawer-in 360ms var(--ease-snappy) both;
@@ -219,7 +219,7 @@
     }
 }
 
-/* ── Landing page hero entrance ───────────────────────────────────────── */
+/* -- Landing page hero entrance ----------------------------------------- */
 
 .lp-hero__badge {
     animation: fade-up 500ms var(--ease-snappy) 100ms both;
@@ -267,7 +267,7 @@
     }
 }
 
-/* ── Landing feature cards stagger ───────────────────────────────────── */
+/* -- Landing feature cards stagger ------------------------------------- */
 
 .lp-feature-card:nth-child(1) {
     animation-delay: 0ms;
@@ -292,7 +292,7 @@
     animation: fade-up 520ms var(--ease-snappy) both;
 }
 
-/* ── Aurora background animation ─────────────────────────────────────── */
+/* -- Aurora background animation --------------------------------------- */
 
 .aurora-orb {
     position: absolute;
@@ -391,7 +391,7 @@
     }
 }
 
-/* ── Animated graph edges (SVG stroke-dasharray trick) ──────────────── */
+/* -- Animated graph edges (SVG stroke-dasharray trick) ---------------- */
 
 .lp-graph-edge {
     stroke-dasharray: var(--edge-length, 200);
@@ -405,7 +405,7 @@
     }
 }
 
-/* ── Animated graph nodes (landing page) ─────────────────────────────── */
+/* -- Animated graph nodes (landing page) ------------------------------- */
 
 .lp-graph-node {
     opacity: 0;
@@ -427,7 +427,7 @@
     }
 }
 
-/* ── Persistent node pulse ring ─────────────────────────────────────── */
+/* -- Persistent node pulse ring --------------------------------------- */
 
 .lp-graph-node--event .lp-node-ring {
     animation: node-ring-pulse 2.4s var(--ease-out) infinite;
@@ -449,7 +449,7 @@
     }
 }
 
-/* ── Step progress list (loading overlay) ───────────────────────────── */
+/* -- Step progress list (loading overlay) ----------------------------- */
 
 .load-step {
     opacity: 0;
@@ -469,7 +469,7 @@
     opacity: 0.55;
 }
 
-/* ── Live indicator dot ──────────────────────────────────────────────── */
+/* -- Live indicator dot ------------------------------------------------ */
 
 .live-dot {
     display: inline-block;
@@ -493,7 +493,7 @@
     }
 }
 
-/* ── Spinner (used in loading micro-states) ─────────────────────────── */
+/* -- Spinner (used in loading micro-states) --------------------------- */
 
 .spinner {
     display: inline-block;
@@ -517,7 +517,7 @@
     }
 }
 
-/* ── History run item entrance ───────────────────────────────────────── */
+/* -- History run item entrance ----------------------------------------- */
 
 .run-history-item {
     animation: history-item-in 300ms var(--ease-snappy) var(--item-delay, 0ms)
@@ -535,7 +535,7 @@
     }
 }
 
-/* ── Command bar shimmer when a run is being loaded ──────────────────── */
+/* -- Command bar shimmer when a run is being loaded -------------------- */
 
 .command-bar.is-loading {
     animation: command-bar-shimmer 1.8s linear infinite;
@@ -556,7 +556,7 @@
     }
 }
 
-/* ── Keyboard shortcut overlay fade ─────────────────────────────────── */
+/* -- Keyboard shortcut overlay fade ----------------------------------- */
 
 .shortcut-overlay {
     animation: backdrop-in 200ms var(--ease-out) both;
@@ -581,7 +581,7 @@
     }
 }
 
-/* ── Error state shake ───────────────────────────────────────────────── */
+/* -- Error state shake ------------------------------------------------- */
 
 .shake {
     animation: shake 400ms var(--ease-snappy);
@@ -611,7 +611,7 @@
     }
 }
 
-/* ── Landing page section reveal (intersection observer) ─────────────── */
+/* -- Landing page section reveal (intersection observer) --------------- */
 
 .reveal {
     opacity: 0;
@@ -626,7 +626,7 @@
     transform: translateY(0);
 }
 
-/* ── Reduced motion overrides ────────────────────────────────────────── */
+/* -- Reduced motion overrides ------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -658,3 +658,4 @@
         border-right-color: var(--color-accent);
     }
 }
+

@@ -214,7 +214,7 @@ class GraphWorkflowServiceTests(TestCase):
                 return snapshot
 
         class StubDiscoveryService:
-            def discover(self, resolved_snapshot, limit=4):
+            def discover(self, snapshot, limit=4):
                 return [
                     RelatedEventCandidate(
                         snapshot=related_snapshot,
@@ -227,6 +227,13 @@ class GraphWorkflowServiceTests(TestCase):
 
         class DisabledAgent:
             available = False
+            model = ""
+
+            def expand_graph(self, snapshot, seed_payload):
+                return None
+
+            def review_graph(self, snapshot, payload):
+                return None
 
         workflow = GraphWorkflowService(
             metadata_service=StubMetadataService(),

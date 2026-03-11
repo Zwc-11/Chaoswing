@@ -1,7 +1,7 @@
-/* ═══════════════════════════════════════════════════════════════════════
-   ChaosWing — Toast Notification System
+﻿/* =======================================================================
+   ChaosWing - Toast Notification System
    Self-contained toast module. Import and call show() anywhere.
-   ═══════════════════════════════════════════════════════════════════════ */
+   ======================================================================= */
 
 const ICONS = {
     success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -214,7 +214,7 @@ export function createToastSystem() {
      * Show a loading toast that can be resolved to success or error later.
      *
      * @example
-     * const t = toast.loading("Generating graph…");
+     * const t = toast.loading("Generating graph...");
      * try {
      *   await doWork();
      *   t.resolve("Graph ready.");
@@ -263,5 +263,6 @@ export function createToastSystem() {
     };
 }
 
-/** Module-level singleton — import this throughout the app. */
+/** Module-level singleton - import this throughout the app. */
 export const toast = createToastSystem();
+

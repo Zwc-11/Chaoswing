@@ -21,7 +21,6 @@
 </head>
 <body class="lp">
 
-    <!-- â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <nav class="lp-nav" id="lp-nav" aria-label="Main navigation">
         <a class="lp-nav__brand" href="{% url 'web:landing' %}">
             <span class="lp-nav__icon" aria-hidden="true">
@@ -49,17 +48,14 @@
         </a>
     </nav>
 
-    <!-- â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-hero" aria-labelledby="hero-headline">
 
-        <!-- Aurora background orbs -->
         <div class="lp-hero__aurora" aria-hidden="true">
             <div class="aurora-orb aurora-orb--1"></div>
             <div class="aurora-orb aurora-orb--2"></div>
             <div class="aurora-orb aurora-orb--3"></div>
         </div>
 
-        <!-- Dot grid -->
         <div class="lp-hero__grid" aria-hidden="true"></div>
 
         <div class="lp-hero__content">
@@ -91,7 +87,6 @@
                 </a>
             </div>
 
-            <!-- Animated butterfly graph preview -->
             <div class="lp-hero__graph-preview" aria-hidden="true" role="img" aria-label="Animated butterfly graph demonstration">
                 <svg viewBox="0 0 900 350" xmlns="http://www.w3.org/2000/svg" style="overflow: visible;">
                     <defs>
@@ -132,84 +127,66 @@
                         </marker>
                     </defs>
 
-                    <!-- Background ambient glows -->
                     <ellipse cx="450" cy="175" rx="200" ry="120" fill="url(#glow-event)" opacity="0.4"/>
 
-                    <!-- â”€â”€ EDGES (drawn first, behind nodes) â”€â”€ -->
-
-                    <!-- Event â†’ Entity left -->
                     <line class="lp-graph-edge" x1="415" y1="165" x2="265" y2="105"
                           stroke="rgba(168,85,247,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-violet)"
                           style="--edge-length: 172; --edge-delay: 900ms;"/>
 
-                    <!-- Event â†’ Entity right -->
                     <line class="lp-graph-edge" x1="485" y1="165" x2="635" y2="105"
                           stroke="rgba(168,85,247,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-violet)"
                           style="--edge-length: 172; --edge-delay: 1000ms;"/>
 
-                    <!-- Event â†’ Related Market 1 -->
                     <line class="lp-graph-edge" x1="435" y1="190" x2="185" y2="210"
                           stroke="rgba(16,185,129,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-green)"
                           style="--edge-length: 252; --edge-delay: 1100ms;"/>
 
-                    <!-- Event â†’ Related Market 2 -->
                     <line class="lp-graph-edge" x1="465" y1="190" x2="715" y2="210"
                           stroke="rgba(16,185,129,0.55)" stroke-width="1.5"
                           marker-end="url(#arrow-green)"
                           style="--edge-length: 252; --edge-delay: 1150ms;"/>
 
-                    <!-- Event â†’ Evidence -->
                     <line class="lp-graph-edge" x1="450" y1="148" x2="450" y2="55"
                           stroke="rgba(148,163,184,0.5)" stroke-width="1.5"
                           marker-end="url(#arrow-blue)"
                           style="--edge-length: 96; --edge-delay: 1200ms;"/>
 
-                    <!-- Entity left â†’ Hypothesis left -->
                     <line class="lp-graph-edge" x1="248" y1="120" x2="155" y2="265"
                           stroke="rgba(251,113,133,0.45)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 168; --edge-delay: 1400ms;"/>
 
-                    <!-- Entity left â†’ Hypothesis center -->
                     <line class="lp-graph-edge" x1="268" y1="118" x2="350" y2="288"
                           stroke="rgba(251,113,133,0.4)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 196; --edge-delay: 1500ms;"/>
 
-                    <!-- Entity right â†’ Hypothesis center -->
                     <line class="lp-graph-edge" x1="632" y1="118" x2="550" y2="288"
                           stroke="rgba(251,113,133,0.4)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 196; --edge-delay: 1550ms;"/>
 
-                    <!-- Entity right â†’ Hypothesis right -->
                     <line class="lp-graph-edge" x1="652" y1="120" x2="745" y2="265"
                           stroke="rgba(251,113,133,0.45)" stroke-width="1.2"
                           marker-end="url(#arrow-rose)"
                           style="--edge-length: 168; --edge-delay: 1600ms;"/>
 
-                    <!-- Event â†’ Rule -->
                     <line class="lp-graph-edge" x1="450" y1="198" x2="450" y2="295"
                           stroke="rgba(245,158,11,0.5)" stroke-width="1.2"
                           marker-end="url(#arrow-amber)"
                           style="--edge-length: 100; --edge-delay: 1650ms;"/>
 
-                    <!-- Related Market 1 â†’ Hypothesis left -->
                     <line class="lp-graph-edge" x1="170" y1="228" x2="148" y2="255"
                           stroke="rgba(16,185,129,0.35)" stroke-width="1"
                           style="--edge-length: 35; --edge-delay: 1700ms;"/>
 
-                    <!-- Related Market 2 â†’ Hypothesis right -->
                     <line class="lp-graph-edge" x1="730" y1="228" x2="752" y2="255"
                           stroke="rgba(16,185,129,0.35)" stroke-width="1"
                           style="--edge-length: 35; --edge-delay: 1750ms;"/>
 
-                    <!-- â”€â”€ NODES â”€â”€ -->
-
-                    <!-- Central Event Node -->
                     <g class="lp-graph-node lp-graph-node--event" style="--node-delay: 200ms;" transform="translate(450,175)">
                         <circle class="lp-node-ring" r="22" fill="none" stroke="#0ea5e9" stroke-width="1.5" opacity="0.5"/>
                         <circle r="22" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/>
@@ -219,7 +196,6 @@
                         <text y="-30" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="8" font-family="JetBrains Mono,monospace">Fed Decision</text>
                     </g>
 
-                    <!-- Entity â€” Left -->
                     <g class="lp-graph-node" style="--node-delay: 450ms;" transform="translate(255,100)">
                         <circle r="18" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.4"/>
                         <circle r="10" fill="rgba(168,85,247,0.22)"/>
@@ -228,7 +204,6 @@
                         <text y="-25" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7.5" font-family="JetBrains Mono,monospace">Federal Reserve</text>
                     </g>
 
-                    <!-- Entity â€” Right -->
                     <g class="lp-graph-node" style="--node-delay: 500ms;" transform="translate(645,100)">
                         <circle r="18" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.4"/>
                         <circle r="10" fill="rgba(168,85,247,0.22)"/>
@@ -237,7 +212,6 @@
                         <text y="-25" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7.5" font-family="JetBrains Mono,monospace">CPI Inflation</text>
                     </g>
 
-                    <!-- Related Market â€” Left -->
                     <g class="lp-graph-node" style="--node-delay: 650ms;" transform="translate(175,215)">
                         <circle r="16" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.4"/>
                         <circle r="9" fill="rgba(16,185,129,0.22)"/>
@@ -246,7 +220,6 @@
                         <text y="-22" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7" font-family="JetBrains Mono,monospace">Crude Oil</text>
                     </g>
 
-                    <!-- Related Market â€” Right -->
                     <g class="lp-graph-node" style="--node-delay: 700ms;" transform="translate(725,215)">
                         <circle r="16" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.4"/>
                         <circle r="9" fill="rgba(16,185,129,0.22)"/>
@@ -255,7 +228,6 @@
                         <text y="-22" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7" font-family="JetBrains Mono,monospace">USD Index</text>
                     </g>
 
-                    <!-- Evidence â€” Top -->
                     <g class="lp-graph-node" style="--node-delay: 820ms;" transform="translate(450,48)">
                         <circle r="14" fill="rgba(148,163,184,0.12)" stroke="#94a3b8" stroke-width="1.3"/>
                         <circle r="8" fill="rgba(148,163,184,0.18)"/>
@@ -263,7 +235,6 @@
                         <text y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="Inter,sans-serif" font-weight="700">EVIDENCE</text>
                     </g>
 
-                    <!-- Rule â€” Bottom -->
                     <g class="lp-graph-node" style="--node-delay: 870ms;" transform="translate(450,305)">
                         <circle r="14" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.3"/>
                         <circle r="8" fill="rgba(245,158,11,0.18)"/>
@@ -271,7 +242,6 @@
                         <text y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="Inter,sans-serif" font-weight="700">RULE</text>
                     </g>
 
-                    <!-- Hypothesis â€” Far Left -->
                     <g class="lp-graph-node" style="--node-delay: 1000ms;" transform="translate(148,280)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -279,7 +249,6 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Hypothesis â€” Center Left -->
                     <g class="lp-graph-node" style="--node-delay: 1060ms;" transform="translate(348,300)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -287,7 +256,6 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Hypothesis â€” Center Right -->
                     <g class="lp-graph-node" style="--node-delay: 1080ms;" transform="translate(552,300)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -295,7 +263,6 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Hypothesis â€” Far Right -->
                     <g class="lp-graph-node" style="--node-delay: 1100ms;" transform="translate(752,280)">
                         <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
                         <circle r="7" fill="rgba(251,113,133,0.18)"/>
@@ -303,7 +270,6 @@
                         <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
                     </g>
 
-                    <!-- Confidence score badges -->
                     <g style="opacity: 0; animation: fade-up 400ms ease 1.8s both;">
                         <rect x="390" y="130" width="40" height="16" rx="8" fill="rgba(14,165,233,0.18)" stroke="rgba(14,165,233,0.3)" stroke-width="1"/>
                         <text x="410" y="142" text-anchor="middle" fill="#7dd3fc" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="700">72%</text>
@@ -321,10 +287,9 @@
         </div>
     </section>
 
-    <!-- â”€â”€ Stats bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="lp-stats-bar" aria-label="Platform statistics">
         <div class="lp-stat">
-            <span class="lp-stat__value">{% if stats.total_runs > 0 %}{{ stats.total_runs }}{% else %}âˆž{% endif %}</span>
+            <span class="lp-stat__value">{% if stats.total_runs > 0 %}{{ stats.total_runs }}{% else %}&infin;{% endif %}</span>
             <span class="lp-stat__label">Graphs<br>generated</span>
         </div>
         <div class="lp-stat">
@@ -341,7 +306,6 @@
         </div>
     </div>
 
-    <!-- â”€â”€ Features â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-section" id="features" aria-labelledby="features-title">
         <div class="lp-section__header lp-section__header--center reveal">
             <span class="lp-section__eyebrow">
@@ -424,7 +388,6 @@
         </div>
     </section>
 
-    <!-- â”€â”€ How it works â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="lp-how-wrapper" id="how-it-works">
         <div class="lp-section" style="padding-top:0; padding-bottom:0;">
             <div class="lp-section__header lp-section__header--center reveal">
@@ -457,7 +420,6 @@
         </div>
     </div>
 
-    <!-- â”€â”€ Sample markets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-section" id="markets" aria-labelledby="markets-title">
         <div class="lp-section__header reveal">
             <span class="lp-section__eyebrow">
@@ -500,7 +462,6 @@
         </div>
     </section>
 
-    <!-- â”€â”€ CTA banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <section class="lp-section reveal" aria-labelledby="cta-title">
         <div class="lp-banner">
             <div class="lp-banner__content">
@@ -528,7 +489,6 @@
         </div>
     </section>
 
-    <!-- â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <footer class="lp-footer" role="contentinfo">
         <div class="lp-footer__inner">
             <a class="lp-footer__brand" href="{% url 'web:landing' %}">
@@ -590,4 +550,5 @@
     </script>
 </body>
 </html>
+
 

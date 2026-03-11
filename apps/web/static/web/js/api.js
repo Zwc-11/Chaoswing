@@ -1,18 +1,10 @@
-import { getCookie } from "./utils.js";
+﻿import { getCookie } from "./utils.js";
 
 async function parseJson(response) {
     try {
         return await response.json();
     } catch {
         return {};
-    }
-}
-
-async function parseText(response) {
-    try {
-        return await response.text();
-    } catch {
-        return "";
     }
 }
 
@@ -35,30 +27,6 @@ export async function requestGraphFromUrl(url, endpoint) {
         );
     }
     return payload;
-}
-
-export async function requestInspectorPartial(endpoint, options = {}) {
-    const { method = "GET", payload = null, signal } = options;
-    const response = await fetch(endpoint, {
-        method,
-        credentials: "same-origin",
-        headers:
-            method === "POST"
-                ? {
-                      "Content-Type": "application/json",
-                      Accept: "text/html",
-                      "X-CSRFToken": getCookie("csrftoken"),
-                  }
-                : { Accept: "text/html" },
-        body: method === "POST" ? JSON.stringify(payload || {}) : undefined,
-        signal,
-    });
-
-    const html = await parseText(response);
-    if (!response.ok) {
-        throw new Error(html || "The inspector partial could not be loaded.");
-    }
-    return html;
 }
 
 /**
@@ -125,7 +93,7 @@ export async function fetchGraphRun(runDetailUrl, signal) {
 
 /**
  * Export / download a GraphRun payload as a JSON file in the browser.
- * No server round-trip required — the payload is already in memory.
+ * No server round-trip required - the payload is already in memory.
  *
  * @param {object} payload   - The full graph payload returned by the backend.
  * @param {string} [filename] - Override the default filename.
@@ -183,3 +151,4 @@ export function buildShareUrl(payload, dashboardUrl) {
 
     return new URL(dashboardUrl, window.location.origin).href;
 }
+

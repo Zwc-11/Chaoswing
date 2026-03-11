@@ -1,0 +1,19 @@
+{
+    "venvPath": ".",
+    "venv": ".venv",
+    "pythonVersion": "3.12",
+    "include": [
+        "chaoswing",
+        "apps",
+        "tests"
+    ],
+    "exclude": [
+        ".venv",
+        "**/__pycache__",
+        "*.egg-info"
+    ],
+    "typeCheckingMode": "standard",
+    "reportMissingModuleSource": false,
+    "reportPrivateImportUsage": false,
+    "reportUntypedFunctionDecorator": false
+}

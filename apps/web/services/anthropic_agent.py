@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
+
+if TYPE_CHECKING:
+    from anthropic.types import TextBlock
 
 
 JSON_BLOCK_RE = re.compile(r"\{.*\}", re.DOTALL)
@@ -130,8 +133,10 @@ class AnthropicGraphAgent:
             ],
         )
 
+        from anthropic.types import TextBlock as _TextBlock
+
         return "".join(
-            block.text for block in response.content if getattr(block, "type", "") == "text"
+            block.text for block in response.content if isinstance(block, _TextBlock)
         )
 
     def _parse_json(self, content: str) -> dict[str, Any] | None:

@@ -1,4 +1,4 @@
-*,
+﻿*,
 *::before,
 *::after {
     box-sizing: border-box;
@@ -121,7 +121,7 @@ svg {
     color: #fff;
 }
 
-/* ── Utility text classes ──────────────────────────────────────────── */
+/* -- Utility text classes -------------------------------------------- */
 
 .eyebrow {
     color: var(--color-text-muted);
@@ -161,7 +161,7 @@ svg {
     text-underline-offset: 3px;
 }
 
-/* ── Gradient text utility ─────────────────────────────────────────── */
+/* -- Gradient text utility ------------------------------------------- */
 
 .gradient-text {
     background: linear-gradient(
@@ -175,7 +175,7 @@ svg {
     background-clip: text;
 }
 
-/* ── Scrollbar ─────────────────────────────────────────────────────── */
+/* -- Scrollbar ------------------------------------------------------- */
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -194,3 +194,4 @@ svg {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.18);
 }
+

@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!doctype html>
 <html lang="en">
     <head>
@@ -10,7 +10,7 @@
         />
         <meta
             property="og:title"
-            content="ChaosWing — Butterfly Effect Engine for Prediction Markets"
+            content="ChaosWing - Butterfly Effect Engine for Prediction Markets"
         />
         <meta
             property="og:description"
@@ -45,6 +45,14 @@
         />
         <link
             rel="stylesheet"
+            href="{% static 'web/css/panels.css' %}?v={{ asset_version }}"
+        />
+        <link
+            rel="stylesheet"
+            href="{% static 'web/css/overlays.css' %}?v={{ asset_version }}"
+        />
+        <link
+            rel="stylesheet"
             href="{% static 'web/css/dashboard.css' %}?v={{ asset_version }}"
         />
         <link
@@ -62,3 +70,4 @@
         ></script>
     </body>
 </html>
+
