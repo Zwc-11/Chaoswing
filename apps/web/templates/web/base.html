@@ -21,6 +21,15 @@
         <meta name="theme-color" content="#030305" />
         <title>{% block title %}ChaosWing{% endblock %}</title>
         {% now "U" as asset_version %}
+        <link
+            rel="icon"
+            type="image/png"
+            href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}"
+        />
+        <link
+            rel="apple-touch-icon"
+            href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link

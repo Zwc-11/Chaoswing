@@ -11,6 +11,8 @@
     <meta name="twitter:card" content="summary_large_image">
     <title>ChaosWing - Butterfly Effect Engine for Prediction Markets</title>
     {% now "U" as asset_version %}
+    <link rel="icon" type="image/png" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
+    <link rel="apple-touch-icon" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,13 +26,7 @@
     <nav class="lp-nav" id="lp-nav" aria-label="Main navigation">
         <a class="lp-nav__brand" href="{% url 'web:landing' %}">
             <span class="lp-nav__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #7dd3fc;">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M12 9C12 9 9 4 4 4s-4 5-4 8 2.5 6 6 6"/>
-                    <path d="M12 9C12 9 15 4 20 4s4 5 4 8-2.5 6-6 6"/>
-                    <path d="M12 15C12 15 9 20 4 20s-4-5-4-8"/>
-                    <path d="M12 15C12 15 15 20 20 20s4-5 4-8"/>
-                </svg>
+                <img class="lp-nav__icon-image" src="{% static 'web/img/chaoswing-icon.png' %}" alt="">
             </span>
             <span class="lp-nav__name">ChaosWing</span>
         </a>
@@ -504,11 +500,7 @@
         <div class="lp-footer__inner">
             <a class="lp-footer__brand" href="{% url 'web:landing' %}">
                 <span class="lp-footer__icon" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M12 9C12 9 9 4 4 4s-4 5-4 8 2.5 6 6 6"/>
-                        <path d="M12 9C12 9 15 4 20 4s4 5 4 8-2.5 6-6 6"/>
-                    </svg>
+                    <img class="lp-footer__icon-image" src="{% static 'web/img/chaoswing-icon.png' %}" alt="">
                 </span>
                 ChaosWing
             </a>

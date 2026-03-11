@@ -57,6 +57,7 @@
 .lp-nav__icon {
     display: grid;
     place-items: center;
+    overflow: hidden;
     width: 2.4rem;
     height: 2.4rem;
     border-radius: 0.7rem;
@@ -70,9 +71,11 @@
     flex: 0 0 auto;
 }
 
-.lp-nav__icon svg {
-    width: 1.2rem;
-    height: 1.2rem;
+.lp-nav__icon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .lp-nav__name {
@@ -970,6 +973,7 @@
 .lp-footer__icon {
     display: grid;
     place-items: center;
+    overflow: hidden;
     width: 1.9rem;
     height: 1.9rem;
     border-radius: 0.5rem;
@@ -981,9 +985,11 @@
     border: 1px solid rgba(14, 165, 233, 0.18);
 }
 
-.lp-footer__icon svg {
-    width: 0.9rem;
-    height: 0.9rem;
+.lp-footer__icon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .lp-footer__tagline {
@@ -1155,4 +1161,3 @@
         border-bottom: none;
     }
 }
-
