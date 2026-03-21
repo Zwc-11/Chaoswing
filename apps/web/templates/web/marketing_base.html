@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ share_meta.description|default:'ChaosWing is a prediction-market research and evaluation platform for forecasting, ranking, and cross-venue analysis.' }}">
+    <meta property="og:title" content="{{ share_meta.title|default:'ChaosWing - Prediction-Market Research' }}">
+    <meta property="og:description" content="{{ share_meta.description|default:'ChaosWing is a prediction-market research and evaluation platform for forecasting, ranking, and cross-venue analysis.' }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ChaosWing">
+    {% if share_meta.url %}
+    <meta property="og:url" content="{{ share_meta.url }}">
+    {% endif %}
+    {% if share_meta.image_url %}
+    <meta property="og:image" content="{{ share_meta.image_url }}">
+    <meta property="og:image:alt" content="{{ share_meta.image_alt|default:'ChaosWing preview image' }}">
+    {% endif %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ share_meta.title|default:'ChaosWing - Prediction-Market Research' }}">
+    <meta name="twitter:description" content="{{ share_meta.description|default:'ChaosWing is a prediction-market research and evaluation platform for forecasting, ranking, and cross-venue analysis.' }}">
+    {% if share_meta.image_url %}
+    <meta name="twitter:image" content="{{ share_meta.image_url }}">
+    {% endif %}
+    <title>{% block title %}ChaosWing{% endblock %}</title>
+    {% now "U" as asset_version %}
+    <link rel="icon" type="image/png" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
+    <link rel="apple-touch-icon" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'web/css/tokens.css' %}?v={{ asset_version }}">
+    <link rel="stylesheet" href="{% static 'web/css/base.css' %}?v={{ asset_version }}">
+    <link rel="stylesheet" href="{% static 'web/css/motion.css' %}?v={{ asset_version }}">
+    <link rel="stylesheet" href="{% static 'web/css/landing.css' %}?v={{ asset_version }}">
+    <link rel="stylesheet" href="{% static 'web/css/intelligence.css' %}?v={{ asset_version }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}lp{% endblock %}">
+    <nav class="lp-nav" id="lp-nav" aria-label="Main navigation">
+        <a class="lp-nav__brand" href="{% url 'web:landing' %}">
+            <span class="lp-nav__icon" aria-hidden="true">
+                <img class="lp-nav__icon-image" src="{% static 'web/img/chaoswing-icon.png' %}" alt="">
+            </span>
+            <span class="lp-nav__name">ChaosWing</span>
+        </a>
+
+        <div class="lp-nav__links" aria-label="Navigation links">
+            {% for link in marketing_nav_links %}
+            <a
+                class="lp-nav__link"
+                href="{{ link.href }}"
+                {% if link.external %}rel="noreferrer" target="_blank"{% endif %}
+            >{{ link.label }}</a>
+            {% endfor %}
+        </div>
+
+        <a class="lp-nav__cta" href="{% url 'web:dashboard' %}">
+            Launch App
+            <span class="lp-nav__cta-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="lp-footer" role="contentinfo">
+        <div class="lp-footer__inner">
+            <a class="lp-footer__brand" href="{% url 'web:landing' %}">
+                <span class="lp-footer__icon" aria-hidden="true">
+                    <img class="lp-footer__icon-image" src="{% static 'web/img/chaoswing-icon.png' %}" alt="">
+                </span>
+                ChaosWing
+            </a>
+            <p class="lp-footer__tagline">
+                Prediction-market research and evaluation platform
+            </p>
+            <nav class="lp-footer__links" aria-label="Footer navigation">
+                <a class="lp-footer__link" href="{% url 'web:dashboard' %}">App</a>
+                <a class="lp-footer__link" href="{% url 'web:api_docs' %}">API</a>
+                <a class="lp-footer__link" href="{% url 'web:watchlists' %}">Watchlists</a>
+                <a class="lp-footer__link" href="{% url 'web:leadlag_monitor' %}">Lead-lag</a>
+                <a class="lp-footer__link" href="{% url 'web:benchmarks' %}">Benchmarks</a>
+                <a class="lp-footer__link" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script>
+        const nav = document.getElementById("lp-nav");
+        window.addEventListener("scroll", () => {
+            nav.classList.toggle("is-scrolled", window.scrollY > 20);
+        }, { passive: true });
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.08, rootMargin: "0px 0px -60px 0px" }
+        );
+        document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+        document.querySelectorAll(".lp-feature-card").forEach((el) => observer.observe(el));
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

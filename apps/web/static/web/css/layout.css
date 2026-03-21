@@ -21,7 +21,7 @@
 
 /* Subtle dot-grid background for the full shell */
 .app-shell::before {
-    content: "";
+    content: "";    
     position: absolute;
     inset: 0;
     background-image: radial-gradient(

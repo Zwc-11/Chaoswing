@@ -1,0 +1,227 @@
+{% extends "web/marketing_base.html" %}
+
+{% block title %}ChaosWing - Benchmark Dashboard{% endblock %}
+
+{% block content %}
+<section class="lp-page-hero" aria-labelledby="benchmarks-hero-title">
+    <div class="lp-page-hero__content reveal">
+        <span class="lp-hero__badge">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            Live benchmarks
+        </span>
+        <h1 class="lp-page-hero__title" id="benchmarks-hero-title">Benchmark Dashboard</h1>
+        <p class="lp-page-hero__copy">
+            This page shows the measurable layer ChaosWing already records today, plus the next evaluation tracks
+            that would move the project from an interesting demo to a serious internship portfolio system.
+        </p>
+        <div class="lp-page-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">Open the app</a>
+            <a class="lp-btn lp-btn--ghost" href="{% url 'web:related_market_review' %}">Review labels</a>
+            <a class="lp-btn lp-btn--ghost" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">View source</a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="summary-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Current dataset</span>
+        <h2 class="lp-section__title" id="summary-title">What is measured now</h2>
+        <p class="lp-section__copy">
+            The benchmark dataset is derived from saved runs and persisted review labels. Nothing here is mocked.
+        </p>
+    </div>
+    <div class="intel-metrics reveal">
+        {% for card in benchmark_summary.summary_cards %}
+        <article class="intel-metric">
+            <p class="intel-metric__label">{{ card.label }}</p>
+            <p class="intel-metric__value">{{ card.value }}</p>
+            <p class="intel-metric__copy">{{ card.copy }}</p>
+        </article>
+        {% endfor %}
+    </div>
+    <div class="metric-chip-list metric-chip-list--wide reveal">
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Review queue</span>
+            <span class="metric-chip__value">{{ benchmark_summary.human_label_review.judgment_count }} labels</span>
+        </span>
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Reviewed runs</span>
+            <span class="metric-chip__value">{{ benchmark_summary.human_label_review.reviewed_runs }}</span>
+        </span>
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Pending cases</span>
+            <span class="metric-chip__value">{{ benchmark_summary.human_label_review.pending_cases }}</span>
+        </span>
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Reviewer agreement</span>
+            <span class="metric-chip__value">{{ benchmark_summary.human_label_review.avg_agreement_rate|floatformat:2 }}</span>
+        </span>
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Contested candidates</span>
+            <span class="metric-chip__value">{{ benchmark_summary.human_label_review.contested_candidates }}</span>
+        </span>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="live-benchmarks-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Shipped now</span>
+        <h2 class="lp-section__title" id="live-benchmarks-title">Live benchmark tracks</h2>
+        <p class="lp-section__copy">
+            These are the benchmark surfaces ChaosWing can already expose with the current graph workflow and training log.
+        </p>
+    </div>
+    <div class="benchmark-grid reveal">
+        {% for benchmark in benchmark_summary.live_benchmarks %}
+        <article class="benchmark-card">
+            <div class="benchmark-card__header">
+                <div>
+                    <p class="intel-card__eyebrow">{{ benchmark.status }}</p>
+                    <h3 class="benchmark-card__title">{{ benchmark.name }}</h3>
+                </div>
+                <span class="benchmark-card__status">{{ benchmark.status }}</span>
+            </div>
+            <div class="benchmark-card__metrics">
+                <span>{{ benchmark.primary_metric }}</span>
+                <span>{{ benchmark.secondary_metric }}</span>
+            </div>
+            <p class="benchmark-card__copy">{{ benchmark.description }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="next-benchmarks-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Next evaluation layer</span>
+        <h2 class="lp-section__title" id="next-benchmarks-title">What the next milestone should measure</h2>
+        <p class="lp-section__copy">
+            These tracks line up with the strongest internship signals for data science and agentic AI: forecasting,
+            ranking, citation grounding, and system observability.
+        </p>
+    </div>
+    <div class="intel-grid intel-grid--three reveal">
+        {% for benchmark in benchmark_summary.next_benchmarks %}
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">{{ benchmark.target_metrics }}</p>
+            <h3 class="intel-card__title">{{ benchmark.name }}</h3>
+            <p class="intel-card__copy">{{ benchmark.description }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="recent-cases-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Recent runs</span>
+        <h2 class="lp-section__title" id="recent-cases-title">Recent cases in the benchmark layer</h2>
+        <p class="lp-section__copy">
+            The best way to understand ChaosWing is to inspect a saved run, then open its shareable brief.
+        </p>
+    </div>
+    <div class="benchmark-table reveal">
+        <div class="benchmark-table__head">
+            <span>Market</span>
+            <span>Quality</span>
+            <span>Related markets</span>
+            <span>Mode</span>
+            <span>Actions</span>
+        </div>
+        {% for case in benchmark_summary.recent_cases %}
+        <div class="benchmark-table__row">
+            <span class="benchmark-table__cell benchmark-table__cell--market" data-label="Market">{{ case.title }}</span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Quality">
+                <strong>{{ case.quality_score|floatformat:2 }}</strong>
+                <small>{{ case.review_state }}</small>
+            </span>
+            <span class="benchmark-table__cell" data-label="Related markets">{{ case.related_market_count }}</span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Mode">
+                <strong>{{ case.mode_label }}</strong>
+                <small>{{ case.top_related_confidence|floatformat:2 }} top confidence</small>
+            </span>
+            <span class="benchmark-table__actions benchmark-table__cell" data-label="Actions">
+                <a class="inline-link" href="{% url 'web:market_brief' case.id %}">Brief</a>
+                <a class="inline-link" href="{% url 'web:graph_run_detail' case.id %}">API</a>
+            </span>
+        </div>
+        {% empty %}
+        <div class="benchmark-table__row benchmark-table__row--empty">
+            <span>No benchmark cases have been collected yet.</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="experiments-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Experiment log</span>
+        <h2 class="lp-section__title" id="experiments-title">Persisted benchmark runs</h2>
+        <p class="lp-section__copy">
+            Backtests and evaluation commands now persist experiment rows so recruiter-facing proof can live in the app, not only in terminal output.
+        </p>
+    </div>
+    <div class="intel-grid intel-grid--two reveal">
+        {% for experiment in benchmark_summary.experiment_runs %}
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">{{ experiment.task_type }}</p>
+            <h3 class="intel-card__title">{{ experiment.title }}</h3>
+            <p class="intel-card__copy">Dataset {{ experiment.dataset_version|default:"n/a" }}</p>
+            {% if experiment.metric_items %}
+            <div class="metric-chip-list">
+                {% for item in experiment.metric_items %}
+                <span class="metric-chip">
+                    <span class="metric-chip__label">{{ item.label }}</span>
+                    <span class="metric-chip__value">{{ item.value }}</span>
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <p class="intel-card__copy">{{ experiment.notes|default:experiment.metric_summary }}</p>
+            <p class="brief-card__meta">Artifacts {{ experiment.artifact_count }} &middot; Logged {{ experiment.created_label }}</p>
+        </article>
+        {% empty %}
+        <article class="intel-card">
+            <h3 class="intel-card__title">No persisted experiments yet</h3>
+            <p class="intel-card__copy">Run the benchmark commands below to populate this leaderboard.</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="mode-breakdown-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Run mix</span>
+        <h2 class="lp-section__title" id="mode-breakdown-title">Where current benchmark coverage comes from</h2>
+        <p class="lp-section__copy">
+            This keeps the benchmark page honest about whether the dataset is mostly deterministic fallback runs or richer backend-resolved runs.
+        </p>
+    </div>
+    <div class="metric-chip-list metric-chip-list--wide reveal">
+        {% for item in benchmark_summary.mode_breakdown %}
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">{{ item.label }}</span>
+            <span class="metric-chip__value">{{ item.count }}</span>
+        </span>
+        {% empty %}
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">No run mix yet</span>
+            <span class="metric-chip__value">0</span>
+        </span>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section reveal" aria-labelledby="methodology-title">
+    <div class="lp-banner">
+        <div class="lp-banner__content">
+            <h2 class="lp-banner__title" id="methodology-title">Reproducible benchmark commands</h2>
+            {% for command in benchmark_summary.methodology.commands %}
+            <p class="lp-banner__copy"><code>{{ command }}</code></p>
+            {% endfor %}
+            {% for note in benchmark_summary.methodology.notes %}
+            <p class="lp-banner__copy">{{ note }}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

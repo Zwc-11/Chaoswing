@@ -1,606 +1,354 @@
+{% extends "web/marketing_base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}">
-    <meta property="og:title" content="{{ share_meta.title|default:'ChaosWing - Butterfly Effect Engine for Prediction Markets' }}">
-    <meta property="og:description" content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="ChaosWing">
-    {% if share_meta.url %}
-    <meta property="og:url" content="{{ share_meta.url }}">
-    {% endif %}
-    {% if share_meta.image_url %}
-    <meta property="og:image" content="{{ share_meta.image_url }}">
-    <meta property="og:image:alt" content="{{ share_meta.image_alt|default:'ChaosWing preview image' }}">
-    {% endif %}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ share_meta.title|default:'ChaosWing - Butterfly Effect Engine for Prediction Markets' }}">
-    <meta name="twitter:description" content="{{ share_meta.description|default:'Paste one Polymarket URL. ChaosWing resolves the event, maps every causal chain, and surfaces the butterfly effects you never saw coming.' }}">
-    {% if share_meta.image_url %}
-    <meta name="twitter:image" content="{{ share_meta.image_url }}">
-    {% endif %}
-    <title>ChaosWing - Butterfly Effect Engine for Prediction Markets</title>
-    {% now "U" as asset_version %}
-    <link rel="icon" type="image/png" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
-    <link rel="apple-touch-icon" href="{% static 'web/img/chaoswing-icon.png' %}?v={{ asset_version }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'web/css/tokens.css' %}?v={{ asset_version }}">
-    <link rel="stylesheet" href="{% static 'web/css/base.css' %}?v={{ asset_version }}">
-    <link rel="stylesheet" href="{% static 'web/css/motion.css' %}?v={{ asset_version }}">
-    <link rel="stylesheet" href="{% static 'web/css/landing.css' %}?v={{ asset_version }}">
-</head>
-<body class="lp">
 
-    <nav class="lp-nav" id="lp-nav" aria-label="Main navigation">
-        <a class="lp-nav__brand" href="{% url 'web:landing' %}">
-            <span class="lp-nav__icon" aria-hidden="true">
-                <img class="lp-nav__icon-image" src="{% static 'web/img/chaoswing-icon.png' %}" alt="">
-            </span>
-            <span class="lp-nav__name">ChaosWing</span>
-        </a>
+{% block title %}ChaosWing - Prediction-Market Research{% endblock %}
 
-        <div class="lp-nav__links" aria-label="Navigation links">
-            <a class="lp-nav__link" href="#features">Features</a>
-            <a class="lp-nav__link" href="#how-it-works">How it works</a>
-            <a class="lp-nav__link" href="#markets">Markets</a>
-            <a class="lp-nav__link" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">GitHub</a>
+{% block content %}
+<section class="lp-hero" aria-labelledby="hero-headline">
+    <div class="lp-hero__aurora" aria-hidden="true">
+        <div class="aurora-orb aurora-orb--1"></div>
+        <div class="aurora-orb aurora-orb--2"></div>
+        <div class="aurora-orb aurora-orb--3"></div>
+    </div>
+    <div class="lp-hero__grid" aria-hidden="true"></div>
+
+    <div class="lp-hero__content">
+        <span class="lp-hero__badge" aria-label="Live Beta - Prediction-market research">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            Live Beta &nbsp;&middot;&nbsp; Prediction-Market Research
+        </span>
+
+        <h1 class="lp-hero__headline" id="hero-headline">
+            From one market to a <em>ranked</em>, benchmarked research workflow
+        </h1>
+
+        <p class="lp-hero__copy">
+            ChaosWing starts with a single Polymarket URL and returns a saved research run with
+            related-market ranking, spillover analysis, evidence, confidence caveats, benchmark hooks,
+            and a graph-based analyst brief you can inspect or share.
+        </p>
+
+        <div class="lp-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">
+                Launch App
+                <span class="lp-btn__arrow" aria-hidden="true">&rarr;</span>
+            </a>
+            <a class="lp-btn lp-btn--ghost" href="{% url 'web:benchmarks' %}">
+                View Benchmarks
+            </a>
         </div>
 
-        <a class="lp-nav__cta" href="{% url 'web:dashboard' %}">
-            Launch App
-            <span class="lp-nav__cta-arrow" aria-hidden="true">&rarr;</span>
-        </a>
-    </nav>
-
-    <section class="lp-hero" aria-labelledby="hero-headline">
-
-        <div class="lp-hero__aurora" aria-hidden="true">
-            <div class="aurora-orb aurora-orb--1"></div>
-            <div class="aurora-orb aurora-orb--2"></div>
-            <div class="aurora-orb aurora-orb--3"></div>
-        </div>
-
-        <div class="lp-hero__grid" aria-hidden="true"></div>
-
-        <div class="lp-hero__content">
-            <span class="lp-hero__badge" aria-label="Live Beta - Polymarket Intelligence">
-                <span class="lp-hero__badge-dot" aria-hidden="true"></span>
-                Live Beta &nbsp;&middot;&nbsp; Polymarket Intelligence
-            </span>
-
-            <h1 class="lp-hero__headline" id="hero-headline">
-                See the <em>Butterfly Effect</em><br>in Prediction Markets
-            </h1>
-
-            <p class="lp-hero__copy">
-                Paste one Polymarket URL. ChaosWing resolves the event, maps every causal
-                chain, and surfaces the hidden connections you never knew existed.
-                One graph. Infinite insight.
-            </p>
-
-            <div class="lp-hero__actions">
-                <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">
-                    Launch App
-                    <span class="lp-btn__arrow" aria-hidden="true">&rarr;</span>
-                </a>
-                <a class="lp-btn lp-btn--ghost" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                    View on GitHub
-                </a>
-            </div>
-
-            <div class="lp-hero__graph-preview" aria-hidden="true" role="img" aria-label="Animated butterfly graph demonstration">
-                <svg viewBox="0 0 900 350" xmlns="http://www.w3.org/2000/svg" style="overflow: visible;">
-                    <defs>
-                        <radialGradient id="glow-event" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.35"/>
-                            <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
-                        </radialGradient>
-                        <radialGradient id="glow-entity" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.3"/>
-                            <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
-                        </radialGradient>
-                        <radialGradient id="glow-market" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#10b981" stop-opacity="0.28"/>
-                            <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-                        </radialGradient>
-                        <radialGradient id="glow-hyp" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stop-color="#fb7185" stop-opacity="0.28"/>
-                            <stop offset="100%" stop-color="#fb7185" stop-opacity="0"/>
-                        </radialGradient>
-                        <filter id="blur-glow">
-                            <feGaussianBlur stdDeviation="6" result="blur"/>
-                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                        </filter>
-                        <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                            <path d="M0,0 L0,6 L8,3 z" fill="rgba(14,165,233,0.7)"/>
-                        </marker>
-                        <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                            <path d="M0,0 L0,6 L8,3 z" fill="rgba(168,85,247,0.7)"/>
-                        </marker>
-                        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                            <path d="M0,0 L0,6 L8,3 z" fill="rgba(16,185,129,0.7)"/>
-                        </marker>
-                        <marker id="arrow-rose" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                            <path d="M0,0 L0,6 L8,3 z" fill="rgba(251,113,133,0.7)"/>
-                        </marker>
-                        <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                            <path d="M0,0 L0,6 L8,3 z" fill="rgba(245,158,11,0.7)"/>
-                        </marker>
-                    </defs>
-
-                    <ellipse cx="450" cy="175" rx="200" ry="120" fill="url(#glow-event)" opacity="0.4"/>
-
-                    <line class="lp-graph-edge" x1="415" y1="165" x2="265" y2="105"
-                          stroke="rgba(168,85,247,0.55)" stroke-width="1.5"
-                          marker-end="url(#arrow-violet)"
-                          style="--edge-length: 172; --edge-delay: 900ms;"/>
-
-                    <line class="lp-graph-edge" x1="485" y1="165" x2="635" y2="105"
-                          stroke="rgba(168,85,247,0.55)" stroke-width="1.5"
-                          marker-end="url(#arrow-violet)"
-                          style="--edge-length: 172; --edge-delay: 1000ms;"/>
-
-                    <line class="lp-graph-edge" x1="435" y1="190" x2="185" y2="210"
-                          stroke="rgba(16,185,129,0.55)" stroke-width="1.5"
-                          marker-end="url(#arrow-green)"
-                          style="--edge-length: 252; --edge-delay: 1100ms;"/>
-
-                    <line class="lp-graph-edge" x1="465" y1="190" x2="715" y2="210"
-                          stroke="rgba(16,185,129,0.55)" stroke-width="1.5"
-                          marker-end="url(#arrow-green)"
-                          style="--edge-length: 252; --edge-delay: 1150ms;"/>
-
-                    <line class="lp-graph-edge" x1="450" y1="148" x2="450" y2="55"
-                          stroke="rgba(148,163,184,0.5)" stroke-width="1.5"
-                          marker-end="url(#arrow-blue)"
-                          style="--edge-length: 96; --edge-delay: 1200ms;"/>
-
-                    <line class="lp-graph-edge" x1="248" y1="120" x2="155" y2="265"
-                          stroke="rgba(251,113,133,0.45)" stroke-width="1.2"
-                          marker-end="url(#arrow-rose)"
-                          style="--edge-length: 168; --edge-delay: 1400ms;"/>
-
-                    <line class="lp-graph-edge" x1="268" y1="118" x2="350" y2="288"
-                          stroke="rgba(251,113,133,0.4)" stroke-width="1.2"
-                          marker-end="url(#arrow-rose)"
-                          style="--edge-length: 196; --edge-delay: 1500ms;"/>
-
-                    <line class="lp-graph-edge" x1="632" y1="118" x2="550" y2="288"
-                          stroke="rgba(251,113,133,0.4)" stroke-width="1.2"
-                          marker-end="url(#arrow-rose)"
-                          style="--edge-length: 196; --edge-delay: 1550ms;"/>
-
-                    <line class="lp-graph-edge" x1="652" y1="120" x2="745" y2="265"
-                          stroke="rgba(251,113,133,0.45)" stroke-width="1.2"
-                          marker-end="url(#arrow-rose)"
-                          style="--edge-length: 168; --edge-delay: 1600ms;"/>
-
-                    <line class="lp-graph-edge" x1="450" y1="198" x2="450" y2="295"
-                          stroke="rgba(245,158,11,0.5)" stroke-width="1.2"
-                          marker-end="url(#arrow-amber)"
-                          style="--edge-length: 100; --edge-delay: 1650ms;"/>
-
-                    <line class="lp-graph-edge" x1="170" y1="228" x2="148" y2="255"
-                          stroke="rgba(16,185,129,0.35)" stroke-width="1"
-                          style="--edge-length: 35; --edge-delay: 1700ms;"/>
-
-                    <line class="lp-graph-edge" x1="730" y1="228" x2="752" y2="255"
-                          stroke="rgba(16,185,129,0.35)" stroke-width="1"
-                          style="--edge-length: 35; --edge-delay: 1750ms;"/>
-
-                    <g class="lp-graph-node lp-graph-node--event" style="--node-delay: 200ms;" transform="translate(450,175)">
-                        <circle class="lp-node-ring" r="22" fill="none" stroke="#0ea5e9" stroke-width="1.5" opacity="0.5"/>
-                        <circle r="22" fill="rgba(14,165,233,0.15)" stroke="#0ea5e9" stroke-width="1.5"/>
-                        <circle r="14" fill="rgba(14,165,233,0.25)"/>
-                        <circle r="7" fill="#0ea5e9"/>
-                        <text y="36" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Inter,sans-serif" font-weight="700" letter-spacing="0.5">EVENT</text>
-                        <text y="-30" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="8" font-family="JetBrains Mono,monospace">Fed Decision</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 450ms;" transform="translate(255,100)">
-                        <circle r="18" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.4"/>
-                        <circle r="10" fill="rgba(168,85,247,0.22)"/>
-                        <circle r="5" fill="#a855f7"/>
-                        <text y="30" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">ENTITY</text>
-                        <text y="-25" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7.5" font-family="JetBrains Mono,monospace">Federal Reserve</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 500ms;" transform="translate(645,100)">
-                        <circle r="18" fill="rgba(168,85,247,0.14)" stroke="#a855f7" stroke-width="1.4"/>
-                        <circle r="10" fill="rgba(168,85,247,0.22)"/>
-                        <circle r="5" fill="#a855f7"/>
-                        <text y="30" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">ENTITY</text>
-                        <text y="-25" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7.5" font-family="JetBrains Mono,monospace">CPI Inflation</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 650ms;" transform="translate(175,215)">
-                        <circle r="16" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.4"/>
-                        <circle r="9" fill="rgba(16,185,129,0.22)"/>
-                        <circle r="4.5" fill="#10b981"/>
-                        <text y="28" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="8" font-family="Inter,sans-serif" font-weight="700">MARKET</text>
-                        <text y="-22" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7" font-family="JetBrains Mono,monospace">Crude Oil</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 700ms;" transform="translate(725,215)">
-                        <circle r="16" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.4"/>
-                        <circle r="9" fill="rgba(16,185,129,0.22)"/>
-                        <circle r="4.5" fill="#10b981"/>
-                        <text y="28" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="8" font-family="Inter,sans-serif" font-weight="700">MARKET</text>
-                        <text y="-22" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="7" font-family="JetBrains Mono,monospace">USD Index</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 820ms;" transform="translate(450,48)">
-                        <circle r="14" fill="rgba(148,163,184,0.12)" stroke="#94a3b8" stroke-width="1.3"/>
-                        <circle r="8" fill="rgba(148,163,184,0.18)"/>
-                        <circle r="4" fill="#94a3b8"/>
-                        <text y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="Inter,sans-serif" font-weight="700">EVIDENCE</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 870ms;" transform="translate(450,305)">
-                        <circle r="14" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.3"/>
-                        <circle r="8" fill="rgba(245,158,11,0.18)"/>
-                        <circle r="4" fill="#f59e0b"/>
-                        <text y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="Inter,sans-serif" font-weight="700">RULE</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 1000ms;" transform="translate(148,280)">
-                        <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
-                        <circle r="7" fill="rgba(251,113,133,0.18)"/>
-                        <circle r="3.5" fill="#fb7185"/>
-                        <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 1060ms;" transform="translate(348,300)">
-                        <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
-                        <circle r="7" fill="rgba(251,113,133,0.18)"/>
-                        <circle r="3.5" fill="#fb7185"/>
-                        <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 1080ms;" transform="translate(552,300)">
-                        <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
-                        <circle r="7" fill="rgba(251,113,133,0.18)"/>
-                        <circle r="3.5" fill="#fb7185"/>
-                        <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
-                    </g>
-
-                    <g class="lp-graph-node" style="--node-delay: 1100ms;" transform="translate(752,280)">
-                        <circle r="13" fill="rgba(251,113,133,0.12)" stroke="#fb7185" stroke-width="1.3"/>
-                        <circle r="7" fill="rgba(251,113,133,0.18)"/>
-                        <circle r="3.5" fill="#fb7185"/>
-                        <text y="24" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="7" font-family="Inter,sans-serif" font-weight="700">HYPOTHESIS</text>
-                    </g>
-
-                    <g style="opacity: 0; animation: fade-up 400ms ease 1.8s both;">
-                        <rect x="390" y="130" width="40" height="16" rx="8" fill="rgba(14,165,233,0.18)" stroke="rgba(14,165,233,0.3)" stroke-width="1"/>
-                        <text x="410" y="142" text-anchor="middle" fill="#7dd3fc" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="700">72%</text>
-                    </g>
-                    <g style="opacity: 0; animation: fade-up 400ms ease 1.9s both;">
-                        <rect x="210" y="148" width="40" height="16" rx="8" fill="rgba(168,85,247,0.16)" stroke="rgba(168,85,247,0.28)" stroke-width="1"/>
-                        <text x="230" y="160" text-anchor="middle" fill="#c084fc" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="700">68%</text>
-                    </g>
-                    <g style="opacity: 0; animation: fade-up 400ms ease 2.0s both;">
-                        <rect x="640" y="148" width="40" height="16" rx="8" fill="rgba(16,185,129,0.16)" stroke="rgba(16,185,129,0.28)" stroke-width="1"/>
-                        <text x="660" y="160" text-anchor="middle" fill="#34d399" font-size="7.5" font-family="JetBrains Mono,monospace" font-weight="700">61%</text>
-                    </g>
-                </svg>
-            </div>
-        </div>
-    </section>
-
-    <div class="lp-stats-bar" aria-label="Platform statistics">
-        <div class="lp-stat">
-            <span class="lp-stat__value">{% if stats.total_runs > 0 %}{{ stats.total_runs }}{% else %}&infin;{% endif %}</span>
-            <span class="lp-stat__label">Graphs<br>generated</span>
-        </div>
-        <div class="lp-stat">
-            <span class="lp-stat__value">6</span>
-            <span class="lp-stat__label">Node<br>types</span>
-        </div>
-        <div class="lp-stat">
-            <span class="lp-stat__value">7</span>
-            <span class="lp-stat__label">Edge<br>relationships</span>
-        </div>
-        <div class="lp-stat">
-            <span class="lp-stat__value">Live</span>
-            <span class="lp-stat__label">Polymarket<br>data</span>
+        <div class="lp-hero__graph-preview lp-hero__graph-preview--image" aria-hidden="true">
+            <img src="{% static 'web/img/chaoswing-social-card.jpg' %}" alt="">
         </div>
     </div>
+</section>
 
-    <section class="lp-section" id="features" aria-labelledby="features-title">
-        <div class="lp-section__header lp-section__header--center reveal">
-            <span class="lp-section__eyebrow">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+<div class="lp-stats-bar" aria-label="Platform statistics">
+    <div class="lp-stat">
+        <span class="lp-stat__value">{% if stats.total_runs > 0 %}{{ stats.total_runs }}{% else %}0{% endif %}</span>
+        <span class="lp-stat__label">Saved runs<br>for replay</span>
+    </div>
+    <div class="lp-stat">
+        <span class="lp-stat__value">{{ featured_watchlists|length }}</span>
+        <span class="lp-stat__label">Research<br>watchlists</span>
+    </div>
+    <div class="lp-stat">
+        <span class="lp-stat__value">{{ benchmark_summary.dataset.examples }}</span>
+        <span class="lp-stat__label">Benchmark<br>examples</span>
+    </div>
+    <div class="lp-stat">
+        <span class="lp-stat__value">Live</span>
+        <span class="lp-stat__label">Analyst brief +<br>graph workflow</span>
+    </div>
+</div>
+
+<section class="lp-section" id="use-cases" aria-labelledby="use-cases-title">
+    <div class="lp-section__header lp-section__header--center reveal">
+        <span class="lp-section__eyebrow">Core research tasks</span>
+        <h2 class="lp-section__title" id="use-cases-title">
+            Three tasks define the system
+        </h2>
+        <p class="lp-section__copy">
+            ChaosWing reads more clearly as data science when the graph becomes the explanation layer
+            on top of prediction, ranking, and signal validation.
+        </p>
+    </div>
+
+    <div class="intel-grid intel-grid--three reveal">
+        {% for use_case in use_cases %}
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">Task {{ forloop.counter }}</p>
+            <h3 class="intel-card__title">{{ use_case.title }}</h3>
+            <p class="intel-card__copy">{{ use_case.copy }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" id="features" aria-labelledby="features-title">
+    <div class="lp-section__header lp-section__header--center reveal">
+        <span class="lp-section__eyebrow">Analyst interface</span>
+        <h2 class="lp-section__title" id="features-title">
+            Evaluation and interface,<br>working together
+        </h2>
+        <p class="lp-section__copy">
+            The public app still renders the causal graph, but it now presents the graph, briefs,
+            watchlists, and benchmarks as one research workflow instead of a standalone visual demo.
+        </p>
+    </div>
+
+    <div class="lp-features-grid reveal" aria-label="Feature list">
+        {% for feature in features %}
+        <article class="lp-feature-card lp-feature-card--{{ forloop.counter }}" aria-labelledby="feature-title-{{ forloop.counter }}">
+            <div class="lp-feature-icon
+                {% if feature.icon == 'resolve' %}lp-feature-icon--violet
+                {% elif feature.icon == 'discover' %}lp-feature-icon--emerald
+                {% elif feature.icon == 'ai' %}lp-feature-icon--violet
+                {% elif feature.icon == 'inspect' %}lp-feature-icon--amber
+                {% elif feature.icon == 'history' %}lp-feature-icon--rose
+                {% endif %}" aria-hidden="true">
+                {% if feature.icon == 'graph' %}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <circle cx="4" cy="6" r="2"/>
+                    <circle cx="20" cy="6" r="2"/>
+                    <circle cx="4" cy="18" r="2"/>
+                    <circle cx="20" cy="18" r="2"/>
+                    <line x1="6" y1="6" x2="10" y2="11"/>
+                    <line x1="18" y1="6" x2="14" y2="11"/>
+                    <line x1="6" y1="18" x2="10" y2="13"/>
+                    <line x1="18" y1="18" x2="14" y2="13"/>
                 </svg>
-                Platform capabilities
-            </span>
-            <h2 class="lp-section__title" id="features-title">
-                Everything you need to trace<br>market causality
+                {% elif feature.icon == 'resolve' %}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                </svg>
+                {% elif feature.icon == 'discover' %}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <line x1="11" y1="8" x2="11" y2="14"/>
+                    <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+                {% elif feature.icon == 'ai' %}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2a10 10 0 1 0 10 10"/>
+                    <path d="M22 2 12 12"/>
+                    <path d="m16 2 6 6"/>
+                    <path d="M22 8h-6V2"/>
+                </svg>
+                {% elif feature.icon == 'inspect' %}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                {% elif feature.icon == 'history' %}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <polyline points="12 8 12 12 14 14"/>
+                    <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/>
+                </svg>
+                {% endif %}
+            </div>
+            <h3 class="lp-feature-title" id="feature-title-{{ forloop.counter }}">{{ feature.title }}</h3>
+            <p class="lp-feature-copy">{{ feature.copy }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="lp-how-wrapper" id="how-it-works">
+    <div class="lp-section" style="padding-top:0; padding-bottom:0;">
+        <div class="lp-section__header lp-section__header--center reveal">
+            <span class="lp-section__eyebrow">Workflow</span>
+            <h2 class="lp-section__title" id="how-title">
+                Three steps from raw URL to reproducible analysis
             </h2>
             <p class="lp-section__copy">
-                ChaosWing is built for prediction market analysts who need to see
-                beyond the single contract and understand the full causal web behind
-                every market event.
+                The graph is still there. It now ships inside a workflow you can rerun, inspect, and benchmark.
             </p>
         </div>
 
-        <div class="lp-features-grid reveal" aria-label="Feature list">
-            {% for feature in features %}
-            <article class="lp-feature-card lp-feature-card--{{ forloop.counter }}" aria-labelledby="feature-title-{{ forloop.counter }}">
-                <div class="lp-feature-icon
-                    {% if feature.icon == 'resolve' %}lp-feature-icon--violet
-                    {% elif feature.icon == 'discover' %}lp-feature-icon--emerald
-                    {% elif feature.icon == 'ai' %}lp-feature-icon--violet
-                    {% elif feature.icon == 'inspect' %}lp-feature-icon--amber
-                    {% elif feature.icon == 'history' %}lp-feature-icon--rose
-                    {% endif %}" aria-hidden="true">
-                    {% if feature.icon == 'graph' %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="12" cy="12" r="3"/>
-                        <circle cx="4" cy="6" r="2"/>
-                        <circle cx="20" cy="6" r="2"/>
-                        <circle cx="4" cy="18" r="2"/>
-                        <circle cx="20" cy="18" r="2"/>
-                        <line x1="6" y1="6" x2="10" y2="11"/>
-                        <line x1="18" y1="6" x2="14" y2="11"/>
-                        <line x1="6" y1="18" x2="10" y2="13"/>
-                        <line x1="18" y1="18" x2="14" y2="13"/>
-                    </svg>
-                    {% elif feature.icon == 'resolve' %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                        <circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    {% elif feature.icon == 'discover' %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        <line x1="11" y1="8" x2="11" y2="14"/>
-                        <line x1="8" y1="11" x2="14" y2="11"/>
-                    </svg>
-                    {% elif feature.icon == 'ai' %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M12 2a10 10 0 1 0 10 10"/>
-                        <path d="M22 2 12 12"/>
-                        <path d="m16 2 6 6"/>
-                        <path d="M22 8h-6V2"/>
-                    </svg>
-                    {% elif feature.icon == 'inspect' %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                    </svg>
-                    {% elif feature.icon == 'history' %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <polyline points="12 8 12 12 14 14"/>
-                        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/>
-                    </svg>
-                    {% else %}
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                    </svg>
-                    {% endif %}
+        <div class="lp-how-grid reveal" aria-labelledby="how-title">
+            {% for step in how_it_works %}
+            <div class="lp-how-step">
+                <div class="lp-how-step__number" aria-hidden="true">{{ step.step }}</div>
+                <div>
+                    <h3 class="lp-how-step__title">{{ step.title }}</h3>
+                    <p class="lp-how-step__copy">{{ step.copy }}</p>
                 </div>
-                <h3 class="lp-feature-title" id="feature-title-{{ forloop.counter }}">{{ feature.title }}</h3>
-                <p class="lp-feature-copy">{{ feature.copy }}</p>
-            </article>
+            </div>
             {% endfor %}
         </div>
-    </section>
+    </div>
+</div>
 
-    <div class="lp-how-wrapper" id="how-it-works">
-        <div class="lp-section" style="padding-top:0; padding-bottom:0;">
-            <div class="lp-section__header lp-section__header--center reveal">
-                <span class="lp-section__eyebrow">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                    Workflow
-                </span>
-                <h2 class="lp-section__title" id="how-title">
-                    Three steps. One butterfly graph.
-                </h2>
-                <p class="lp-section__copy">
-                    From a raw Polymarket URL to a fully rendered causal graph in seconds.
-                    No setup. No API keys for the core experience.
-                </p>
-            </div>
+<section class="lp-section" id="benchmarks" aria-labelledby="benchmarks-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Evaluation layer</span>
+        <h2 class="lp-section__title" id="benchmarks-title">What ChaosWing measures today</h2>
+        <p class="lp-section__copy">
+            The repo now leads with named benchmark tracks, explicit datasets, and concrete evaluation metrics
+            instead of asking readers to infer the data science from the UI alone.
+        </p>
+    </div>
 
-            <div class="lp-how-grid reveal" aria-labelledby="how-title">
-                {% for step in how_it_works %}
-                <div class="lp-how-step">
-                    <div class="lp-how-step__number" aria-hidden="true">{{ step.step }}</div>
-                    <div>
-                        <h3 class="lp-how-step__title">{{ step.title }}</h3>
-                        <p class="lp-how-step__copy">{{ step.copy }}</p>
-                    </div>
+    <div class="intel-metrics reveal">
+        {% for card in benchmark_summary.summary_cards %}
+        <article class="intel-metric">
+            <p class="intel-metric__label">{{ card.label }}</p>
+            <p class="intel-metric__value">{{ card.value }}</p>
+            <p class="intel-metric__copy">{{ card.copy }}</p>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div class="benchmark-grid reveal">
+        {% for benchmark in benchmark_summary.live_benchmarks %}
+        <article class="benchmark-card">
+            <div class="benchmark-card__header">
+                <div>
+                    <p class="intel-card__eyebrow">{{ benchmark.status }}</p>
+                    <h3 class="benchmark-card__title">{{ benchmark.name }}</h3>
                 </div>
+                <span class="benchmark-card__status">{{ benchmark.status }}</span>
+            </div>
+            <div class="benchmark-card__metrics">
+                <span>{{ benchmark.primary_metric }}</span>
+                <span>{{ benchmark.secondary_metric }}</span>
+            </div>
+            <p class="benchmark-card__copy">{{ benchmark.description }}</p>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div class="lp-banner reveal">
+        <div class="lp-banner__content">
+            <h2 class="lp-banner__title">Benchmarks, briefs, and graphs are one research workflow</h2>
+            <p class="lp-banner__copy">
+                ChaosWing is no longer only a graph demo. It now exposes a measurable research layer
+                that hiring reviewers can inspect quickly without losing the live product workflow.
+            </p>
+        </div>
+        <div class="lp-banner__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:benchmarks' %}">
+                Open benchmark dashboard
+            </a>
+            <a class="lp-btn lp-btn--ghost" href="https://chaoswing.onrender.com" rel="noreferrer" target="_blank">
+                Live site
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" id="watchlists" aria-labelledby="watchlists-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Reusable starting points</span>
+        <h2 class="lp-section__title" id="watchlists-title">Featured watchlists</h2>
+        <p class="lp-section__copy">
+            These watchlists turn the app into a recurring workflow for macro, commodity, and political research.
+        </p>
+    </div>
+
+    <div class="watchlist-grid reveal">
+        {% for watchlist in featured_watchlists %}
+        <article class="watchlist-card">
+            <div class="watchlist-card__header">
+                <div>
+                    <p class="intel-card__eyebrow">{{ watchlist.cadence|default:"Featured" }}</p>
+                    <h3 class="watchlist-card__title">{{ watchlist.title }}</h3>
+                </div>
+                <span class="watchlist-card__pill">{{ watchlist.items|length }} markets</span>
+            </div>
+            <p class="watchlist-card__thesis">{{ watchlist.thesis }}</p>
+            <p class="watchlist-card__copy">{{ watchlist.summary }}</p>
+            <div class="watchlist-card__items">
+                {% for item in watchlist.items|slice:":3" %}
+                <a class="watchlist-item" href="{% url 'web:dashboard' %}?url={{ item.url|urlencode }}">
+                    <span class="watchlist-item__title">{{ item.label }}</span>
+                    <span class="watchlist-item__note">{{ item.note }}</span>
+                </a>
                 {% endfor %}
             </div>
-        </div>
+            <div class="watchlist-card__actions">
+                <a class="lp-btn lp-btn--ghost" href="{% url 'web:watchlists' %}">Open watchlists</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" id="markets" aria-labelledby="markets-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">
+            {% if has_trending %}Trending now{% else %}Live markets{% endif %}
+        </span>
+        <h2 class="lp-section__title" id="markets-title">
+            {% if has_trending %}Top markets to analyze right now{% else %}Start with a live market{% endif %}
+        </h2>
+        <p class="lp-section__copy">
+            {% if has_trending %}
+            These are the highest-volume Polymarket events right now. Load one to generate a saved run, an analyst brief, and the graph workspace.
+            {% else %}
+            Launch the app and load one of these sample markets to see the analyst brief and graph workflow in action.
+            {% endif %}
+        </p>
     </div>
 
-    <section class="lp-section" id="markets" aria-labelledby="markets-title">
-        <div class="lp-section__header reveal">
-            <span class="lp-section__eyebrow">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-                    <line x1="18" y1="20" x2="18" y2="10"/>
-                    <line x1="12" y1="20" x2="12" y2="4"/>
-                    <line x1="6" y1="20" x2="6" y2="14"/>
-                </svg>
-                {% if has_trending %}Trending now{% else %}Live markets{% endif %}
-            </span>
-            <h2 class="lp-section__title" id="markets-title">
-                {% if has_trending %}Top bets today{% else %}Start with a live market{% endif %}
-            </h2>
-            <p class="lp-section__copy">
-                {% if has_trending %}
-                These are the highest-volume Polymarket events right now — ranked by 24-hour trading activity.
-                Click any card to generate its full butterfly graph.
-                {% else %}
-                Launch the app and load one of these sample Polymarket events to see
-                ChaosWing in action. Each one generates a full butterfly graph with
-                real data.
-                {% endif %}
+    <div class="lp-markets-grid reveal" id="markets-grid" aria-label="{% if has_trending %}Trending Polymarket events{% else %}Sample Polymarket events{% endif %}">
+        {% for link in sample_links %}
+        <a class="lp-market-card" href="{% url 'web:dashboard' %}?url={{ link.url|urlencode }}"
+           data-market-url="{{ link.url }}"
+           aria-label="Open {% if link.title %}{{ link.title }}{% else %}{{ link.label }}{% endif %} in the app">
+            <p class="lp-market-card__eyebrow">
+                <span class="lp-market-card__dot" aria-hidden="true"></span>
+                {% if link.category %}{{ link.category }}{% else %}Polymarket Event{% endif %}
             </p>
-        </div>
-
-        <div class="lp-markets-grid reveal" id="markets-grid" aria-label="{% if has_trending %}Trending Polymarket events{% else %}Sample Polymarket events{% endif %}">
-            {% for link in sample_links %}
-            <a class="lp-market-card" href="{% url 'web:dashboard' %}?url={{ link.url|urlencode }}"
-               data-market-url="{{ link.url }}"
-               aria-label="Open {% if link.title %}{{ link.title }}{% else %}{{ link.label }}{% endif %} in the app">
-                <p class="lp-market-card__eyebrow">
-                    <span class="lp-market-card__dot" aria-hidden="true"></span>
-                    {% if link.category %}{{ link.category }}{% else %}Polymarket Event{% endif %}
-                </p>
-                <h3 class="lp-market-card__title">{% if link.title %}{{ link.title }}{% else %}{{ link.label }}{% endif %}</h3>
-                <p class="lp-market-card__copy">{{ link.caption }}</p>
-                {% if link.volume %}
-                <div class="lp-market-card__stats">
-                    <span class="lp-market-card__volume">${{ link.volume|floatformat:0 }} vol</span>
-                </div>
-                {% endif %}
-                <span class="lp-market-card__action" aria-hidden="true">
-                    Open graph
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                </span>
-            </a>
-            {% endfor %}
-        </div>
-    </section>
-
-    <section class="lp-section reveal" aria-labelledby="cta-title">
-        <div class="lp-banner">
-            <div class="lp-banner__content">
-                <h2 class="lp-banner__title" id="cta-title">
-                    Ready to see the butterfly effect?
-                </h2>
-                <p class="lp-banner__copy">
-                    Paste any Polymarket event URL and ChaosWing will resolve the event,
-                    discover related contracts, and render a live causal graph in seconds.
-                    No account required.
-                </p>
+            <h3 class="lp-market-card__title">{% if link.title %}{{ link.title }}{% else %}{{ link.label }}{% endif %}</h3>
+            <p class="lp-market-card__copy">{{ link.caption }}</p>
+            {% if link.volume %}
+            <div class="lp-market-card__stats">
+                <span class="lp-market-card__volume">${{ link.volume|floatformat:0 }} vol</span>
             </div>
-            <div class="lp-banner__actions">
-                <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">
-                    Launch the App
-                    <span class="lp-btn__arrow" aria-hidden="true">&rarr;</span>
-                </a>
-                <a class="lp-btn lp-btn--ghost" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                    View Source
-                </a>
-            </div>
-        </div>
-    </section>
+            {% endif %}
+            <span class="lp-market-card__action" aria-hidden="true">Open workflow</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
 
-    <footer class="lp-footer" role="contentinfo">
-        <div class="lp-footer__inner">
-            <a class="lp-footer__brand" href="{% url 'web:landing' %}">
-                <span class="lp-footer__icon" aria-hidden="true">
-                    <img class="lp-footer__icon-image" src="{% static 'web/img/chaoswing-icon.png' %}" alt="">
-                </span>
-                ChaosWing
-            </a>
-            <p class="lp-footer__tagline">
-                Butterfly Effect Engine for Prediction Markets
-            </p>
-            <nav class="lp-footer__links" aria-label="Footer navigation">
-                <a class="lp-footer__link" href="{% url 'web:dashboard' %}">App</a>
-                <a class="lp-footer__link" href="#features">Features</a>
-                <a class="lp-footer__link" href="#how-it-works">How it works</a>
-                <a class="lp-footer__link" href="https://github.com/Zwc-11/Chaoswing" rel="noreferrer" target="_blank">GitHub</a>
-            </nav>
-        </div>
-    </footer>
+{% block extra_scripts %}
+<script>
+    (function verifyMarketLinks() {
+        const cards = document.querySelectorAll("[data-market-url]");
+        if (!cards.length) return;
 
-    <script>
-        // Nav scroll effect
-        const nav = document.getElementById('lp-nav');
-        window.addEventListener('scroll', () => {
-            nav.classList.toggle('is-scrolled', window.scrollY > 20);
-        }, { passive: true });
+        const urls = Array.from(cards).map((card) => card.dataset.marketUrl);
+        const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || "";
 
-        // Intersection observer for .reveal elements
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
+        fetch("{% url 'web:verify_links' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
             },
-            { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
-        );
-        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-
-        // Feature cards stagger on reveal
-        const featureObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        featureObserver.unobserve(entry.target);
-                    }
-                });
-            },
-            { threshold: 0.05 }
-        );
-        document.querySelectorAll('.lp-feature-card').forEach((el) => featureObserver.observe(el));
-
-        // Link verification — confirm all market card URLs are reachable
-        (function verifyMarketLinks() {
-            const cards = document.querySelectorAll('[data-market-url]');
-            if (!cards.length) return;
-
-            const urls = Array.from(cards).map(c => c.dataset.marketUrl);
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
-                || document.cookie.match(/csrftoken=([^;]+)/)?.[1]
-                || '';
-
-            fetch('/api/v1/markets/verify/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                body: JSON.stringify({ urls }),
-            })
-            .then(r => r.ok ? r.json() : null)
-            .then(data => {
-                if (!data || !data.results) return;
-                cards.forEach(card => {
-                    const url = card.dataset.marketUrl;
-                    const isValid = data.results[url];
-                    if (isValid === false) {
-                        card.classList.add('lp-market-card--unverified');
-                        const dot = card.querySelector('.lp-market-card__dot');
-                        if (dot) dot.title = 'Link could not be verified';
-                    } else if (isValid === true) {
-                        card.classList.add('lp-market-card--verified');
-                    }
-                });
-            })
-            .catch(() => {});
-        })();
-    </script>
-</body>
-</html>
-
-
+            body: JSON.stringify({ urls }),
+        })
+        .then((response) => response.ok ? response.json() : null)
+        .then((data) => {
+            if (!data || !data.results) return;
+            cards.forEach((card) => {
+                const isValid = data.results[card.dataset.marketUrl];
+                if (isValid === false) {
+                    card.classList.add("lp-market-card--unverified");
+                } else if (isValid === true) {
+                    card.classList.add("lp-market-card--verified");
+                }
+            });
+        })
+        .catch(() => {});
+    })();
+</script>
+{% endblock %}

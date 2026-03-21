@@ -17,6 +17,8 @@ staticfiles/
 
 # ML training data
 ml_data/
+mlflow.db
+mlruns/
 
 # Tooling
 .coverage
@@ -31,3 +33,5 @@ dist/
 .vscode/
 .DS_Store
 Thumbs.db
+*.log
+temp_leadlag_block.txt

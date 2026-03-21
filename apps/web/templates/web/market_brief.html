@@ -1,0 +1,266 @@
+{% extends "web/marketing_base.html" %}
+
+{% block title %}ChaosWing - {{ brief.event.title }}{% endblock %}
+
+{% block content %}
+<section class="lp-page-hero lp-page-hero--brief" aria-labelledby="brief-hero-title">
+    <div class="lp-page-hero__content reveal">
+        <span class="lp-hero__badge">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            Shareable market brief
+        </span>
+        <h1 class="lp-page-hero__title" id="brief-hero-title">{{ brief.event.title }}</h1>
+        <p class="lp-page-hero__copy">{{ brief.overview }}</p>
+        <div class="brief-hero-meta">
+            <span class="brief-hero-meta__pill">{{ brief.event.status }}</span>
+            <span class="brief-hero-meta__item">Run {{ brief.run_id }}</span>
+            <span class="brief-hero-meta__item">{{ brief.workflow.mode }}</span>
+            <span class="brief-hero-meta__item">{{ brief.trust.graph_nodes }} nodes / {{ brief.trust.graph_edges }} edges</span>
+        </div>
+        <div class="lp-page-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}?url={{ brief.event.source_url|urlencode }}">Open graph workspace</a>
+            <a class="lp-btn lp-btn--ghost" href="{{ brief.event.source_url }}" rel="noreferrer" target="_blank">Open source market</a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="brief-summary-title">
+    <div class="brief-grid reveal">
+        <article class="brief-card brief-card--wide">
+            <p class="intel-card__eyebrow">Strongest spillover path</p>
+            <h2 class="brief-card__title" id="brief-summary-title">What ChaosWing thinks matters most</h2>
+            {% if brief.strongest_path.summary %}
+            <p class="brief-card__copy">{{ brief.strongest_path.summary }}</p>
+            <div class="brief-path">
+                {% for node in brief.strongest_path.nodes %}
+                <span class="brief-path__node">{{ node.label }}</span>
+                {% if not forloop.last %}
+                <span class="brief-path__arrow">&rarr;</span>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <p class="brief-card__meta">Path score {{ brief.strongest_path.score|floatformat:2 }}</p>
+            {% else %}
+            <p class="brief-card__copy">This run did not yield a multi-hop spillover path strong enough to summarize yet.</p>
+            {% endif %}
+        </article>
+
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">Next catalyst</p>
+            <h2 class="brief-card__title">What to watch next</h2>
+            {% if brief.next_catalyst %}
+            <p class="brief-card__copy">{{ brief.next_catalyst.title }}</p>
+            <p class="brief-card__meta">{{ brief.next_catalyst.summary }}</p>
+            {% else %}
+            <p class="brief-card__copy">No dated catalyst was extracted from the current graph.</p>
+            {% endif %}
+        </article>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="changes-title">
+    <div class="brief-grid reveal">
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">What changed</p>
+            <h2 class="brief-card__title" id="changes-title">Run-to-run change summary</h2>
+            <p class="brief-card__copy">{{ brief.change_summary.summary }}</p>
+            {% if brief.change_summary.previous_run_id %}
+            <div class="brief-subsection">
+                <p class="brief-card__meta">
+                    Compared against {{ brief.change_summary.previous_title }} · {{ brief.change_summary.previous_mode }}
+                </p>
+                <a class="inline-link" href="{% url 'web:market_brief' brief.change_summary.previous_run_id %}">Open prior brief</a>
+            </div>
+            {% endif %}
+            <div class="brief-subsection">
+                <h3 class="brief-subtitle">Moved related markets</h3>
+                <ul class="brief-list">
+                    {% for market in brief.change_summary.moved_related_markets %}
+                    <li class="brief-list__item">
+                        <strong>{{ market.direction_label }}: {{ market.title }}</strong>
+                        <span>{{ market.delta_label }} confidence versus the prior run ({{ market.previous_confidence_label }} -> {{ market.current_confidence_label }}).</span>
+                    </li>
+                    {% empty %}
+                    <li class="brief-list__item">
+                        <strong>No ranking drift</strong>
+                        <span>The related-market ordering is stable versus the prior saved run.</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="brief-subsection">
+                <h3 class="brief-subtitle">New graph coverage</h3>
+                <ul class="brief-list">
+                {% for title in brief.change_summary.new_nodes %}
+                <li class="brief-list__item">
+                    <strong>New node</strong>
+                    <span>{{ title }}</span>
+                </li>
+                {% empty %}
+                <li class="brief-list__item">
+                    <strong>No new nodes</strong>
+                    <span>Nothing newly surfaced versus the prior saved run.</span>
+                </li>
+                {% endfor %}
+            </ul>
+            </div>
+        </article>
+
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">Catalyst timeline</p>
+            <h2 class="brief-card__title">What could move this cluster next</h2>
+            <ul class="brief-list">
+                {% for catalyst in brief.catalyst_timeline %}
+                <li class="brief-list__item">
+                    <strong>{{ catalyst.title }}</strong>
+                    <span>{{ catalyst.summary }}</span>
+                </li>
+                {% empty %}
+                <li class="brief-list__item">
+                    <strong>No catalyst timeline yet</strong>
+                    <span>This run did not extract date-like catalyst nodes.</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="related-markets-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Ranking</span>
+        <h2 class="lp-section__title" id="related-markets-title">Top related markets</h2>
+    </div>
+    <div class="intel-grid intel-grid--two reveal">
+        {% for market in brief.top_related_markets %}
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">{{ market.confidence|floatformat:2 }} confidence</p>
+            <h3 class="intel-card__title">{{ market.title }}</h3>
+            <p class="intel-card__copy">{{ market.summary }}</p>
+            {% if market.source_url %}
+            <a class="inline-link" href="{{ market.source_url }}" rel="noreferrer" target="_blank">Open market</a>
+            {% endif %}
+        </article>
+        {% empty %}
+        <article class="intel-card">
+            <h3 class="intel-card__title">No related markets yet</h3>
+            <p class="intel-card__copy">This run did not produce ranked adjacent contracts.</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="evidence-title">
+    <div class="brief-grid reveal">
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">Evidence</p>
+            <h2 class="brief-card__title" id="evidence-title">Key evidence nodes</h2>
+            <ul class="brief-list">
+                {% for item in brief.key_evidence %}
+                <li class="brief-list__item">
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ item.summary }}</span>
+                </li>
+                {% empty %}
+                <li class="brief-list__item">
+                    <strong>No evidence nodes yet</strong>
+                    <span>Evidence coverage is limited in this run.</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">Caveats</p>
+            <h2 class="brief-card__title">How to read this brief safely</h2>
+            <ul class="brief-list">
+                {% for caveat in brief.confidence_caveats %}
+                <li class="brief-list__item">
+                    <strong>Caveat {{ forloop.counter }}</strong>
+                    <span>{{ caveat }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="trust-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Trust layer</span>
+        <h2 class="lp-section__title" id="trust-title">Why this brief is inspectable</h2>
+    </div>
+    <div class="intel-metrics reveal">
+        <article class="intel-metric">
+            <p class="intel-metric__label">Review quality</p>
+            <p class="intel-metric__value">{{ brief.trust.quality_score|floatformat:2 }}</p>
+            <p class="intel-metric__copy">Persisted score from the review layer.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Related markets</p>
+            <p class="intel-metric__value">{{ brief.trust.related_market_count }}</p>
+            <p class="intel-metric__copy">Adjacent contracts surfaced in the current run.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Evidence nodes</p>
+            <p class="intel-metric__value">{{ brief.trust.evidence_count }}</p>
+            <p class="intel-metric__copy">Evidence-bearing nodes available for inspection.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Follow-up actions</p>
+            <p class="intel-metric__value">{{ brief.trust.follow_up_actions|length }}</p>
+            <p class="intel-metric__copy">Actions or notes emitted by the review step.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Trace stages</p>
+            <p class="intel-metric__value">{{ brief.trust.trace_summary.stage_count }}</p>
+            <p class="intel-metric__copy">Persisted workflow trace rows for this run.</p>
+        </article>
+    </div>
+    <div class="brief-grid reveal">
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">Workflow trace</p>
+            <h3 class="brief-card__title">How this run was produced</h3>
+            <p class="brief-card__copy">{{ brief.trust.trace_summary.health_copy }}</p>
+            <ul class="brief-list">
+                {% for stage in brief.trust.trace_summary.stages %}
+                <li class="brief-list__item">
+                    <strong>{{ stage.name }} · {{ stage.status_label }}</strong>
+                    <span>{{ stage.detail_short }}</span>
+                    <span class="brief-list__meta">{{ stage.latency_label }} · {{ stage.token_label }} · {{ stage.citation_count }} citations · {{ stage.cost_label }}</span>
+                </li>
+                {% empty %}
+                <li class="brief-list__item">
+                    <strong>No workflow trace yet</strong>
+                    <span>This run does not persist stage-by-stage trace metadata yet.</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+        <article class="brief-card">
+            <p class="intel-card__eyebrow">Follow-up actions</p>
+            <h3 class="brief-card__title">What still needs analyst attention</h3>
+            <p class="brief-card__copy">
+                {% if brief.trust.issue_count %}
+                {{ brief.trust.issue_count }} review issue{{ brief.trust.issue_count|pluralize }} flagged in the current brief.
+                {% else %}
+                No explicit review issues were flagged for this saved run.
+                {% endif %}
+            </p>
+            <ul class="brief-list">
+                {% for action in brief.trust.follow_up_actions %}
+                <li class="brief-list__item">
+                    <strong>Follow-up {{ forloop.counter }}</strong>
+                    <span>{{ action }}</span>
+                </li>
+                {% empty %}
+                <li class="brief-list__item">
+                    <strong>No queued follow-ups</strong>
+                    <span>The current review layer did not request extra analyst actions.</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </article>
+    </div>
+</section>
+{% endblock %}
