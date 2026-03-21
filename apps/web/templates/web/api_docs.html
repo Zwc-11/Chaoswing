@@ -1,0 +1,403 @@
+{% extends "web/marketing_base.html" %}
+
+{% block title %}ChaosWing - API Reference{% endblock %}
+
+{% block content %}
+<section class="lp-page-hero" aria-labelledby="api-docs-title">
+    <div class="lp-page-hero__content reveal">
+        <span class="lp-hero__badge">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            OpenAPI + live reference
+        </span>
+        <h1 class="lp-page-hero__title" id="api-docs-title">Developer API Reference</h1>
+        <p class="lp-page-hero__copy">
+            ChaosWing exposes a public JSON API for graph generation, saved-run retrieval, benchmark data,
+            watchlists, and cross-venue lead-lag research. This reference is generated from the same endpoint
+            catalog that powers the downloadable OpenAPI schema.
+        </p>
+        <div class="lp-page-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{{ api_reference.openapi_url }}">Download OpenAPI JSON</a>
+            <a class="lp-btn lp-btn--ghost" href="{{ api_reference.api_root_url }}">Open API root</a>
+            <a class="lp-btn lp-btn--ghost" href="{% url 'web:dashboard' %}">Launch app</a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="api-overview-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Protocol</span>
+        <h2 class="lp-section__title" id="api-overview-title">Contract overview</h2>
+        <p class="lp-section__copy">
+            Versioning, rate limits, and error behavior are documented from the live Django runtime, not from a
+            separate hand-written markdown file.
+        </p>
+    </div>
+    <div class="intel-metrics reveal">
+        {% for card in api_reference.overview_cards %}
+        <article class="intel-metric">
+            <p class="intel-metric__label">{{ card.label }}</p>
+            <p class="intel-metric__value api-docs-metric__value">{{ card.value }}</p>
+            <p class="intel-metric__copy">{{ card.copy }}</p>
+        </article>
+        {% endfor %}
+    </div>
+    <div class="intel-grid intel-grid--two reveal">
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">Rate limits</p>
+            <h3 class="intel-card__title">Production protection</h3>
+            <div class="metric-chip-list">
+                {% for item in api_reference.rate_limits %}
+                <span class="metric-chip metric-chip--wide">
+                    <span class="metric-chip__label">{{ item.label }}</span>
+                    <span class="metric-chip__value">{{ item.value }}</span>
+                </span>
+                {% endfor %}
+            </div>
+            {% for item in api_reference.rate_limits %}
+            <p class="intel-card__copy">{{ item.label }}: {{ item.copy }}</p>
+            {% endfor %}
+        </article>
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">Response contract</p>
+            <h3 class="intel-card__title">Headers and transport rules</h3>
+            <div class="brief-list">
+                {% for note in api_reference.protocol_notes %}
+                <div class="brief-list__item">
+                    <span>{{ note }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="api-workflows-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Start here</span>
+        <h2 class="lp-section__title" id="api-workflows-title">Integration workflows</h2>
+        <p class="lp-section__copy">
+            Slack’s docs work because they show tasks, not just methods. These are the fastest paths through the
+            ChaosWing API for the three main integration jobs.
+        </p>
+    </div>
+    <div class="watchlist-grid reveal">
+        {% for workflow in api_reference.workflows %}
+        <article class="watchlist-card">
+            <div class="watchlist-card__header">
+                <div>
+                    <p class="intel-card__eyebrow">Workflow</p>
+                    <h3 class="watchlist-card__title">{{ workflow.title }}</h3>
+                </div>
+                <span class="watchlist-card__pill">{{ workflow.steps|length }} calls</span>
+            </div>
+            <p class="watchlist-card__copy">{{ workflow.copy }}</p>
+            <div class="watchlist-card__items">
+                {% for step in workflow.steps %}
+                <a class="watchlist-item" href="{{ step.href }}">
+                    <span class="watchlist-item__title">{{ step.label }}</span>
+                    <span class="watchlist-item__note">Jump to this endpoint</span>
+                </a>
+                {% endfor %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="api-reference-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Endpoints</span>
+        <h2 class="lp-section__title" id="api-reference-title">Reference</h2>
+        <p class="lp-section__copy">
+            The docs are grouped by capability, with concrete request and response examples for each endpoint.
+        </p>
+        <div class="api-docs-toolbar">
+            <label class="review-field api-docs-toolbar__field">
+                <span class="review-field__label">Search</span>
+                <input
+                    class="review-field__input"
+                    id="api-docs-search"
+                    type="search"
+                    placeholder="Filter by endpoint, path, or purpose"
+                >
+            </label>
+            <label class="review-field api-docs-toolbar__field">
+                <span class="review-field__label">Method</span>
+                <select class="review-field__select" id="api-docs-method-filter">
+                    <option value="">All methods</option>
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                </select>
+            </label>
+        </div>
+    </div>
+    <div class="api-docs-layout reveal">
+        <aside class="api-docs-sidebar" aria-label="API navigation">
+            <div class="api-docs-sidebar__section">
+                <p class="intel-card__eyebrow">Jump to</p>
+                <nav class="api-docs-sidebar__nav">
+                    {% for item in api_reference.nav_sections %}
+                    <a class="api-docs-sidebar__link" href="#{{ item.anchor }}">{{ item.name }}</a>
+                    {% endfor %}
+                    <a class="api-docs-sidebar__link" href="#common-errors">Common errors</a>
+                </nav>
+            </div>
+            <div class="api-docs-sidebar__section">
+                <p class="intel-card__eyebrow">Discovery</p>
+                <div class="api-docs-sidebar__stack">
+                    <a class="inline-link" href="{{ api_reference.api_root_url }}">API root</a>
+                    <a class="inline-link" href="{{ api_reference.openapi_url }}">OpenAPI JSON</a>
+                </div>
+            </div>
+        </aside>
+
+        <div class="api-docs-content">
+            {% for section in api_reference.sections %}
+            <section class="api-docs-group" id="{{ section.anchor }}" aria-labelledby="{{ section.anchor }}-title">
+                <div class="api-docs-group__header">
+                    <p class="intel-card__eyebrow">{{ section.name }}</p>
+                    <h3 class="benchmark-card__title" id="{{ section.anchor }}-title">{{ section.description }}</h3>
+                </div>
+
+                {% for endpoint in section.endpoints %}
+                <article
+                    class="api-endpoint"
+                    id="{{ endpoint.anchor }}"
+                    data-endpoint-name="{{ endpoint.name|lower }}"
+                    data-endpoint-summary="{{ endpoint.summary|lower }}"
+                    data-endpoint-path="{{ endpoint.path|lower }}"
+                    data-endpoint-method="{{ endpoint.method }}"
+                    data-endpoint-tag="{{ section.name|lower }}"
+                >
+                    <div class="api-endpoint__header">
+                        <span class="api-endpoint__method api-endpoint__method--{{ endpoint.method_class }}">{{ endpoint.method }}</span>
+                        <code class="api-endpoint__path">{{ endpoint.path }}</code>
+                    </div>
+                    <div class="api-endpoint__body">
+                        <div class="api-endpoint__copy">
+                            <h4 class="api-endpoint__title">{{ endpoint.summary }}</h4>
+                            <p class="brief-card__copy">{{ endpoint.description }}</p>
+                            <div class="brief-subsection">
+                                <p class="brief-subtitle">Facts</p>
+                                <div class="metric-chip-list">
+                                    {% for fact in endpoint.facts %}
+                                    <span class="metric-chip">
+                                        <span class="metric-chip__label">{{ fact.label }}</span>
+                                        <span class="metric-chip__value">{{ fact.value }}</span>
+                                    </span>
+                                    {% endfor %}
+                                    <span class="metric-chip">
+                                        <span class="metric-chip__label">Rate limit</span>
+                                        <span class="metric-chip__value">{{ endpoint.rate_limit_tier }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            {% if endpoint.notes %}
+                            <div class="brief-subsection">
+                                <p class="brief-subtitle">Usage info</p>
+                                <div class="brief-list">
+                                    {% for note in endpoint.notes %}
+                                    <div class="brief-list__item">
+                                        <span>{{ note }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if endpoint.parameters %}
+                        <div class="brief-subsection">
+                            <p class="brief-subtitle">Parameters</p>
+                            <div class="api-docs-table">
+                                <div class="api-docs-table__head">
+                                    <span>Name</span>
+                                    <span>In</span>
+                                    <span>Type</span>
+                                    <span>Required</span>
+                                    <span>Description</span>
+                                </div>
+                                {% for parameter in endpoint.parameters %}
+                                <div class="api-docs-table__row">
+                                    <span data-label="Name"><code>{{ parameter.name }}</code></span>
+                                    <span data-label="In">{{ parameter.location }}</span>
+                                    <span data-label="Type">{{ parameter.type }}</span>
+                                    <span data-label="Required">{% if parameter.required %}Yes{% else %}No{% endif %}</span>
+                                    <span data-label="Description">
+                                        {{ parameter.description }}
+                                        {% if parameter.default is not None %}
+                                        <small>Default {{ parameter.default }}</small>
+                                        {% endif %}
+                                        {% if parameter.example is not None %}
+                                        <small>Example {{ parameter.example }}</small>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if endpoint.request_body %}
+                        <div class="brief-subsection">
+                            <p class="brief-subtitle">Request body</p>
+                            <p class="brief-card__copy">{{ endpoint.request_body.description }}</p>
+                            <div class="api-docs-table">
+                                <div class="api-docs-table__head">
+                                    <span>Field</span>
+                                    <span>Type</span>
+                                    <span>Required</span>
+                                    <span>Description</span>
+                                </div>
+                                {% for field in endpoint.request_body.fields %}
+                                <div class="api-docs-table__row api-docs-table__row--four">
+                                    <span data-label="Field"><code>{{ field.name }}</code></span>
+                                    <span data-label="Type">{{ field.type }}</span>
+                                    <span data-label="Required">{% if field.required %}Yes{% else %}No{% endif %}</span>
+                                    <span data-label="Description">
+                                        {{ field.description }}
+                                        {% if field.example is not None %}
+                                        <small>Example {{ field.example }}</small>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if endpoint.response_fields %}
+                        <div class="brief-subsection">
+                            <p class="brief-subtitle">Success response fields</p>
+                            <div class="api-docs-table">
+                                <div class="api-docs-table__head api-docs-table__head--three">
+                                    <span>Field</span>
+                                    <span>Type</span>
+                                    <span>Required</span>
+                                </div>
+                                {% for field in endpoint.response_fields %}
+                                <div class="api-docs-table__row api-docs-table__row--three">
+                                    <span data-label="Field"><code>{{ field.name }}</code></span>
+                                    <span data-label="Type">{{ field.type }}</span>
+                                    <span data-label="Required">{% if field.required %}Yes{% else %}No{% endif %}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="api-docs-code-grid">
+                            <div class="api-docs-code-block">
+                                <p class="brief-subtitle">cURL</p>
+                                <pre><code>{{ endpoint.curl_sample }}</code></pre>
+                            </div>
+                            <div class="api-docs-code-block">
+                                <p class="brief-subtitle">JavaScript</p>
+                                <pre><code>{{ endpoint.fetch_sample }}</code></pre>
+                            </div>
+                            {% if endpoint.request_body %}
+                            <div class="api-docs-code-block">
+                                <p class="brief-subtitle">Example request JSON</p>
+                                <pre><code>{{ endpoint.request_body.example }}</code></pre>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="brief-subsection">
+                            <p class="brief-subtitle">Responses</p>
+                            <div class="api-docs-response-list">
+                                {% for response in endpoint.responses %}
+                                <article class="api-docs-response">
+                                    <div class="api-docs-response__header">
+                                        <span class="metric-chip">
+                                            <span class="metric-chip__label">Status</span>
+                                            <span class="metric-chip__value">{{ response.status_code }}</span>
+                                        </span>
+                                        <span class="brief-card__copy">{{ response.description }}</span>
+                                    </div>
+                                    {% if response.example %}
+                                    <pre class="api-docs-response__code"><code>{{ response.example }}</code></pre>
+                                    {% endif %}
+                                </article>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {% if endpoint.related_operations %}
+                        <div class="brief-subsection">
+                            <p class="brief-subtitle">Next calls</p>
+                            <div class="brief-list">
+                                {% for operation in endpoint.related_operations %}
+                                <a class="brief-list__item api-docs-related-link" href="{{ operation.href }}">
+                                    <strong>{{ operation.name }}</strong>
+                                    <span>{{ operation.summary }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </section>
+            {% endfor %}
+
+            <section class="api-docs-group" id="common-errors" aria-labelledby="common-errors-title">
+                <div class="api-docs-group__header">
+                    <p class="intel-card__eyebrow">Common errors</p>
+                    <h3 class="benchmark-card__title" id="common-errors-title">Shared failure modes</h3>
+                </div>
+                <div class="intel-grid intel-grid--two">
+                    {% for error in api_reference.common_errors %}
+                    <article class="intel-card">
+                        <div class="benchmark-card__header">
+                            <div>
+                                <p class="intel-card__eyebrow">{{ error.status }}</p>
+                                <h4 class="intel-card__title">{{ error.label }}</h4>
+                            </div>
+                            <span class="benchmark-card__status">{{ error.status }}</span>
+                        </div>
+                        <p class="intel-card__copy">{{ error.copy }}</p>
+                        <pre class="api-docs-response__code"><code>{{ error.example_json }}</code></pre>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const apiSearch = document.getElementById("api-docs-search");
+    const apiMethodFilter = document.getElementById("api-docs-method-filter");
+    const apiGroups = Array.from(document.querySelectorAll(".api-docs-group"));
+    const apiEndpoints = Array.from(document.querySelectorAll(".api-endpoint"));
+
+    const applyApiDocsFilters = () => {
+        const query = (apiSearch?.value || "").trim().toLowerCase();
+        const method = apiMethodFilter?.value || "";
+
+        apiEndpoints.forEach((endpoint) => {
+            const haystack = [
+                endpoint.dataset.endpointName || "",
+                endpoint.dataset.endpointSummary || "",
+                endpoint.dataset.endpointPath || "",
+                endpoint.dataset.endpointTag || "",
+            ].join(" ");
+            const matchesQuery = !query || haystack.includes(query);
+            const matchesMethod = !method || endpoint.dataset.endpointMethod === method;
+            endpoint.hidden = !(matchesQuery && matchesMethod);
+        });
+
+        apiGroups.forEach((group) => {
+            const visibleEndpoints = group.querySelectorAll(".api-endpoint:not([hidden])");
+            group.hidden = visibleEndpoints.length === 0 && group.id !== "common-errors";
+        });
+    };
+
+    apiSearch?.addEventListener("input", applyApiDocsFilters);
+    apiMethodFilter?.addEventListener("change", applyApiDocsFilters);
+</script>
+{% endblock %}

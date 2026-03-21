@@ -47,6 +47,7 @@ function collectElements() {
         historyButton: document.getElementById("history-button"),
         exportButton: document.getElementById("export-button"),
         shareButton: document.getElementById("share-button"),
+        briefButton: document.getElementById("brief-button"),
         shortcutsButton: document.getElementById("shortcuts-button"),
 
         // Sample / empty state
@@ -191,12 +192,12 @@ function renderStageState(elements, state, graphStats) {
         return;
     }
 
-    elements.emptyStateTitle.textContent =
-        "Load a Polymarket event to wake up the graph.";
-    elements.emptyStateCopy.textContent =
-        "Paste one market on the left. Hover any node to preview it, then click once to lock the graph while you read.";
-    elements.emptyLoadButton.dataset.mode = "load";
-    elements.emptyLoadButton.textContent = "Load Butterfly Graph";
+        elements.emptyStateTitle.textContent =
+            "Load a Polymarket event to wake up the graph.";
+        elements.emptyStateCopy.textContent =
+            "Paste one market on the left. ChaosWing will turn it into a live trader brief, then let you inspect the graph underneath it.";
+        elements.emptyLoadButton.dataset.mode = "load";
+        elements.emptyLoadButton.textContent = "Load Market Brief";
 }
 
 function describeInteraction(interaction) {
@@ -310,7 +311,7 @@ function renderStageCopy(elements, state, graphStats) {
         return;
     }
     elements.stageCopy.textContent =
-        "A graph-first workspace for tracing direct drivers, evidence, related markets, and indirect impact paths.";
+        "A market-intelligence workspace for tracing direct drivers, evidence, related markets, and indirect spillover paths.";
 }
 
 function renderLoadingButton(elements, isLoading) {
@@ -320,7 +321,7 @@ function renderLoadingButton(elements, isLoading) {
     if (elements.loadGraphButtonLabel) {
         elements.loadGraphButtonLabel.textContent = isLoading
             ? "Loading graph..."
-            : "Load Butterfly Graph";
+            : "Load Market Brief";
     }
     if (elements.loadGraphButtonSpinner) {
         elements.loadGraphButtonSpinner.hidden = !isLoading;
@@ -340,6 +341,9 @@ function renderActionButtons(elements, payload) {
     }
     if (elements.shareButton) {
         elements.shareButton.disabled = !hasPayload;
+    }
+    if (elements.briefButton) {
+        elements.briefButton.disabled = !hasPayload;
     }
 }
 
@@ -645,6 +649,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Fallback: show URL in toast
                 toast.info(`Share URL: ${url}`);
             }
+        });
+    }
+
+    // -- Brief button -------------------------------------------------------
+    if (elements.briefButton) {
+        elements.briefButton.addEventListener("click", () => {
+            const payload = store.getState().payload;
+            const briefUrl = payload?.run?.brief_url;
+            if (!briefUrl) {
+                toast.warning("Load a graph first before opening the brief.");
+                return;
+            }
+            window.location.href = briefUrl;
         });
     }
 

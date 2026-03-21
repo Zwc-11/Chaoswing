@@ -1,0 +1,220 @@
+{% extends "web/marketing_base.html" %}
+
+{% block title %}ChaosWing - Related-Market Review Queue{% endblock %}
+
+{% block content %}
+<section class="lp-page-hero" aria-labelledby="review-hero-title">
+    <div class="lp-page-hero__content reveal">
+        <span class="lp-hero__badge">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            Human ranking labels
+        </span>
+        <h1 class="lp-page-hero__title" id="review-hero-title">Related-Market Review Queue</h1>
+        <p class="lp-page-hero__copy">
+            Label which related markets are actually useful so ChaosWing's ranking benchmark moves from silver labels
+            to defensible ground truth.
+        </p>
+        <div class="lp-page-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:benchmarks' %}">Back to benchmarks</a>
+            <a class="lp-btn lp-btn--ghost" href="{% url 'web:dashboard' %}">Open app</a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="review-summary-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Coverage</span>
+        <h2 class="lp-section__title" id="review-summary-title">Current label coverage</h2>
+        <p class="lp-section__copy">
+            This queue is intentionally narrow: recent runs, the top ranked related markets, and explicit reviewer
+            agreement states instead of one opaque label.
+        </p>
+    </div>
+    <div class="intel-metrics reveal">
+        <article class="intel-metric">
+            <p class="intel-metric__label">Total judgments</p>
+            <p class="intel-metric__value">{{ review_queue.summary.judgment_count }}</p>
+            <p class="intel-metric__copy">Manual related-market labels saved in the database.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Reviewed runs</p>
+            <p class="intel-metric__value">{{ review_queue.summary.reviewed_runs }}</p>
+            <p class="intel-metric__copy">Saved runs with at least one usefulness label.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Pending cases</p>
+            <p class="intel-metric__value">{{ review_queue.summary.pending_cases }}</p>
+            <p class="intel-metric__copy">Recent runs that still have unlabeled related markets.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Active reviewers</p>
+            <p class="intel-metric__value">{{ review_queue.summary.reviewer_count }}</p>
+            <p class="intel-metric__copy">Named reviewers contributing to consensus labels.</p>
+        </article>
+        <article class="intel-metric">
+            <p class="intel-metric__label">Agreement</p>
+            <p class="intel-metric__value">{{ review_queue.summary.avg_agreement_rate|floatformat:2 }}</p>
+            <p class="intel-metric__copy">Average agreement across reviewed candidates in the queue.</p>
+        </article>
+    </div>
+    {% if review_queue.summary.label_breakdown %}
+    <div class="metric-chip-list metric-chip-list--wide reveal">
+        {% for item in review_queue.summary.label_breakdown %}
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">{{ item.label }}</span>
+            <span class="metric-chip__value">{{ item.count }}</span>
+        </span>
+        {% endfor %}
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Needs second review</span>
+            <span class="metric-chip__value">{{ review_queue.summary.needs_second_review_candidates }}</span>
+        </span>
+        <span class="metric-chip metric-chip--wide">
+            <span class="metric-chip__label">Contested</span>
+            <span class="metric-chip__value">{{ review_queue.summary.contested_candidates }}</span>
+        </span>
+    </div>
+    {% endif %}
+</section>
+
+{% if saved %}
+<section class="lp-section reveal" aria-label="Saved notice">
+    <div class="lp-banner">
+        <div class="lp-banner__content">
+            <h2 class="lp-banner__title">Judgment saved</h2>
+            <p class="lp-banner__copy">The related-market label was persisted and the benchmark cache was invalidated.</p>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if error_message %}
+<section class="lp-section reveal" aria-label="Error notice">
+    <div class="lp-banner lp-banner--danger">
+        <div class="lp-banner__content">
+            <h2 class="lp-banner__title">Could not save judgment</h2>
+            <p class="lp-banner__copy">{{ error_message }}</p>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="lp-section" aria-labelledby="review-cases-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Review queue</span>
+        <h2 class="lp-section__title" id="review-cases-title">Label recent runs</h2>
+        <p class="lp-section__copy">
+            Use `Core signal` for the few adjacent markets you would genuinely want in the brief, `Watchlist only` for
+            plausible but secondary contracts, and `Not useful` for noise. One reviewer creates a draft label; two
+            named reviewers make agreement visible.
+        </p>
+    </div>
+    <div class="intel-stack reveal">
+        {% for case in review_queue.cases %}
+        <article class="intel-card review-case">
+            <div class="review-case__header">
+                <div>
+                    <p class="intel-card__eyebrow">{{ case.event_slug|default:"run" }}</p>
+                    <h3 class="intel-card__title">{{ case.event_title }}</h3>
+                    <p class="intel-card__copy">
+                        {{ case.judged_count }} labeled &middot; {{ case.pending_count }} pending &middot;
+                        {{ case.needs_second_review_count }} second review &middot; {{ case.contested_count }} contested
+                    </p>
+                </div>
+                <div class="review-case__actions">
+                    <a class="inline-link" href="{{ case.brief_url }}">Brief</a>
+                    <a class="inline-link" href="{{ case.app_url }}">Open app</a>
+                </div>
+            </div>
+            <div class="review-candidate-list">
+                {% for candidate in case.candidates %}
+                <form class="review-candidate" method="post" action="{% url 'web:related_market_review' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="run_id" value="{{ case.run_id }}">
+                    <input type="hidden" name="candidate_key" value="{{ candidate.candidate_key }}">
+                    <input type="hidden" name="candidate_title" value="{{ candidate.title }}">
+                    <input type="hidden" name="candidate_summary" value="{{ candidate.summary }}">
+                    <input type="hidden" name="candidate_source_url" value="{{ candidate.source_url }}">
+                    <input type="hidden" name="candidate_rank" value="{{ candidate.rank }}">
+                    <input type="hidden" name="candidate_confidence" value="{{ candidate.confidence }}">
+                    <div class="review-candidate__copy">
+                        <div>
+                            <p class="review-candidate__title">{{ candidate.title }}</p>
+                            <p class="review-candidate__summary">{{ candidate.summary|default:"No summary saved for this related market." }}</p>
+                        </div>
+                        <div class="review-candidate__meta">
+                            <span class="metric-chip">
+                                <span class="metric-chip__label">Rank</span>
+                                <span class="metric-chip__value">{{ candidate.rank }}</span>
+                            </span>
+                            <span class="metric-chip">
+                                <span class="metric-chip__label">Confidence</span>
+                                <span class="metric-chip__value">{{ candidate.confidence|floatformat:2 }}</span>
+                            </span>
+                            <span class="metric-chip metric-chip--wide">
+                                <span class="metric-chip__label">Review state</span>
+                                <span class="metric-chip__value">{{ candidate.review_state_display }}</span>
+                            </span>
+                            {% if candidate.consensus.judgment_count %}
+                            <span class="metric-chip metric-chip--wide">
+                                <span class="metric-chip__label">Consensus</span>
+                                <span class="metric-chip__value">{{ candidate.consensus.consensus_label_display }}</span>
+                            </span>
+                            <span class="metric-chip metric-chip--wide">
+                                <span class="metric-chip__label">Agreement</span>
+                                <span class="metric-chip__value">{{ candidate.consensus.agreement_rate|floatformat:2 }}</span>
+                            </span>
+                            <span class="metric-chip metric-chip--wide">
+                                <span class="metric-chip__label">Reviewers</span>
+                                <span class="metric-chip__value">{{ candidate.consensus.reviewer_count }}</span>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if candidate.judgments %}
+                    <div class="metric-chip-list metric-chip-list--wide">
+                        {% for judgment in candidate.judgments %}
+                        <span class="metric-chip metric-chip--wide">
+                            <span class="metric-chip__label">{{ judgment.reviewer|default:"Anonymous" }}</span>
+                            <span class="metric-chip__value">{{ judgment.usefulness_label_display }}</span>
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="review-candidate__controls">
+                        <label class="review-field">
+                            <span class="review-field__label">Usefulness label</span>
+                            <select class="review-field__select" name="usefulness_label">
+                                <option value="core" {% if candidate.judgment and candidate.judgment.usefulness_label == "core" %}selected{% endif %}>Core signal</option>
+                                <option value="watch" {% if candidate.judgment and candidate.judgment.usefulness_label == "watch" %}selected{% endif %}>Watchlist only</option>
+                                <option value="reject" {% if candidate.judgment and candidate.judgment.usefulness_label == "reject" %}selected{% endif %}>Not useful</option>
+                            </select>
+                        </label>
+                        <label class="review-field">
+                            <span class="review-field__label">Reviewer</span>
+                            <input class="review-field__input" type="text" name="reviewer" value="{{ candidate.judgment.reviewer|default:'' }}" placeholder="Add a handle for multi-review">
+                        </label>
+                        <label class="review-field review-field--wide">
+                            <span class="review-field__label">Notes</span>
+                            <input class="review-field__input" type="text" name="notes" value="{{ candidate.judgment.notes|default:'' }}" placeholder="Why this market is or is not useful">
+                        </label>
+                        <button class="lp-btn lp-btn--primary review-candidate__submit" type="submit">Save label</button>
+                    </div>
+                    {% if candidate.source_url %}
+                    <p class="review-candidate__source">
+                        <a class="inline-link" href="{{ candidate.source_url }}" rel="noreferrer" target="_blank">Open source market</a>
+                    </p>
+                    {% endif %}
+                </form>
+                {% endfor %}
+            </div>
+        </article>
+        {% empty %}
+        <article class="intel-card">
+            <h3 class="intel-card__title">No review cases yet</h3>
+            <p class="intel-card__copy">Create saved runs first, then return here to label which related markets are actually useful.</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -115,11 +115,25 @@ class RuntimeConfig:
     enable_llm: bool
     anthropic_api_key: str
     anthropic_model: str
+    anthropic_input_cost_per_mtok: float
+    anthropic_output_cost_per_mtok: float
     http_timeout_seconds: float
     log_level: str
     rate_limit_enabled: bool
     max_request_body_bytes: int
     trending_cache_ttl_seconds: int
+    benchmark_cache_ttl_seconds: int
+    leadlag_cache_ttl_seconds: int
+    leadlag_default_poll_seconds: int
+    leadlag_default_trade_horizon_seconds: int
+    mlflow_tracking_uri: str
+    mlflow_experiment: str
+    kalshi_api_base: str
+    kalshi_ws_url: str
+    kalshi_demo_api_base: str
+    kalshi_access_key_id: str
+    kalshi_private_key_path: Path
+    polymarket_ws_url: str
 
 
 def build_runtime_config(base_dir: Path) -> RuntimeConfig:
@@ -154,9 +168,44 @@ def build_runtime_config(base_dir: Path) -> RuntimeConfig:
         enable_llm=env.get_bool("CHAOSWING_ENABLE_LLM", False),
         anthropic_api_key=env.get_str("ANTHROPIC_API_KEY", ""),
         anthropic_model=env.get_str("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
+        anthropic_input_cost_per_mtok=env.get_float("CHAOSWING_ANTHROPIC_INPUT_COST_PER_MTOK", 0.0),
+        anthropic_output_cost_per_mtok=env.get_float("CHAOSWING_ANTHROPIC_OUTPUT_COST_PER_MTOK", 0.0),
         http_timeout_seconds=env.get_float("CHAOSWING_HTTP_TIMEOUT_SECONDS", 8.0),
         log_level=env.get_str("CHAOSWING_LOG_LEVEL", "INFO").upper(),
         rate_limit_enabled=env.get_bool("CHAOSWING_RATE_LIMIT_ENABLED", True),
         max_request_body_bytes=int(env.get_float("CHAOSWING_MAX_REQUEST_BODY_BYTES", 1_048_576)),
         trending_cache_ttl_seconds=int(env.get_float("CHAOSWING_TRENDING_CACHE_TTL", 300)),
+        benchmark_cache_ttl_seconds=int(env.get_float("CHAOSWING_BENCHMARK_CACHE_TTL", 120)),
+        leadlag_cache_ttl_seconds=int(env.get_float("CHAOSWING_LEADLAG_CACHE_TTL", 60)),
+        leadlag_default_poll_seconds=int(env.get_float("CHAOSWING_LEADLAG_POLL_SECONDS", 5)),
+        leadlag_default_trade_horizon_seconds=int(
+            env.get_float("CHAOSWING_LEADLAG_TRADE_HORIZON_SECONDS", 180)
+        ),
+        mlflow_tracking_uri=env.get_str(
+            "CHAOSWING_MLFLOW_TRACKING_URI",
+            "sqlite:///mlflow.db",
+        ),
+        mlflow_experiment=env.get_str("CHAOSWING_MLFLOW_EXPERIMENT", "ChaosWing"),
+        kalshi_api_base=env.get_str(
+            "CHAOSWING_KALSHI_API_BASE",
+            "https://api.elections.kalshi.com/trade-api/v2",
+        ),
+        kalshi_ws_url=env.get_str(
+            "CHAOSWING_KALSHI_WS_URL",
+            "wss://api.elections.kalshi.com/trade-api/ws/v2",
+        ),
+        kalshi_demo_api_base=env.get_str(
+            "CHAOSWING_KALSHI_DEMO_API_BASE",
+            "https://demo-api.kalshi.co/trade-api/v2",
+        ),
+        kalshi_access_key_id=env.get_str("CHAOSWING_KALSHI_ACCESS_KEY_ID", ""),
+        kalshi_private_key_path=env.get_path(
+            "CHAOSWING_KALSHI_PRIVATE_KEY_PATH",
+            base_dir / "secrets" / "kalshi_api_key.pem",
+            base_dir,
+        ),
+        polymarket_ws_url=env.get_str(
+            "CHAOSWING_POLYMARKET_WS_URL",
+            "wss://ws-subscriptions-clob.polymarket.com/ws/market",
+        ),
     )

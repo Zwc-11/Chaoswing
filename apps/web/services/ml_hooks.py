@@ -15,12 +15,15 @@ When you're ready to add ML:
 
 import json
 import logging
+import math
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger("apps.web.services.ml_hooks")
+
+EPSILON = 1e-6
 
 
 # ---------------------------------------------------------------------------
@@ -126,6 +129,152 @@ class FeatureExtractor:
             return float(value)
         except (TypeError, ValueError):
             return 0.0
+
+
+# ---------------------------------------------------------------------------
+# Historical snapshot feature extraction and simple binary logistic model
+# ---------------------------------------------------------------------------
+
+
+@dataclass(slots=True)
+class SnapshotFeatures:
+    yes_probability: float = 0.0
+    probability_extremeness: float = 0.0
+    log_volume: float = 0.0
+    log_liquidity: float = 0.0
+    log_open_interest: float = 0.0
+    related_market_count: int = 0
+    evidence_count: int = 0
+    has_related_markets: bool = False
+    has_evidence: bool = False
+
+    def as_vector(self) -> list[float]:
+        return [
+            self.yes_probability,
+            self.probability_extremeness,
+            self.log_volume,
+            self.log_liquidity,
+            self.log_open_interest,
+            float(self.related_market_count),
+            float(self.evidence_count),
+            1.0 if self.has_related_markets else 0.0,
+            1.0 if self.has_evidence else 0.0,
+        ]
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+class SnapshotFeatureExtractor:
+    """Extract compact tabular features from a persisted MarketSnapshot."""
+
+    def extract(self, snapshot: Any, *, yes_probability: float) -> SnapshotFeatures:
+        bounded_probability = min(max(float(yes_probability), 0.0), 1.0)
+        return SnapshotFeatures(
+            yes_probability=bounded_probability,
+            probability_extremeness=abs(bounded_probability - 0.5),
+            log_volume=math.log1p(self._parse_float(getattr(snapshot, "volume", 0.0))),
+            log_liquidity=math.log1p(self._parse_float(getattr(snapshot, "liquidity", 0.0))),
+            log_open_interest=math.log1p(self._parse_float(getattr(snapshot, "open_interest", 0.0))),
+            related_market_count=int(getattr(snapshot, "related_market_count", 0) or 0),
+            evidence_count=int(getattr(snapshot, "evidence_count", 0) or 0),
+            has_related_markets=bool(getattr(snapshot, "related_market_count", 0)),
+            has_evidence=bool(getattr(snapshot, "evidence_count", 0)),
+        )
+
+    def _parse_float(self, value: Any) -> float:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
+
+
+class BinaryLogisticRegression:
+    """Small dependency-free binary logistic regression for backtesting."""
+
+    def __init__(
+        self,
+        *,
+        learning_rate: float = 0.2,
+        epochs: int = 400,
+        regularization: float = 0.001,
+    ):
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+        self.regularization = regularization
+        self.weights: list[float] = []
+        self.bias: float = 0.0
+        self.means: list[float] = []
+        self.scales: list[float] = []
+        self.fallback_probability: float = 0.5
+        self._is_fitted = False
+
+    def fit(self, feature_rows: list[list[float]], targets: list[int]) -> None:
+        if not feature_rows or not targets:
+            self._is_fitted = False
+            return
+
+        positive_rate = sum(targets) / len(targets)
+        self.fallback_probability = min(max(positive_rate, EPSILON), 1.0 - EPSILON)
+        if len(set(targets)) < 2:
+            self._is_fitted = False
+            return
+
+        self.means = []
+        self.scales = []
+        column_count = len(feature_rows[0])
+        for index in range(column_count):
+            values = [row[index] for row in feature_rows]
+            mean = sum(values) / len(values)
+            variance = sum((value - mean) ** 2 for value in values) / len(values)
+            scale = math.sqrt(variance) or 1.0
+            self.means.append(mean)
+            self.scales.append(scale)
+
+        normalized_rows = [self._normalize_row(row) for row in feature_rows]
+        self.weights = [0.0] * column_count
+        self.bias = math.log(self.fallback_probability / (1.0 - self.fallback_probability))
+
+        sample_count = len(normalized_rows)
+        for _ in range(self.epochs):
+            gradient_weights = [0.0] * column_count
+            gradient_bias = 0.0
+            for row, target in zip(normalized_rows, targets, strict=False):
+                probability = self._sigmoid(self.bias + sum(weight * value for weight, value in zip(self.weights, row, strict=False)))
+                error = probability - target
+                gradient_bias += error
+                for idx, value in enumerate(row):
+                    gradient_weights[idx] += error * value
+
+            gradient_bias /= sample_count
+            for idx in range(column_count):
+                gradient = (gradient_weights[idx] / sample_count) + (self.regularization * self.weights[idx])
+                self.weights[idx] -= self.learning_rate * gradient
+            self.bias -= self.learning_rate * gradient_bias
+
+        self._is_fitted = True
+
+    def predict_proba(self, feature_row: list[float]) -> float:
+        if not self._is_fitted or not self.weights:
+            return self.fallback_probability
+        normalized = self._normalize_row(feature_row)
+        score = self.bias + sum(weight * value for weight, value in zip(self.weights, normalized, strict=False))
+        return self._sigmoid(score)
+
+    def coefficients(self) -> list[float]:
+        return list(self.weights)
+
+    def _normalize_row(self, row: list[float]) -> list[float]:
+        if not self.means or not self.scales:
+            return list(row)
+        return [
+            (value - mean) / scale
+            for value, mean, scale in zip(row, self.means, self.scales, strict=False)
+        ]
+
+    def _sigmoid(self, value: float) -> float:
+        bounded = max(min(value, 30.0), -30.0)
+        return 1.0 / (1.0 + math.exp(-bounded))
 
 
 # ---------------------------------------------------------------------------

@@ -16,6 +16,12 @@ logger = logging.getLogger("apps.web.services.anthropic_agent")
 
 
 JSON_BLOCK_RE = re.compile(r"\{.*\}", re.DOTALL)
+MODEL_PRICE_TABLE = (
+    (re.compile(r"claude-opus-4(?:[-.]\d+)?", re.IGNORECASE), (15.0, 75.0)),
+    (re.compile(r"claude-sonnet-(?:4(?:[-.]\d+)?|3-7|3-5)", re.IGNORECASE), (3.0, 15.0)),
+    (re.compile(r"claude-haiku-3-5", re.IGNORECASE), (0.8, 4.0)),
+    (re.compile(r"claude-haiku-3(?:[-.]\d+)?", re.IGNORECASE), (0.25, 1.25)),
+)
 
 SYSTEM_PROMPT = """\
 You are ChaosWing's causal analysis engine — a senior prediction-market analyst \
@@ -112,6 +118,12 @@ class AnthropicGraphAgent:
         self.api_key = api_key or settings.CHAOSWING_ANTHROPIC_API_KEY
         self.model = model or settings.CHAOSWING_ANTHROPIC_MODEL
         self.enabled = settings.CHAOSWING_ENABLE_LLM if enabled is None else enabled
+        self.input_cost_per_mtok = float(
+            getattr(settings, "CHAOSWING_ANTHROPIC_INPUT_COST_PER_MTOK", 0.0) or 0.0
+        )
+        self.output_cost_per_mtok = float(
+            getattr(settings, "CHAOSWING_ANTHROPIC_OUTPUT_COST_PER_MTOK", 0.0) or 0.0
+        )
 
     @property
     def available(self) -> bool:
@@ -156,12 +168,13 @@ class AnthropicGraphAgent:
             },
         }
 
-        content = self._call_model(prompt, max_tokens=4000)
+        content, trace = self._call_model(prompt, max_tokens=4000)
         if not content:
             return None
         parsed = self._parse_json(content)
         if parsed:
             parsed = self._sanitize_source_urls(parsed, canonical_url)
+            parsed["_llm_trace"] = trace
         return parsed
 
     def review_graph(self, snapshot: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any] | None:
@@ -190,20 +203,21 @@ class AnthropicGraphAgent:
             },
         }
 
-        content = self._call_model(prompt, max_tokens=1200)
+        content, trace = self._call_model(prompt, max_tokens=1200)
         if not content:
             return None
         parsed = self._parse_json(content)
         if parsed:
             parsed = self._normalize_review(parsed)
+            parsed["_llm_trace"] = trace
         return parsed
 
-    def _call_model(self, prompt: dict[str, Any], max_tokens: int) -> str:
+    def _call_model(self, prompt: dict[str, Any], max_tokens: int) -> tuple[str, dict[str, Any]]:
         try:
             from anthropic import Anthropic
         except ImportError:
             logger.error("anthropic package is not installed")
-            return ""
+            return "", {}
 
         prompt_json = json.dumps(prompt, ensure_ascii=True)
         estimated_tokens = len(prompt_json) // 3
@@ -212,6 +226,7 @@ class AnthropicGraphAgent:
         client = Anthropic(api_key=self.api_key)
 
         for attempt in range(1, MAX_RETRY_ATTEMPTS + 1):
+            started_at = time.perf_counter()
             try:
                 response = client.messages.create(
                     model=self.model,
@@ -221,9 +236,32 @@ class AnthropicGraphAgent:
                     messages=[{"role": "user", "content": prompt_json}],
                 )
                 from anthropic.types import TextBlock as _TextBlock
-                return "".join(
+                content = "".join(
                     block.text for block in response.content if isinstance(block, _TextBlock)
                 )
+                usage = getattr(response, "usage", None)
+                input_tokens = int(
+                    getattr(usage, "input_tokens", estimated_tokens) or estimated_tokens
+                )
+                output_tokens = int(
+                    getattr(usage, "output_tokens", 0) or max(len(content) // 4, 0)
+                )
+                estimated_cost = self._estimate_cost_usd(
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+                trace = {
+                    "provider": "anthropic",
+                    "model": self.model,
+                    "latency_ms": int((time.perf_counter() - started_at) * 1000),
+                    "token_input": input_tokens,
+                    "token_output": output_tokens,
+                    "cost_usd": estimated_cost,
+                    "response_id": str(getattr(response, "id", "") or ""),
+                    "stop_reason": str(getattr(response, "stop_reason", "") or ""),
+                    "estimated_input_tokens": estimated_tokens,
+                }
+                return content, trace
             except Exception as exc:
                 is_rate_limit = "rate_limit" in str(type(exc).__name__).lower() or "429" in str(exc)
                 if is_rate_limit and attempt < MAX_RETRY_ATTEMPTS:
@@ -232,8 +270,37 @@ class AnthropicGraphAgent:
                     time.sleep(wait)
                     continue
                 logger.exception("Anthropic API call failed (attempt %d/%d)", attempt, MAX_RETRY_ATTEMPTS)
-                return ""
-        return ""
+                return "", {
+                    "provider": "anthropic",
+                    "model": self.model,
+                    "latency_ms": int((time.perf_counter() - started_at) * 1000),
+                    "token_input": estimated_tokens,
+                    "token_output": 0,
+                    "cost_usd": self._estimate_cost_usd(
+                        input_tokens=estimated_tokens,
+                        output_tokens=0,
+                    ),
+                    "error": str(type(exc).__name__),
+                }
+        return "", {}
+
+    def _estimate_cost_usd(self, *, input_tokens: int, output_tokens: int) -> float:
+        input_rate, output_rate = self._pricing_rates()
+        if input_rate <= 0 and output_rate <= 0:
+            return 0.0
+        cost = ((max(input_tokens, 0) / 1_000_000) * input_rate) + (
+            (max(output_tokens, 0) / 1_000_000) * output_rate
+        )
+        return round(cost, 6)
+
+    def _pricing_rates(self) -> tuple[float, float]:
+        if self.input_cost_per_mtok > 0 or self.output_cost_per_mtok > 0:
+            return self.input_cost_per_mtok, self.output_cost_per_mtok
+        model_name = str(self.model or "").strip()
+        for pattern, rates in MODEL_PRICE_TABLE:
+            if pattern.search(model_name):
+                return rates
+        return 0.0, 0.0
 
     def _parse_json(self, content: str) -> dict[str, Any] | None:
         if not content:

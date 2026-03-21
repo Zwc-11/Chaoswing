@@ -1,7 +1,7 @@
 ﻿{% extends "web/base.html" %}
 {% load static %}
 
-{% block title %}ChaosWing - Butterfly Effect Engine{% endblock %}
+{% block title %}ChaosWing - Market Intelligence Workspace{% endblock %}
 
 {% block extra_head %}
 {{ initial_state|json_script:"chaoswing-initial-state" }}
@@ -23,7 +23,7 @@
                 </div>
                 <div>
                     <h1 class="wordmark-title">ChaosWing</h1>
-                    <p class="wordmark-subtitle">Butterfly Effect Engine</p>
+                    <p class="wordmark-subtitle">Retail trader intelligence</p>
                 </div>
             </a>
         </div>
@@ -33,19 +33,19 @@
             <div class="command-bar__status-row">
                 <span class="live-indicator" id="live-indicator" aria-live="polite" hidden>
                     <span class="live-dot" aria-hidden="true"></span>
-                    <span class="live-indicator__label">Graph live</span>
+                    <span class="live-indicator__label">Brief live</span>
                 </span>
                 <span class="status-chip status-chip--accent" id="status-chip-backend">Polymarket backend</span>
-                <span class="status-chip" id="status-chip-agent">Optional AI review</span>
+                <span class="status-chip" id="status-chip-agent">Benchmark-ready AI review</span>
             </div>
             <p class="command-bar__server">
-                Live resolution  |  Causal graphs  |  Saved run history
+                Live resolution  |  Trader briefs  |  Saved run history
             </p>
         </div>
 
         <!-- Action bar -->
         <div class="command-bar__actions">
-            <button class="cmd-btn" id="history-button" type="button" title="Browse run history (H)">
+            <button class="cmd-btn" id="history-button" type="button" title="Browse run history (H)" aria-label="Browse run history">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="12 8 12 12 14 14"/>
                     <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/>
@@ -56,7 +56,7 @@
                 {% endif %}
             </button>
 
-            <button class="cmd-btn" id="export-button" type="button" title="Export current graph as JSON" disabled>
+            <button class="cmd-btn" id="export-button" type="button" title="Export current graph as JSON" aria-label="Export current graph as JSON" disabled>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
@@ -65,7 +65,7 @@
                 <span class="cmd-btn__label">Export</span>
             </button>
 
-            <button class="cmd-btn" id="share-button" type="button" title="Copy shareable link" disabled>
+            <button class="cmd-btn" id="share-button" type="button" title="Copy shareable link" aria-label="Copy shareable link" disabled>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="18" cy="5" r="3"/>
                     <circle cx="6" cy="12" r="3"/>
@@ -76,9 +76,38 @@
                 <span class="cmd-btn__label">Share</span>
             </button>
 
+            <button class="cmd-btn" id="brief-button" type="button" title="Open the current market brief" aria-label="Open the current market brief" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span class="cmd-btn__label">Brief</span>
+            </button>
+
             <div class="cmd-divider" role="separator" aria-hidden="true"></div>
 
-            <button class="cmd-btn" id="refresh-graph" type="button" title="Refresh graph">
+            <a class="cmd-btn" href="{% url 'web:watchlists' %}" title="Open curated watchlists" aria-label="Open curated watchlists">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 6h11"/>
+                    <path d="M9 12h11"/>
+                    <path d="M9 18h11"/>
+                    <path d="M5 6h.01"/>
+                    <path d="M5 12h.01"/>
+                    <path d="M5 18h.01"/>
+                </svg>
+                <span class="cmd-btn__label">Watchlists</span>
+            </a>
+
+            <a class="cmd-btn" href="{% url 'web:benchmarks' %}" title="Open benchmark dashboard" aria-label="Open benchmark dashboard">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span class="cmd-btn__label">Benchmarks</span>
+            </a>
+
+            <button class="cmd-btn" id="refresh-graph" type="button" title="Refresh graph" aria-label="Refresh graph">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="23 4 23 10 17 10"/>
                     <polyline points="1 20 1 14 7 14"/>
@@ -87,7 +116,7 @@
                 <span class="cmd-btn__label">Refresh</span>
             </button>
 
-            <button class="cmd-btn" id="reset-view-top" type="button" title="Reset graph view">
+            <button class="cmd-btn" id="reset-view-top" type="button" title="Reset graph view" aria-label="Reset graph view">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     <polyline points="9 22 9 12 15 12 15 22"/>
@@ -120,7 +149,7 @@
                     <p class="eyebrow">Source URL</p>
                     <h2 class="rail-title" id="source-url-heading">Load a market</h2>
                     <p class="section-copy">
-                        Paste a Polymarket event URL. ChaosWing resolves it and renders one focused butterfly graph.
+                        Paste a Polymarket event URL. ChaosWing resolves it into a shareable analyst brief and the graph behind it.
                     </p>
                 </div>
 
@@ -156,7 +185,7 @@
                             </span>
                         </div>
                         <button class="button button--primary button--full" id="load-graph-button" type="submit">
-                            <span class="button__label">Load Butterfly Graph</span>
+                            <span class="button__label">Load Market Brief</span>
                             <span class="button__spinner spinner spinner--sm" hidden aria-hidden="true"></span>
                         </button>
                     </div>
@@ -197,6 +226,54 @@
                         </span>
                         <span class="sample-card__arrow" aria-hidden="true">-></span>
                     </button>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Watchlists -->
+            <section class="rail-section rail-section--watchlists" aria-labelledby="watchlists-heading">
+                <div class="section-heading section-heading--inline">
+                    <div>
+                        <p class="eyebrow">Narrative watchlists</p>
+                        <h3 class="section-title" id="watchlists-heading">Keep coming back</h3>
+                    </div>
+                    <a class="section-heading__action inline-link" href="{% url 'web:watchlists' %}">All watchlists</a>
+                </div>
+                <div class="watchlist-mini-list" role="list">
+                    {% for watchlist in featured_watchlists %}
+                    <article class="watchlist-mini" role="listitem" aria-labelledby="watchlist-mini-title-{{ forloop.counter }}">
+                        <div class="watchlist-mini__header">
+                            <div>
+                                <p class="watchlist-mini__eyebrow">{{ watchlist.cadence|default:"Featured" }}</p>
+                                <h4 class="watchlist-mini__title" id="watchlist-mini-title-{{ forloop.counter }}">{{ watchlist.title }}</h4>
+                            </div>
+                            <span class="watchlist-mini__pill">{{ watchlist.items|length }} markets</span>
+                        </div>
+                        <p class="watchlist-mini__copy">{{ watchlist.thesis }}</p>
+                        <div class="watchlist-mini__items">
+                            {% for item in watchlist.items|slice:":2" %}
+                            <button
+                                class="sample-card sample-card--compact sample-link"
+                                data-url="{{ item.url }}"
+                                type="button"
+                                aria-label="Load {{ item.label }} from {{ watchlist.title }}"
+                            >
+                                <span class="sample-card__icon" aria-hidden="true">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="20" x2="18" y2="10"/>
+                                        <line x1="12" y1="20" x2="12" y2="4"/>
+                                        <line x1="6" y1="20" x2="6" y2="14"/>
+                                    </svg>
+                                </span>
+                                <span class="sample-card__content">
+                                    <span class="sample-card__title">{{ item.label }}</span>
+                                    <span class="sample-card__copy">{{ item.note }}</span>
+                                </span>
+                                <span class="sample-card__arrow" aria-hidden="true">-></span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </article>
                     {% endfor %}
                 </div>
             </section>
@@ -345,10 +422,10 @@
                 <!-- Top HUD -->
                 <div class="stage-hud stage-hud--top" aria-hidden="true">
                     <div class="stage-heading">
-                        <p class="eyebrow">Live Butterfly Graph</p>
+                        <p class="eyebrow">Live market brief</p>
                         <h2 class="stage-title">Market impact graph</h2>
                         <p class="stage-copy" id="stage-copy">
-                            Paste a market on the left, then hover to preview a node and click to lock the graph while you read.
+                            Paste a market on the left, then hover to preview a node and click to lock the graph while you read the brief.
                         </p>
                     </div>
                 </div>
@@ -406,10 +483,10 @@
                                 <path d="M12 15C12 15 15 20 20 20s4-5 4-8"/>
                             </svg>
                         </div>
-                        <p class="eyebrow">Graph workspace</p>
+                        <p class="eyebrow">Trader workspace</p>
                         <h3 class="empty-state__title" id="empty-state-title">Load a Polymarket event to wake up the graph.</h3>
                         <p class="empty-state__copy" id="empty-state-copy">
-                            ChaosWing renders a live butterfly graph with related entities, evidence, rules, and indirect hypotheses - all connected by typed causal edges.
+                            ChaosWing renders a live trader brief with related entities, evidence, rules, and indirect hypotheses - all connected by typed causal edges.
                         </p>
                         <div class="chip-list chip-list--center">
                             {% for link in sample_links %}
@@ -418,7 +495,7 @@
                             </button>
                             {% endfor %}
                         </div>
-                        <button class="button button--primary" id="empty-load-button" type="button">Load Butterfly Graph</button>
+                        <button class="button button--primary" id="empty-load-button" type="button">Load Market Brief</button>
                     </div>
                 </div>
 

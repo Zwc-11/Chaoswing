@@ -1,34 +1,64 @@
 import json
 
+from django.core.cache import cache
+from django.db import connection
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
-from apps.web.models import GraphRun
+from apps.web.models import AgentTrace, GraphRun, MarketSnapshot
+from apps.web.services.anthropic_agent import AnthropicGraphAgent
 from apps.web.services.contracts import PolymarketEventSnapshot, RelatedEventCandidate
 from apps.web.services.graph_builder import GraphConstructionService
 from apps.web.services.graph_workflow import GraphWorkflowService
 
 
-@override_settings(CHAOSWING_ENABLE_REMOTE_FETCH=False, CHAOSWING_ENABLE_LLM=False)
+@override_settings(
+    CHAOSWING_ENABLE_REMOTE_FETCH=False,
+    CHAOSWING_ENABLE_LLM=False,
+    CHAOSWING_RATE_LIMIT_ENABLED=False,
+)
 class WebRoutesTests(TestCase):
     def test_root_renders_landing_page(self):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "See the")
+        self.assertContains(response, "From one market to a")
         self.assertContains(response, "Launch App")
+        self.assertContains(response, "View Benchmarks")
         self.assertContains(response, 'property="og:image"')
         self.assertContains(response, 'name="twitter:image"')
         self.assertContains(response, "http://testserver/static/web/img/chaoswing-social-card.jpg")
         self.assertNotContains(response, "http://testserver/static/web/img/chaoswing-logo.png")
 
+    def test_landing_page_uses_cached_summary_on_repeat_requests(self):
+        cache.clear()
+        self.client.post(
+            reverse("web:graph_from_url"),
+            data=json.dumps({"url": "https://polymarket.com/event/fed-decision-in-march-885"}),
+            content_type="application/json",
+        )
+
+        with CaptureQueriesContext(connection) as first_ctx:
+            first_response = self.client.get("/")
+        with CaptureQueriesContext(connection) as second_ctx:
+            second_response = self.client.get("/")
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertGreater(len(first_ctx.captured_queries), 0)
+        self.assertLess(len(second_ctx.captured_queries), len(first_ctx.captured_queries))
+
     def test_dashboard_renders(self):
         response = self.client.get(reverse("web:dashboard"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "ChaosWing App - Live Butterfly Graph Workspace")
-        self.assertContains(response, "Load Butterfly Graph")
+        self.assertContains(response, "ChaosWing App - Market Intelligence Workspace")
+        self.assertContains(response, "Load Market Brief")
+        self.assertContains(response, "Watchlists")
+        self.assertContains(response, "Benchmarks")
+        self.assertContains(response, "Keep coming back")
         self.assertContains(response, "chaoswing-initial-state")
         self.assertContains(response, 'property="og:image"')
         self.assertContains(response, 'name="twitter:image"')
@@ -57,6 +87,7 @@ class WebRoutesTests(TestCase):
         self.assertIn("review", payload["run"])
         self.assertTrue(payload["graph"]["nodes"][0]["source_url"])
         self.assertTrue(payload["graph"]["nodes"][0]["icon_key"])
+        self.assertIn("brief_url", payload["run"])
         related_market = next(
             node for node in payload["graph"]["nodes"] if node["type"] == "RelatedMarket"
         )
@@ -66,6 +97,8 @@ class WebRoutesTests(TestCase):
         self.assertEqual(run.mode, "deterministic-fallback")
         self.assertTrue(run.source_snapshot)
         self.assertTrue(run.graph_stats)
+        self.assertEqual(MarketSnapshot.objects.count(), 1)
+        self.assertGreaterEqual(AgentTrace.objects.count(), 1)
 
     def test_graph_run_detail_endpoint_returns_saved_run(self):
         create_response = self.client.post(
@@ -83,6 +116,46 @@ class WebRoutesTests(TestCase):
         self.assertIn("payload", detail_payload)
         self.assertIn("workflow_log", detail_payload)
         self.assertIn("graph_stats", detail_payload)
+        self.assertIn("brief_url", detail_payload)
+
+    def test_graph_run_brief_page_and_api_render(self):
+        create_response = self.client.post(
+            reverse("web:graph_from_url"),
+            data=json.dumps({"url": "https://polymarket.com/event/fed-decision-in-march-885"}),
+            content_type="application/json",
+        )
+        run_id = create_response.json()["run"]["id"]
+
+        brief_page = self.client.get(reverse("web:market_brief", args=[run_id]))
+        brief_api = self.client.get(reverse("web:graph_run_brief", args=[run_id]))
+
+        self.assertEqual(brief_page.status_code, 200)
+        self.assertContains(brief_page, "Shareable market brief")
+        self.assertContains(brief_page, "Workflow trace")
+        self.assertContains(brief_page, "Top related markets")
+        self.assertEqual(brief_api.status_code, 200)
+        self.assertIn("brief", brief_api.json())
+        self.assertIn("top_related_markets", brief_api.json()["brief"])
+        self.assertIn("change_summary", brief_api.json()["brief"])
+        self.assertIn("catalyst_timeline", brief_api.json()["brief"])
+        self.assertIn("trace_summary", brief_api.json()["brief"]["trust"])
+        self.assertIn("stages", brief_api.json()["brief"]["trust"]["trace_summary"])
+
+    def test_related_markets_and_changes_apis_render(self):
+        create_response = self.client.post(
+            reverse("web:graph_from_url"),
+            data=json.dumps({"url": "https://polymarket.com/event/fed-decision-in-march-885"}),
+            content_type="application/json",
+        )
+        run_id = create_response.json()["run"]["id"]
+
+        ranking_response = self.client.get(reverse("web:graph_run_related_markets", args=[run_id]))
+        changes_response = self.client.get(reverse("web:graph_run_changes", args=[run_id]))
+
+        self.assertEqual(ranking_response.status_code, 200)
+        self.assertIn("ranking", ranking_response.json())
+        self.assertEqual(changes_response.status_code, 200)
+        self.assertIn("changes", changes_response.json())
 
     def test_review_run_endpoint_returns_review(self):
         create_response = self.client.post(
@@ -189,8 +262,64 @@ class WebRoutesTests(TestCase):
         self.assertContains(response, "Event")
         self.assertContains(response, "Exchange settlement determines resolution.")
 
+    def test_benchmark_pages_and_api_render(self):
+        self.client.post(
+            reverse("web:graph_from_url"),
+            data=json.dumps({"url": "https://polymarket.com/event/fed-decision-in-march-885"}),
+            content_type="application/json",
+        )
 
-@override_settings(CHAOSWING_ENABLE_REMOTE_FETCH=False, CHAOSWING_ENABLE_LLM=False)
+        page_response = self.client.get(reverse("web:benchmarks"))
+        api_response = self.client.get(reverse("web:benchmark_summary"))
+
+        self.assertEqual(page_response.status_code, 200)
+        self.assertContains(page_response, "Benchmark Dashboard")
+        self.assertContains(page_response, "Live benchmark tracks")
+        self.assertContains(page_response, "Persisted benchmark runs")
+        self.assertContains(page_response, "Where current benchmark coverage comes from")
+        self.assertContains(page_response, "Review labels")
+        self.assertEqual(api_response.status_code, 200)
+        self.assertIn("summary_cards", api_response.json())
+        self.assertIn("live_benchmarks", api_response.json())
+        self.assertIn("experiment_runs", api_response.json())
+        self.assertIn("mode_breakdown", api_response.json())
+        self.assertIn("human_label_review", api_response.json())
+
+    def test_benchmark_page_uses_cached_summary_on_repeat_requests(self):
+        cache.clear()
+        self.client.post(
+            reverse("web:graph_from_url"),
+            data=json.dumps({"url": "https://polymarket.com/event/fed-decision-in-march-885"}),
+            content_type="application/json",
+        )
+
+        with CaptureQueriesContext(connection) as first_ctx:
+            first_response = self.client.get(reverse("web:benchmarks"))
+        with CaptureQueriesContext(connection) as second_ctx:
+            second_response = self.client.get(reverse("web:benchmarks"))
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertGreater(len(first_ctx.captured_queries), 0)
+        self.assertLess(len(second_ctx.captured_queries), len(first_ctx.captured_queries))
+
+    def test_watchlists_page_and_api_render(self):
+        page_response = self.client.get(reverse("web:watchlists"))
+        api_response = self.client.get(reverse("web:watchlists_api"))
+
+        self.assertEqual(page_response.status_code, 200)
+        self.assertContains(page_response, "Trader Watchlists")
+        self.assertContains(page_response, "Reusable starting points")
+        self.assertContains(page_response, "Open first market")
+        self.assertEqual(api_response.status_code, 200)
+        self.assertGreaterEqual(api_response.json()["count"], 1)
+
+
+@override_settings(
+    CHAOSWING_ENABLE_REMOTE_FETCH=False,
+    CHAOSWING_ENABLE_LLM=False,
+    CHAOSWING_RATE_LIMIT_ENABLED=False,
+)
 class GraphWorkflowServiceTests(TestCase):
     def test_graph_workflow_resolved_backend_with_dynamic_inputs(self):
         snapshot = PolymarketEventSnapshot(
@@ -281,8 +410,165 @@ class GraphWorkflowServiceTests(TestCase):
         self.assertEqual(payload["event"]["title"], snapshot.title)
         self.assertTrue(payload["context"]["source_snapshot"])
         self.assertEqual(payload["run"]["graph_stats"]["related_markets"], 1)
+        self.assertEqual(MarketSnapshot.objects.count(), 1)
+        self.assertGreaterEqual(AgentTrace.objects.count(), 1)
+        planner_trace = AgentTrace.objects.get(stage="planner")
+        retriever_trace = AgentTrace.objects.get(stage="retriever")
+        verifier_trace = AgentTrace.objects.get(stage="verifier")
+        critic_trace = AgentTrace.objects.get(stage="critic")
+        event_resolution_trace = AgentTrace.objects.get(stage="event_resolution")
+        self.assertGreater(planner_trace.latency_ms, 0)
+        self.assertGreater(retriever_trace.latency_ms, 0)
+        self.assertGreater(verifier_trace.latency_ms, 0)
+        self.assertGreater(critic_trace.latency_ms, 0)
+        self.assertGreater(event_resolution_trace.latency_ms, 0)
         related_node = next(
             node for node in payload["graph"]["nodes"] if node["type"] == "RelatedMarket"
         )
         self.assertEqual(related_node["source_url"], related_snapshot.canonical_url)
         self.assertTrue(related_node["icon_key"])
+
+    def test_graph_workflow_persists_llm_trace_metadata(self):
+        snapshot = PolymarketEventSnapshot(
+            source_url="https://polymarket.com/event/fed-decision-in-march",
+            canonical_url="https://polymarket.com/event/fed-decision-in-march",
+            event_id="evt_macro_1",
+            slug="fed-decision-in-march",
+            title="Fed decision in March",
+            description="A macro event with clear spillover into rate cuts and equities.",
+            resolution_source="https://federalreserve.gov",
+            image_url="",
+            icon_url="",
+            status="open",
+            category="Macro",
+            tags=["Fed", "Rates"],
+            tag_ids=["1", "2"],
+            outcomes=["Yes", "No"],
+            updated_at="2026-03-10T18:00:00Z",
+            volume=120000,
+            liquidity=54000,
+            open_interest=22000,
+            markets=[],
+            source_kind="gamma-api",
+            subtitle="Macro",
+        )
+
+        class StubMetadataService:
+            def hydrate(self, source_url):
+                return snapshot
+
+        class StubDiscoveryService:
+            def discover(self, snapshot, limit=4):
+                return []
+
+        class InstrumentedAgent:
+            available = True
+            model = "claude-test"
+
+            def expand_graph(self, snapshot, seed_payload):
+                return {
+                    "_llm_trace": {
+                        "provider": "anthropic",
+                        "model": "claude-test",
+                        "latency_ms": 512,
+                        "token_input": 930,
+                        "token_output": 210,
+                        "cost_usd": 0.0182,
+                        "response_id": "msg_expansion_1",
+                    },
+                    "node_additions": [
+                        {
+                            "id": "ent_rates_signal",
+                            "label": "Rate cuts repricing",
+                            "type": "Entity",
+                            "confidence": 0.81,
+                            "summary": "Growth assets react when the market reprices rate cuts.",
+                            "source_url": "https://polymarket.com/event/how-many-fed-rate-cuts-in-2026",
+                            "metadata": [{"label": "Theme", "value": "rates"}],
+                            "evidence_snippets": ["Treasury yields and rate-cut markets reprice together."],
+                        }
+                    ],
+                    "edge_additions": [
+                        {
+                            "id": "edge_evt_rates_signal",
+                            "source": "evt_001",
+                            "target": "ent_rates_signal",
+                            "type": "affects_directly",
+                            "confidence": 0.78,
+                            "explanation": "The Fed decision directly reprices rate-cut expectations.",
+                        }
+                    ],
+                    "node_updates": [],
+                    "edge_updates": [],
+                    "workflow_notes": ["Added a rates spillover node."],
+                }
+
+            def review_graph(self, snapshot, payload):
+                return {
+                    "_llm_trace": {
+                        "provider": "anthropic",
+                        "model": "claude-test",
+                        "latency_ms": 231,
+                        "token_input": 420,
+                        "token_output": 96,
+                        "cost_usd": 0.0064,
+                        "response_id": "msg_review_1",
+                    },
+                    "approved": True,
+                    "issues": [],
+                    "follow_up_actions": ["Monitor rate-cut market drift."],
+                    "quality_score": 0.73,
+                }
+
+        workflow = GraphWorkflowService(
+            metadata_service=StubMetadataService(),
+            discovery_service=StubDiscoveryService(),
+            graph_builder=GraphConstructionService(),
+            agent=InstrumentedAgent(),
+        )
+
+        payload = workflow.run(snapshot.source_url)
+
+        self.assertEqual(payload["run"]["mode"], "agent-enriched")
+        self.assertEqual(
+            [stage["stage"] for stage in payload["run"]["agent_pipeline"]],
+            ["planner", "retriever", "graph_editor", "critic", "verifier"],
+        )
+        expansion_trace = AgentTrace.objects.get(stage="llm_expansion")
+        review_trace = AgentTrace.objects.get(stage="llm_review")
+        planner_trace = AgentTrace.objects.get(stage="planner")
+        retriever_trace = AgentTrace.objects.get(stage="retriever")
+        editor_trace = AgentTrace.objects.get(stage="graph_editor")
+        verifier_trace = AgentTrace.objects.get(stage="verifier")
+        critic_trace = AgentTrace.objects.get(stage="critic")
+
+        self.assertEqual(expansion_trace.latency_ms, 512)
+        self.assertEqual(expansion_trace.token_input, 930)
+        self.assertEqual(expansion_trace.token_output, 210)
+        self.assertAlmostEqual(expansion_trace.cost_usd, 0.0182)
+        self.assertIn("https://polymarket.com/event/how-many-fed-rate-cuts-in-2026", expansion_trace.citations)
+        self.assertEqual(expansion_trace.metadata["provider"], "anthropic")
+        self.assertEqual(review_trace.latency_ms, 231)
+        self.assertEqual(review_trace.token_input, 420)
+        self.assertEqual(review_trace.token_output, 96)
+        self.assertAlmostEqual(review_trace.cost_usd, 0.0064)
+        self.assertEqual(review_trace.metadata["response_id"], "msg_review_1")
+        self.assertEqual(planner_trace.status, "completed")
+        self.assertIn(snapshot.canonical_url, planner_trace.citations)
+        self.assertEqual(retriever_trace.status, "fallback")
+        self.assertEqual(editor_trace.token_input, 930)
+        self.assertIn("https://polymarket.com/event/how-many-fed-rate-cuts-in-2026", editor_trace.citations)
+        self.assertEqual(verifier_trace.status, "completed")
+        self.assertEqual(critic_trace.token_output, 96)
+        self.assertGreater(planner_trace.latency_ms, 0)
+        self.assertGreater(retriever_trace.latency_ms, 0)
+        self.assertGreater(verifier_trace.latency_ms, 0)
+        self.assertGreater(critic_trace.latency_ms, 0)
+
+    def test_anthropic_agent_estimates_cost_from_model_family_defaults(self):
+        agent = AnthropicGraphAgent(api_key="test-key", enabled=True, model="claude-sonnet-4-6")
+
+        self.assertAlmostEqual(
+            agent._estimate_cost_usd(input_tokens=1_000_000, output_tokens=1_000_000),
+            18.0,
+        )

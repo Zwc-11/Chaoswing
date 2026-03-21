@@ -2,19 +2,24 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import UTC, datetime
+from time import perf_counter
 from typing import Any, Protocol, cast
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.utils import timezone
 
-from apps.web.models import GraphRun
+from apps.web.models import AgentTrace, GraphRun, MarketSnapshot
 
+from .agent_pipeline import GraphAgentPipeline, PipelineStageRecord
 from .anthropic_agent import AnthropicGraphAgent
 from .contracts import PolymarketEventSnapshot, RelatedEventCandidate
 from .graph_builder import GraphConstructionService
 from .icons import build_type_icon, fetch_remote_image_data_uri
+from .market_intelligence import BenchmarkSummaryService, LandingStatsService
 from .ml_hooks import GraphRunDataCollector
 from .polymarket import PolymarketMetadataService, RelatedMarketDiscoveryService
+from .resolution_labeling import ResolutionLabelingService
 
 
 # -- Injectable service protocols ---------------------------------------------
@@ -76,14 +81,28 @@ class GraphWorkflowService:
         )
         self.graph_builder = graph_builder or GraphConstructionService()
         self.agent = agent or AnthropicGraphAgent()
+        self.agent_pipeline = GraphAgentPipeline()
         self.data_collector = GraphRunDataCollector()
+        self.resolution_labeling = ResolutionLabelingService()
 
     def run(self, source_url: str) -> dict[str, Any]:
         workflow_log: list[dict[str, str]] = []
         source_cache: dict[str, Any] = {}
+        trace_overrides: dict[str, dict[str, Any]] = {}
+        pipeline_traces: list[PipelineStageRecord] = []
 
+        event_resolution_started = perf_counter()
         snapshot = self.metadata_service.hydrate(source_url)
         source_cache[snapshot.canonical_url] = snapshot
+        trace_overrides["event_resolution"] = self._trace_override(
+            latency_ms=self._elapsed_ms(event_resolution_started),
+            citations=[snapshot.canonical_url],
+            metadata={
+                "event_slug": snapshot.slug,
+                "event_status": snapshot.status,
+                "source_kind": snapshot.source_kind,
+            },
+        )
         workflow_log.append(
             {
                 "step": "event_resolution",
@@ -92,7 +111,27 @@ class GraphWorkflowService:
             }
         )
 
+        discovery_started = perf_counter()
         related_candidates = self.discovery_service.discover(snapshot, limit=4)
+        trace_overrides["related_market_discovery"] = self._trace_override(
+            latency_ms=self._elapsed_ms(discovery_started),
+            citations=[
+                candidate.snapshot.canonical_url
+                for candidate in related_candidates
+                if candidate.snapshot.canonical_url
+            ],
+            metadata={
+                "candidate_count": len(related_candidates),
+                "shared_tags": sorted(
+                    {
+                        tag
+                        for candidate in related_candidates
+                        for tag in candidate.shared_tags
+                        if tag
+                    }
+                )[:8],
+            },
+        )
         workflow_log.append(
             {
                 "step": "related_market_discovery",
@@ -105,6 +144,7 @@ class GraphWorkflowService:
             }
         )
 
+        graph_construction_started = perf_counter()
         payload = deepcopy(self.graph_builder.build(snapshot, related_candidates))
         payload["event"]["title"] = snapshot.title
         payload["event"]["source_url"] = snapshot.canonical_url
@@ -125,6 +165,31 @@ class GraphWorkflowService:
             "source_snapshot": snapshot.as_dict(),
             "related_candidates": [candidate.as_dict() for candidate in related_candidates],
         }
+        trace_overrides["graph_construction"] = self._trace_override(
+            latency_ms=self._elapsed_ms(graph_construction_started),
+            citations=[snapshot.canonical_url],
+            metadata={
+                "node_count": len(payload.get("graph", {}).get("nodes") or []),
+                "edge_count": len(payload.get("graph", {}).get("edges") or []),
+                "related_candidate_count": len(related_candidates),
+            },
+        )
+        planner_started = perf_counter()
+        pipeline_traces.append(
+            self._finalize_pipeline_trace(
+                self.agent_pipeline.plan(snapshot, payload, related_candidates),
+                started_at=planner_started,
+                metadata={"execution_mode": "deterministic"},
+            )
+        )
+        retriever_started = perf_counter()
+        pipeline_traces.append(
+            self._finalize_pipeline_trace(
+                self.agent_pipeline.retrieve(snapshot, related_candidates),
+                started_at=retriever_started,
+                metadata={"execution_mode": "deterministic"},
+            )
+        )
 
         workflow_log.append(
             {
@@ -138,8 +203,33 @@ class GraphWorkflowService:
         payload["assets"] = self._build_assets(payload, snapshot, source_cache, workflow_log)
 
         if self.agent.available:
+            expansion_started = perf_counter()
             expansion = self.agent.expand_graph(snapshot.as_dict(), payload)
+            expansion_latency_ms = self._elapsed_ms(expansion_started)
+            expansion_trace: dict[str, Any] = {}
             if expansion:
+                expansion_trace = self._pop_llm_trace(expansion)
+                if expansion_trace:
+                    trace_overrides["llm_expansion"] = self._trace_override_from_llm(
+                        expansion_trace,
+                        citations=self._trace_citations_from_expansion(expansion),
+                        metadata={
+                            "stage_latency_ms": expansion_latency_ms,
+                            "node_additions": len(expansion.get("node_additions", [])),
+                            "edge_additions": len(expansion.get("edge_additions", [])),
+                        },
+                    )
+                else:
+                    trace_overrides["llm_expansion"] = self._trace_override(
+                        latency_ms=expansion_latency_ms,
+                        citations=self._trace_citations_from_expansion(expansion),
+                        metadata={
+                            "model": self.agent.model,
+                            "provider": "anthropic",
+                            "node_additions": len(expansion.get("node_additions", [])),
+                            "edge_additions": len(expansion.get("edge_additions", [])),
+                        },
+                    )
                 self._apply_expansion(payload, expansion, snapshot)
                 self._attach_node_metadata(payload, snapshot, source_cache)
                 payload["assets"] = self._build_assets(
@@ -163,7 +253,25 @@ class GraphWorkflowService:
                         ),
                     }
                 )
+                pipeline_traces.append(
+                    self._finalize_pipeline_trace(
+                        self.agent_pipeline.graph_editor(
+                            expansion=expansion,
+                            llm_trace=expansion_trace,
+                        ),
+                        started_at=expansion_started,
+                        metadata={
+                            "execution_mode": "anthropic",
+                            "stage_latency_ms": expansion_latency_ms,
+                        },
+                    )
+                )
             else:
+                trace_overrides["llm_expansion"] = self._trace_override(
+                    latency_ms=expansion_latency_ms,
+                    citations=[snapshot.canonical_url],
+                    metadata={"model": self.agent.model, "provider": "anthropic"},
+                )
                 workflow_log.append(
                     {
                         "step": "llm_expansion",
@@ -171,9 +279,45 @@ class GraphWorkflowService:
                         "detail": "LLM expansion failed; returning deterministic backend graph.",
                     }
                 )
+                pipeline_traces.append(
+                    self._finalize_pipeline_trace(
+                        PipelineStageRecord(
+                            stage="graph_editor",
+                            status="failed",
+                            detail="LLM graph expansion failed, so no model-authored edits were applied.",
+                            metadata={"execution_mode": "anthropic"},
+                        ),
+                        started_at=expansion_started,
+                        citations=[snapshot.canonical_url],
+                    )
+                )
 
+            review_started = perf_counter()
             review = self.agent.review_graph(snapshot.as_dict(), payload)
+            review_latency_ms = self._elapsed_ms(review_started)
+            review_trace: dict[str, Any] = {}
             if review:
+                review_trace = self._pop_llm_trace(review)
+                if review_trace:
+                    trace_overrides["llm_review"] = self._trace_override_from_llm(
+                        review_trace,
+                        metadata={
+                            "stage_latency_ms": review_latency_ms,
+                            "approved": bool(review.get("approved")),
+                            "issue_count": len(review.get("issues", [])),
+                        },
+                    )
+                else:
+                    trace_overrides["llm_review"] = self._trace_override(
+                        latency_ms=review_latency_ms,
+                        citations=[snapshot.canonical_url],
+                        metadata={
+                            "model": self.agent.model,
+                            "provider": "anthropic",
+                            "approved": bool(review.get("approved")),
+                            "issue_count": len(review.get("issues", [])),
+                        },
+                    )
                 payload["run"]["review"] = review
                 workflow_log.append(
                     {
@@ -182,8 +326,24 @@ class GraphWorkflowService:
                         "detail": "Ran a review pass over the final graph payload.",
                     }
                 )
+                pipeline_traces.append(
+                    self._finalize_pipeline_trace(
+                        self.agent_pipeline.critic(review, llm_trace=review_trace),
+                        started_at=review_started,
+                        metadata={
+                            "execution_mode": "anthropic",
+                            "stage_latency_ms": review_latency_ms,
+                        },
+                        citations=[snapshot.canonical_url],
+                    )
+                )
             else:
                 payload["run"]["review"] = self._deterministic_review(payload)
+                trace_overrides["llm_review"] = self._trace_override(
+                    latency_ms=review_latency_ms,
+                    citations=[snapshot.canonical_url],
+                    metadata={"model": self.agent.model, "provider": "anthropic"},
+                )
                 workflow_log.append(
                     {
                         "step": "llm_review",
@@ -191,8 +351,26 @@ class GraphWorkflowService:
                         "detail": "Agent review was unavailable; stored deterministic validation review instead.",
                     }
                 )
+                pipeline_traces.append(
+                    self._finalize_pipeline_trace(
+                        self.agent_pipeline.critic(payload["run"]["review"]),
+                        started_at=review_started,
+                        metadata={"execution_mode": "deterministic-fallback"},
+                        citations=[snapshot.canonical_url],
+                    )
+                )
         else:
-            payload["run"]["review"] = self._deterministic_review(payload)
+            graph_editor_disabled_started = perf_counter()
+            trace_overrides["llm_expansion"] = self._trace_override(
+                latency_ms=0,
+                citations=[snapshot.canonical_url],
+                metadata={"execution_mode": "disabled"},
+            )
+            trace_overrides["llm_review"] = self._trace_override(
+                latency_ms=0,
+                citations=[snapshot.canonical_url],
+                metadata={"execution_mode": "disabled"},
+            )
             workflow_log.append(
                 {
                     "step": "llm_expansion",
@@ -207,8 +385,39 @@ class GraphWorkflowService:
                     "detail": "Stored deterministic validation review because the agent is disabled.",
                 }
             )
+            pipeline_traces.append(
+                self._finalize_pipeline_trace(
+                    PipelineStageRecord(
+                        stage="graph_editor",
+                        status="skipped",
+                        detail="Anthropic graph editing is disabled, so the saved graph remains deterministic.",
+                        metadata={"execution_mode": "disabled"},
+                    ),
+                    started_at=graph_editor_disabled_started,
+                    citations=[snapshot.canonical_url],
+                )
+            )
+            deterministic_review_started = perf_counter()
+            payload["run"]["review"] = self._deterministic_review(payload)
+            pipeline_traces.append(
+                self._finalize_pipeline_trace(
+                    self.agent_pipeline.critic(payload["run"]["review"]),
+                    started_at=deterministic_review_started,
+                    metadata={"execution_mode": "deterministic"},
+                    citations=[snapshot.canonical_url],
+                )
+            )
 
+        payload_validation_started = perf_counter()
         self._validate_payload(payload)
+        trace_overrides["payload_validation"] = self._trace_override(
+            latency_ms=self._elapsed_ms(payload_validation_started),
+            citations=[snapshot.canonical_url],
+            metadata={
+                "node_count": len(payload.get("graph", {}).get("nodes") or []),
+                "edge_count": len(payload.get("graph", {}).get("edges") or []),
+            },
+        )
         workflow_log.append(
             {
                 "step": "payload_validation",
@@ -216,9 +425,17 @@ class GraphWorkflowService:
                 "detail": "Validated graph structure, sources, and icon assets.",
             }
         )
+        verifier_started = perf_counter()
+        pipeline_traces.append(
+            self._finalize_pipeline_trace(
+                self.agent_pipeline.verify(payload),
+                started_at=verifier_started,
+                metadata={"execution_mode": "deterministic"},
+            )
+        )
 
         graph_stats = self._graph_stats(payload)
-        run = GraphRun.objects.create(
+        run = GraphRun(
             source_url=snapshot.canonical_url,
             event_title=payload["event"]["title"],
             event_slug=snapshot.slug,
@@ -234,13 +451,25 @@ class GraphWorkflowService:
         payload["run"]["id"] = str(run.id)
         payload["run"]["workflow"] = workflow_log
         payload["run"]["graph_stats"] = graph_stats
+        payload["run"]["agent_pipeline"] = [record.as_dict() for record in pipeline_traces]
         run.payload = payload
-        run.save(update_fields=["payload"])
+        run.save()
+        self._persist_run_artifacts(
+            run,
+            snapshot,
+            payload,
+            graph_stats,
+            workflow_log,
+            trace_overrides=trace_overrides,
+            extra_traces=pipeline_traces,
+        )
 
         try:
             self.data_collector.collect(payload)
         except Exception:
             pass
+        BenchmarkSummaryService.invalidate_cached_summary()
+        LandingStatsService.invalidate_cached_stats()
 
         return payload
 
@@ -250,16 +479,56 @@ class GraphWorkflowService:
             "context", {}
         ).get("source_snapshot", {})
         if self.agent.available:
+            review_started = perf_counter()
             review = self.agent.review_graph(source_snapshot, payload)
             if review:
+                review_trace = self._pop_llm_trace(review)
                 payload.setdefault("run", {})["review"] = review
                 run.payload = payload
-                run.save(update_fields=["payload"])
+                run.updated_at = timezone.now()
+                run.save(update_fields=["payload", "updated_at"])
+                self._create_agent_trace(
+                    run,
+                    stage="manual_review",
+                    status="completed",
+                    detail="Ran a manual review pass against an existing saved run.",
+                    metadata={
+                        "approved": bool(review.get("approved")),
+                        "issue_count": len(review.get("issues", [])),
+                        "execution_mode": "anthropic",
+                        **self._trace_metadata_from_llm(review_trace),
+                    },
+                    latency_ms=max(
+                        int(review_trace.get("latency_ms", 0) or 0),
+                        self._elapsed_ms(review_started),
+                    ),
+                    token_input=int(review_trace.get("token_input", 0) or 0),
+                    token_output=int(review_trace.get("token_output", 0) or 0),
+                    cost_usd=float(review_trace.get("cost_usd", 0.0) or 0.0),
+                    citations=[str(source_snapshot.get("canonical_url") or source_snapshot.get("source_url") or "")],
+                )
+                BenchmarkSummaryService.invalidate_cached_summary()
                 return review
+        deterministic_review_started = perf_counter()
         review = self._deterministic_review(payload)
         payload.setdefault("run", {})["review"] = review
         run.payload = payload
-        run.save(update_fields=["payload"])
+        run.updated_at = timezone.now()
+        run.save(update_fields=["payload", "updated_at"])
+        self._create_agent_trace(
+            run,
+            stage="manual_review",
+            status="fallback",
+            detail="Stored deterministic review output for an existing saved run.",
+            metadata={
+                "approved": bool(review.get("approved")),
+                "issue_count": len(review.get("issues", [])),
+                "execution_mode": "deterministic",
+            },
+            latency_ms=self._elapsed_ms(deterministic_review_started),
+            citations=[str(source_snapshot.get("canonical_url") or source_snapshot.get("source_url") or "")],
+        )
+        BenchmarkSummaryService.invalidate_cached_summary()
         return review
 
     def _attach_node_metadata(
@@ -605,3 +874,294 @@ class GraphWorkflowService:
     def _iso_now(self) -> str:
         return datetime.now(tz=UTC).isoformat().replace("+00:00", "Z")
 
+    def _elapsed_ms(self, started_at: float) -> int:
+        return max(int((perf_counter() - started_at) * 1000), 1)
+
+    def _finalize_pipeline_trace(
+        self,
+        record: PipelineStageRecord,
+        *,
+        started_at: float,
+        metadata: dict[str, Any] | None = None,
+        citations: list[str] | None = None,
+    ) -> PipelineStageRecord:
+        record.latency_ms = max(record.latency_ms, self._elapsed_ms(started_at))
+        if metadata:
+            record.metadata = {**record.metadata, **metadata}
+        if citations:
+            merged = list(record.citations)
+            for citation in citations:
+                if citation and citation not in merged:
+                    merged.append(citation)
+            record.citations = merged
+        return record
+
+    def _trace_override(
+        self,
+        *,
+        latency_ms: int,
+        metadata: dict[str, Any] | None = None,
+        citations: list[str] | None = None,
+        token_input: int = 0,
+        token_output: int = 0,
+        cost_usd: float = 0.0,
+    ) -> dict[str, Any]:
+        return {
+            "latency_ms": max(int(latency_ms or 0), 0),
+            "token_input": max(int(token_input or 0), 0),
+            "token_output": max(int(token_output or 0), 0),
+            "cost_usd": max(float(cost_usd or 0.0), 0.0),
+            "citations": list(citations or []),
+            "metadata": metadata or {},
+        }
+
+    def _persist_run_artifacts(
+        self,
+        run: GraphRun,
+        snapshot: PolymarketEventSnapshot,
+        payload: dict[str, Any],
+        graph_stats: dict[str, int],
+        workflow_log: list[dict[str, str]],
+        *,
+        trace_overrides: dict[str, dict[str, Any]] | None = None,
+        extra_traces: list[PipelineStageRecord] | None = None,
+    ) -> None:
+        snapshot_record = MarketSnapshot.objects.create(
+            graph_run=run,
+            source_url=snapshot.canonical_url,
+            event_slug=snapshot.slug,
+            event_title=snapshot.title,
+            status=snapshot.status,
+            category=snapshot.category,
+            source_kind=snapshot.source_kind,
+            tags=snapshot.tags,
+            outcomes=snapshot.outcomes,
+            implied_probability=self._event_implied_probability(payload, snapshot),
+            volume=snapshot.volume,
+            liquidity=snapshot.liquidity,
+            open_interest=snapshot.open_interest,
+            related_market_count=graph_stats.get("related_markets", 0),
+            evidence_count=graph_stats.get("evidence_nodes", 0),
+            snapshot_at=self._parse_snapshot_datetime(snapshot.updated_at),
+            payload={
+                "snapshot": snapshot.as_dict(),
+                "graph_stats": graph_stats,
+                "review": payload.get("run", {}).get("review", {}),
+            },
+        )
+        self._maybe_label_resolution(snapshot_record, snapshot)
+        traces = [
+            self._build_agent_trace(
+                run,
+                stage=str(entry.get("step") or "workflow_step"),
+                status=str(entry.get("status") or "completed"),
+                detail=str(entry.get("detail") or "").strip(),
+                metadata={
+                    "source_kind": snapshot.source_kind,
+                    "mode": payload.get("run", {}).get("mode", ""),
+                    **((trace_overrides or {}).get(str(entry.get("step") or ""), {}).get("metadata") or {}),
+                },
+                latency_ms=int(
+                    ((trace_overrides or {}).get(str(entry.get("step") or ""), {}).get("latency_ms") or 0)
+                ),
+                token_input=int(
+                    ((trace_overrides or {}).get(str(entry.get("step") or ""), {}).get("token_input") or 0)
+                ),
+                token_output=int(
+                    ((trace_overrides or {}).get(str(entry.get("step") or ""), {}).get("token_output") or 0)
+                ),
+                cost_usd=float(
+                    ((trace_overrides or {}).get(str(entry.get("step") or ""), {}).get("cost_usd") or 0.0)
+                ),
+                citations=list(
+                    ((trace_overrides or {}).get(str(entry.get("step") or ""), {}).get("citations") or [])
+                ),
+            )
+            for entry in workflow_log
+        ]
+        for stage_record in extra_traces or []:
+            traces.append(
+                self._build_agent_trace(
+                    run,
+                    stage=stage_record.stage,
+                    status=stage_record.status,
+                    detail=stage_record.detail,
+                    metadata=stage_record.metadata,
+                    latency_ms=stage_record.latency_ms,
+                    token_input=stage_record.token_input,
+                    token_output=stage_record.token_output,
+                    cost_usd=stage_record.cost_usd,
+                    citations=stage_record.citations,
+                )
+            )
+        if traces:
+            AgentTrace.objects.bulk_create(traces)
+
+    def _event_implied_probability(
+        self,
+        payload: dict[str, Any],
+        snapshot: PolymarketEventSnapshot,
+    ) -> float:
+        event_node = next(
+            (node for node in payload.get("graph", {}).get("nodes", []) if node.get("type") == "Event"),
+            None,
+        )
+        if event_node is not None:
+            return self._parse_confidence(event_node.get("probability"), default=0.0)
+        for market in snapshot.markets:
+            if market.outcome_prices:
+                return self._parse_confidence(market.outcome_prices[0], default=0.0)
+        return 0.0
+
+    def _parse_snapshot_datetime(self, value: str) -> datetime:
+        if value:
+            clean = str(value).strip()
+            if clean:
+                try:
+                    return datetime.fromisoformat(clean.replace("Z", "+00:00"))
+                except ValueError:
+                    pass
+        return datetime.now(tz=UTC)
+
+    def _maybe_label_resolution(
+        self,
+        snapshot_record: MarketSnapshot,
+        snapshot: PolymarketEventSnapshot,
+    ) -> None:
+        self.resolution_labeling.label_from_terminal_snapshot(
+            record=snapshot_record,
+            terminal_snapshot=snapshot,
+            source="outcome_prices",
+            metadata={"status": snapshot.status, "collector": "graph_workflow"},
+        )
+
+    def _create_agent_trace(
+        self,
+        run: GraphRun,
+        *,
+        stage: str,
+        status: str,
+        detail: str,
+        metadata: dict[str, Any] | None = None,
+        latency_ms: int = 0,
+        token_input: int = 0,
+        token_output: int = 0,
+        cost_usd: float = 0.0,
+        citations: list[str] | None = None,
+    ) -> None:
+        AgentTrace.objects.create(
+            **self._agent_trace_kwargs(
+                run,
+                stage=stage,
+                status=status,
+                detail=detail,
+                metadata=metadata,
+                latency_ms=latency_ms,
+                token_input=token_input,
+                token_output=token_output,
+                cost_usd=cost_usd,
+                citations=citations,
+            )
+        )
+
+    def _build_agent_trace(
+        self,
+        run: GraphRun,
+        *,
+        stage: str,
+        status: str,
+        detail: str,
+        metadata: dict[str, Any] | None = None,
+        latency_ms: int = 0,
+        token_input: int = 0,
+        token_output: int = 0,
+        cost_usd: float = 0.0,
+        citations: list[str] | None = None,
+    ) -> AgentTrace:
+        return AgentTrace(
+            **self._agent_trace_kwargs(
+                run,
+                stage=stage,
+                status=status,
+                detail=detail,
+                metadata=metadata,
+                latency_ms=latency_ms,
+                token_input=token_input,
+                token_output=token_output,
+                cost_usd=cost_usd,
+                citations=citations,
+            )
+        )
+
+    def _agent_trace_kwargs(
+        self,
+        run: GraphRun,
+        *,
+        stage: str,
+        status: str,
+        detail: str,
+        metadata: dict[str, Any] | None = None,
+        latency_ms: int = 0,
+        token_input: int = 0,
+        token_output: int = 0,
+        cost_usd: float = 0.0,
+        citations: list[str] | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "graph_run": run,
+            "stage": stage,
+            "status": status,
+            "detail": detail,
+            "latency_ms": latency_ms,
+            "token_input": token_input,
+            "token_output": token_output,
+            "cost_usd": cost_usd,
+            "citations": [citation for citation in (citations or []) if str(citation or "").strip()],
+            "metadata": metadata or {},
+        }
+
+    def _pop_llm_trace(self, payload: dict[str, Any] | None) -> dict[str, Any]:
+        if not isinstance(payload, dict):
+            return {}
+        trace = payload.pop("_llm_trace", {})
+        return trace if isinstance(trace, dict) else {}
+
+    def _trace_override_from_llm(
+        self,
+        trace: dict[str, Any],
+        *,
+        citations: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "latency_ms": int(trace.get("latency_ms", 0) or 0),
+            "token_input": int(trace.get("token_input", 0) or 0),
+            "token_output": int(trace.get("token_output", 0) or 0),
+            "cost_usd": float(trace.get("cost_usd", 0.0) or 0.0),
+            "citations": citations or [],
+            "metadata": {
+                **self._trace_metadata_from_llm(trace),
+                **(metadata or {}),
+            },
+        }
+
+    def _trace_metadata_from_llm(self, trace: dict[str, Any]) -> dict[str, Any]:
+        metadata = {
+            "provider": str(trace.get("provider") or "").strip(),
+            "model": str(trace.get("model") or "").strip(),
+            "response_id": str(trace.get("response_id") or "").strip(),
+            "stop_reason": str(trace.get("stop_reason") or "").strip(),
+            "estimated_input_tokens": int(trace.get("estimated_input_tokens", 0) or 0),
+        }
+        return {key: value for key, value in metadata.items() if value not in {"", 0}}
+
+    def _trace_citations_from_expansion(self, expansion: dict[str, Any]) -> list[str]:
+        citations: list[str] = []
+        for collection_key in ("node_additions", "node_updates"):
+            for item in expansion.get(collection_key, []):
+                if not isinstance(item, dict):
+                    continue
+                url = str(item.get("source_url") or "").strip()
+                if url and url not in citations:
+                    citations.append(url)
+        return citations

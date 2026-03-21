@@ -1,0 +1,63 @@
+{% extends "web/marketing_base.html" %}
+
+{% block title %}ChaosWing - Trader Watchlists{% endblock %}
+
+{% block content %}
+<section class="lp-page-hero" aria-labelledby="watchlists-hero-title">
+    <div class="lp-page-hero__content reveal">
+        <span class="lp-hero__badge">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            Reusable workflows
+        </span>
+        <h1 class="lp-page-hero__title" id="watchlists-hero-title">Trader Watchlists</h1>
+        <p class="lp-page-hero__copy">
+            Watchlists give ChaosWing a daily starting point. Instead of opening random single markets,
+            you can come back to the same macro, commodity, or political narrative clusters each time.
+        </p>
+        <div class="lp-page-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">Open the app</a>
+            <a class="lp-btn lp-btn--ghost" href="{% url 'web:benchmarks' %}">See benchmarks</a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="watchlists-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Featured narrative clusters</span>
+        <h2 class="lp-section__title" id="watchlists-title">Reusable starting points for retail traders</h2>
+        <p class="lp-section__copy">
+            These watchlists are intentionally opinionated. They are designed to help users re-enter important market narratives fast.
+        </p>
+    </div>
+
+    <div class="watchlist-grid reveal">
+        {% for watchlist in featured_watchlists %}
+        <article class="watchlist-card">
+            <div class="watchlist-card__header">
+                <div>
+                    <p class="intel-card__eyebrow">{{ watchlist.cadence|default:"Featured" }}</p>
+                    <h3 class="watchlist-card__title">{{ watchlist.title }}</h3>
+                </div>
+                <span class="watchlist-card__pill">{{ watchlist.items|length }} markets</span>
+            </div>
+            <p class="watchlist-card__thesis">{{ watchlist.thesis }}</p>
+            <p class="watchlist-card__copy">{{ watchlist.summary }}</p>
+            <div class="watchlist-card__items">
+                {% for item in watchlist.items %}
+                <a class="watchlist-item" href="{% url 'web:dashboard' %}?url={{ item.url|urlencode }}">
+                    <span class="watchlist-item__title">{{ item.label }}</span>
+                    <span class="watchlist-item__note">{{ item.note }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            <div class="watchlist-card__actions">
+                {% if watchlist.items.0.url %}
+                <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}?url={{ watchlist.items.0.url|urlencode }}">Open first market</a>
+                {% endif %}
+                <a class="inline-link" href="{% url 'web:dashboard' %}">Open workspace</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

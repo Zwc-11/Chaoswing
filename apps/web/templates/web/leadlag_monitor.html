@@ -1,0 +1,203 @@
+{% extends "web/marketing_base.html" %}
+
+{% block title %}ChaosWing - Lead-Lag Monitor{% endblock %}
+
+{% block content %}
+<section class="lp-page-hero" aria-labelledby="leadlag-hero-title">
+    <div class="lp-page-hero__content reveal">
+        <span class="lp-hero__badge">
+            <span class="lp-hero__badge-dot" aria-hidden="true"></span>
+            Cross-venue research
+        </span>
+        <h1 class="lp-page-hero__title" id="leadlag-hero-title">Lead-Lag Monitor</h1>
+        <p class="lp-page-hero__copy">
+            ChaosWing treats lead-lag as a research and alert problem, not a fake arbitrage promise. This monitor
+            shows mapped Polymarket and Kalshi markets, recent candidate signals, and the current paper-trade ledger.
+        </p>
+        <div class="lp-page-hero__actions">
+            <a class="lp-btn lp-btn--primary" href="{% url 'web:dashboard' %}">Open the app</a>
+            <a class="lp-btn lp-btn--ghost" href="{% url 'web:benchmarks' %}">View benchmarks</a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="leadlag-summary-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Current state</span>
+        <h2 class="lp-section__title" id="leadlag-summary-title">What the research system tracks now</h2>
+        <p class="lp-section__copy">
+            These cards are built from persisted mappings, ticks, signals, and paper trades.
+        </p>
+    </div>
+    <div class="intel-metrics reveal">
+        {% for card in leadlag_summary.summary_cards %}
+        <article class="intel-metric">
+            <p class="intel-metric__label">{{ card.label }}</p>
+            <p class="intel-metric__value">{{ card.value }}</p>
+            <p class="intel-metric__copy">{{ card.copy }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+{% if leadlag_summary.coverage_status != "candidate_pairs_live" %}
+<section class="lp-section reveal" aria-labelledby="leadlag-coverage-title">
+    <div class="lp-banner">
+        <div class="lp-banner__content">
+            <h2 class="lp-banner__title" id="leadlag-coverage-title">Current coverage status: {{ leadlag_summary.coverage_label }}</h2>
+            <p class="lp-banner__copy">{{ leadlag_summary.coverage_summary }}</p>
+            {% if leadlag_summary.shared_topics %}
+            <p class="lp-banner__copy">Shared normalized topics right now: {{ leadlag_summary.shared_topics|join:", " }}.</p>
+            {% endif %}
+            {% for note in leadlag_summary.coverage_notes %}
+            <p class="lp-banner__copy">{{ note }}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="lp-section" aria-labelledby="leadlag-signals-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Recent alerts</span>
+        <h2 class="lp-section__title" id="leadlag-signals-title">Candidate spillover opportunities</h2>
+        <p class="lp-section__copy">
+            Signals only stay tradeable if the follower has not already repriced and the visible depth still clears the cost estimate.
+        </p>
+    </div>
+    <div class="benchmark-table reveal">
+        <div class="benchmark-table__head">
+            <span>Pair</span>
+            <span>Status</span>
+            <span>Edge</span>
+            <span>Latency</span>
+            <span>Reason</span>
+        </div>
+        {% for signal in leadlag_summary.recent_signals %}
+        <div class="benchmark-table__row">
+            <span class="benchmark-table__cell benchmark-table__cell--market" data-label="Pair">{{ signal.pair_title }}</span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Status">
+                <strong>{{ signal.status }}</strong>
+                <small>{{ signal.signal_direction }}</small>
+            </span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Edge">
+                <strong>{{ signal.expected_edge|floatformat:3 }}</strong>
+                <small>cost {{ signal.cost_estimate|floatformat:3 }}</small>
+            </span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Latency">
+                <strong>{{ signal.latency_ms }} ms</strong>
+                <small>liq {{ signal.liquidity_score|floatformat:2 }}</small>
+            </span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Reason">
+                <strong>{{ signal.rationale }}</strong>
+                <small>{{ signal.no_trade_reason|default:"candidate signal" }}</small>
+            </span>
+        </div>
+        {% empty %}
+        <div class="benchmark-table__row benchmark-table__row--empty">
+            <span>No lead-lag signals have been recorded yet.</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="leadlag-pairs-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Pair registry</span>
+        <h2 class="lp-section__title" id="leadlag-pairs-title">Directionally screened cross-venue pairs</h2>
+        <p class="lp-section__copy">
+            These pairs are scored on semantics, directionality, resolution compatibility, and synchronized live movement.
+            When no pair clears the bar, ChaosWing shows the strongest near-misses instead of pretending a trade exists.
+        </p>
+    </div>
+    <div class="intel-grid intel-grid--two reveal">
+        {% for pair in leadlag_summary.pair_diagnostics %}
+        <article class="intel-card">
+            <p class="intel-card__eyebrow">{{ pair.pair_type }}</p>
+            <h3 class="intel-card__title">{{ pair.title }}</h3>
+            <div class="metric-chip-list">
+                <span class="metric-chip"><span class="metric-chip__label">Semantic</span><span class="metric-chip__value">{{ pair.semantic_score|floatformat:2 }}</span></span>
+                <span class="metric-chip"><span class="metric-chip__label">Causal</span><span class="metric-chip__value">{{ pair.causal_score|floatformat:2 }}</span></span>
+                <span class="metric-chip"><span class="metric-chip__label">Resolution</span><span class="metric-chip__value">{{ pair.resolution_score|floatformat:2 }}</span></span>
+                <span class="metric-chip"><span class="metric-chip__label">Composite</span><span class="metric-chip__value">{{ pair.composite_score|floatformat:2 }}</span></span>
+                <span class="metric-chip"><span class="metric-chip__label">Leader first</span><span class="metric-chip__value">{{ pair.leader_first_ratio|floatformat:2 }}</span></span>
+                <span class="metric-chip"><span class="metric-chip__label">Aligned moves</span><span class="metric-chip__value">{{ pair.move_samples }}</span></span>
+            </div>
+            <p class="intel-card__copy">{{ pair.direction_reason }}</p>
+            <p class="brief-card__meta">
+                Leader {{ pair.leader_market }} | Follower {{ pair.follower_market }} |
+                {{ pair.expected_latency_seconds }}s target latency |
+                {% if pair.is_trade_eligible %}trade eligible{% else %}watch only{% endif %}
+            </p>
+            <p class="brief-card__meta">
+                Readiness {{ pair.readiness_status|title }} | {{ pair.stability_samples }} aligned samples | avg lead {{ pair.avg_lead_seconds|floatformat:1 }}s
+            </p>
+            <p class="intel-card__copy">{{ pair.readiness_reason }}</p>
+        </article>
+        {% empty %}
+        <article class="intel-card">
+            <h3 class="intel-card__title">No cross-venue pairs yet</h3>
+            <p class="intel-card__copy">{{ leadlag_summary.coverage_summary }}</p>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section" aria-labelledby="leadlag-trades-title">
+    <div class="lp-section__header reveal">
+        <span class="lp-section__eyebrow">Ledger</span>
+        <h2 class="lp-section__title" id="leadlag-trades-title">Paper-trade ledger</h2>
+        <p class="lp-section__copy">
+            Net PnL matters more than a pretty graph. This ledger is where the idea either survives fees and slippage or dies honestly.
+        </p>
+    </div>
+    <div class="benchmark-table reveal">
+        <div class="benchmark-table__head">
+            <span>Pair</span>
+            <span>Status</span>
+            <span>Entry / Exit</span>
+            <span>PnL</span>
+            <span>Timing</span>
+        </div>
+        {% for trade in leadlag_summary.paper_trades %}
+        <div class="benchmark-table__row">
+            <span class="benchmark-table__cell benchmark-table__cell--market" data-label="Pair">{{ trade.pair_title }}</span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Status">
+                <strong>{{ trade.status }}</strong>
+                <small>{{ trade.side }}</small>
+            </span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Entry / Exit">
+                <strong>{{ trade.entry_price|floatformat:3 }}</strong>
+                <small>{{ trade.exit_price|floatformat:3 }}</small>
+            </span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="PnL">
+                <strong>{{ trade.net_pnl|floatformat:3 }}</strong>
+                <small>gross {{ trade.gross_pnl|floatformat:3 }}</small>
+            </span>
+            <span class="benchmark-table__cell benchmark-table__cell--stack" data-label="Timing">
+                <strong>{{ trade.time_to_exit_seconds }}s</strong>
+                <small>{{ trade.opened_at|slice:":19" }}</small>
+            </span>
+        </div>
+        {% empty %}
+        <div class="benchmark-table__row benchmark-table__row--empty">
+            <span>No paper trades have been recorded yet.</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="lp-section reveal" aria-labelledby="leadlag-method-title">
+    <div class="lp-banner">
+        <div class="lp-banner__content">
+            <h2 class="lp-banner__title" id="leadlag-method-title">Research notes and commands</h2>
+            {% for note in leadlag_summary.monitor_notes %}
+            <p class="lp-banner__copy">{{ note }}</p>
+            {% endfor %}
+            {% for command in leadlag_summary.methodology.commands %}
+            <p class="lp-banner__copy"><code>{{ command }}</code></p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

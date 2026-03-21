@@ -137,6 +137,11 @@ export function exportGraphPayload(payload, filename) {
  * @returns {string} An absolute URL suitable for copying to clipboard.
  */
 export function buildShareUrl(payload, dashboardUrl) {
+    const briefUrl = payload?.run?.brief_url;
+    if (briefUrl) {
+        return new URL(briefUrl, window.location.origin).href;
+    }
+
     const detailUrl = payload?.run?.detail_url;
     if (detailUrl) {
         return new URL(detailUrl, window.location.origin).href;

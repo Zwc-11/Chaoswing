@@ -5,18 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "chaoswing"
 version = "0.1.0"
-description = "Turn any Polymarket event into a live butterfly graph of causal links, related markets, evidence, and narrative spillover."
+description = "Prediction-market research platform for forecasting, ranking, and lead-lag analysis with a graph-based analyst interface."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
 authors = [{ name = "ChaosWing contributors" }]
 dependencies = [
     "anthropic>=0.52,<1.0",
+    "cryptography>=45,<46",
     "Django>=5.1,<6.0",
+    "duckdb>=1.2",
     "gunicorn>=23.0",
     "whitenoise[brotli]>=6.8",
     "dj-database-url>=2.3",
     "psycopg2-binary>=2.9",
+    "websockets>=15,<16",
 ]
 
 [project.urls]
@@ -25,6 +28,8 @@ Repository = "https://github.com/Zwc-11/Chaoswing"
 
 [project.optional-dependencies]
 dev = ["ruff>=0.11,<1.0", "django-stubs>=5.1,<5.2", "pyright>=1.1,<2.0"]
+mlops = ["mlflow>=3.0,<4.0"]
+research = ["jupyter>=1.1,<2.0", "pandas>=2.2,<3.0", "matplotlib>=3.10,<4.0", "seaborn>=0.13,<1.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
