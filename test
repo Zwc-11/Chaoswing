@@ -14,3 +14,15 @@ lines of code is better than a premature abstraction.
 
 - Avoid backwards-compatibility hacks like renaming unused _vars, re-exporting types, adding // removed
 comments for removed code, etc. If you are certain that something is unused, you can delete it completely.
+
+
+
+
+Gemini said
+The error message displayed in your terminal indicates that the Databricks SDK is unable to configure default credentials for the WorkspaceClient. Specifically, it reports that it cannot find a valid authentication method because the environment variables or configuration profiles provided are either incomplete or not being recognized by the unified authentication system. Even though you are loading a .env file, the SDK is failing to resolve the necessary secrets to authenticate against the specified host.
+
+To resolve this issue, you should first verify that your environment variables are correctly formatted and accessible to the script at runtime. The terminal output shows that you are using azure-client-secret as the authentication type. This requires three specific variables to be perfectly defined: DATABRICKS_HOST, DATABRICKS_CLIENT_ID, and DATABRICKS_CLIENT_SECRET. You must ensure that the host URL includes the https:// prefix and that there are no trailing slashes or hidden spaces in your .env file that might corrupt the string values.
+
+Furthermore, there appears to be a potential conflict between the manual loading of environment variables and the profile="cz" argument in your WorkspaceClient instantiation. If the profile named cz exists in your local .databrickscfg file but lacks the necessary credentials, it may be overriding the variables you loaded via dotenv. You should attempt to initialize the client without the profile argument to force the SDK to prioritize the environment variables you just loaded. Alternatively, you can explicitly pass the credentials into the constructor to bypass the automated discovery process entirely.
+
+Finally, ensure that the service principal associated with your client ID has the appropriate permissions within the Databricks workspace. If the credentials themselves are valid but the principal lacks the "Service Principal" or "Admin" tokens required to access the specific endpoint, the SDK may throw a configuration error. If the issue persists after aligning your environment variables, you should try running the command databricks auth login in your terminal to manually refresh the local authentication state and confirm that your environment can communicate with the Databricks control plane.
