@@ -20,6 +20,7 @@ dependencies = [
     "dj-database-url>=2.3",
     "psycopg2-binary>=2.9",
     "websockets>=15,<16",
+    "numpy>=1.26,<3.0",
 ]
 
 [project.urls]
@@ -31,7 +32,6 @@ dev = ["ruff>=0.11,<1.0", "django-stubs>=5.1,<5.2", "pyright>=1.1,<2.0"]
 mlops = ["mlflow>=3.0,<4.0"]
 research = ["jupyter>=1.1,<2.0", "pandas>=2.2,<3.0", "matplotlib>=3.10,<4.0", "seaborn>=0.13,<1.0"]
 ml = [
-    "numpy>=1.26,<3.0",
     "torch>=2.2,<3.0",
     "sentence-transformers>=3.0,<5.0",
     "transformers>=4.40,<5.0",
