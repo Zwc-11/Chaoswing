@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py check)",
+      "Bash(python manage.py makemigrations ranker)",
+      "Bash(python -c \"import django; django.setup\\(\\)\")",
+      "Bash(python -c \"from django.conf import settings; import os; os.environ.setdefault\\('DJANGO_SETTINGS_MODULE','chaoswing.settings'\\); import django; django.setup\\(\\); print\\(settings.INSTALLED_APPS\\)\")",
+      "Bash(python -c \"from apps.ranker import models; print\\([m for m in dir\\(models\\) if not m.startswith\\('_'\\)]\\)\")",
+      "Bash(python -m compileall chaoswing apps tests)",
+      "Bash(python manage.py test tests.test_ranker_leakage -v 2)",
+      "Bash(python manage.py test tests.test_ranker_leakage tests.test_ranker_label_mining -v 2)",
+      "Bash(python manage.py test)",
+      "Bash(ruff check *)",
+      "Bash(python -m ruff check apps/ranker chaoswing/ml tests/test_ranker_leakage.py tests/test_ranker_label_mining.py)",
+      "Bash(python manage.py help)"
+    ]
+  }
+}
